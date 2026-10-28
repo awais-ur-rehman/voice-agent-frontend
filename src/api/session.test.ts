@@ -105,3 +105,98 @@ it("safely exposes field errors without losing the server conflict meaning", asy
     fields: { name: "Name is required" },
   });
 });
+
+it("isolates a late old-account result after another account signs in", async () => {
+  let loginCount = 0;
+  let oldResolve!: (response: Response) => void;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init: RequestInit) => {
+      if (url.endsWith("/auth/login")) {
+        loginCount++;
+        return json({
+          ...tokens,
+          access_token: `account-${loginCount}`,
+          refresh_token: `refresh-${loginCount}`,
+        });
+      }
+      if (url.endsWith("/auth/me"))
+        return json({
+          ...me,
+          id: `user-${loginCount}`,
+          tenant_id: `tenant-${loginCount}`,
+        });
+      if (url.endsWith("/auth/logout")) return json({});
+      if (new Headers(init.headers).get("Authorization") === "Bearer account-1")
+        return new Promise<Response>((resolve) => (oldResolve = resolve));
+      return json({
+        profile: false,
+        providers: false,
+        services: false,
+        hours: false,
+        agent: false,
+      });
+    }),
+  );
+  const session = new Session(() => {});
+  await session.login({ email: "first@example.test", password: "password" });
+  const firstId = session.snapshot.sessionId;
+  const old = session.request("GET /dashboard/setup");
+  const fenced = expect(old).rejects.toMatchObject({ name: "AbortError" });
+  await session.logout();
+  await session.login({ email: "second@example.test", password: "password" });
+  oldResolve(
+    json({
+      profile: true,
+      providers: true,
+      services: true,
+      hours: true,
+      agent: true,
+    }),
+  );
+  await fenced;
+  expect(session.snapshot.me?.tenant_id).toBe("tenant-2");
+  expect(session.snapshot.sessionId).not.toBe(firstId);
+  expect(await session.request("GET /dashboard/setup")).toMatchObject({
+    profile: false,
+  });
+});
+
+it("does not rotate again when a late401 arrives after a completed shared refresh", async () => {
+  let refreshes = 0,
+    oldRequests = 0;
+  let lateResolve!: (response: Response) => void;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init: RequestInit) => {
+      if (url.endsWith("/auth/login")) return json(tokens);
+      if (url.endsWith("/auth/me")) return json(me);
+      if (url.endsWith("/auth/refresh")) {
+        refreshes++;
+        return json({ ...tokens, access_token: "fresh" });
+      }
+      if (new Headers(init.headers).get("Authorization") === "Bearer access") {
+        oldRequests++;
+        if (oldRequests === 2)
+          return new Promise<Response>((resolve) => (lateResolve = resolve));
+        return json({ error: { code: "expired", message: "Expired" } }, 401);
+      }
+      return json({
+        profile: true,
+        providers: false,
+        services: false,
+        hours: false,
+        agent: false,
+      });
+    }),
+  );
+  const session = new Session(() => {});
+  await session.login({ email: me.email, password: "password" });
+  const first = session.request("GET /dashboard/setup");
+  const late = session.request("GET /dashboard/setup");
+  await first;
+  expect(refreshes).toBe(1);
+  lateResolve(json({ error: { code: "expired", message: "Expired" } }, 401));
+  await expect(late).resolves.toMatchObject({ profile: true });
+  expect(refreshes).toBe(1);
+});

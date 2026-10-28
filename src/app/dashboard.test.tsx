@@ -95,6 +95,10 @@ function setup(path = "/login") {
   return { router, client, user: userEvent.setup() };
 }
 async function login(user: ReturnType<typeof userEvent.setup>) {
+  expect(screen.getByLabelText("Password *")).toHaveAttribute(
+    "autocomplete",
+    "current-password",
+  );
   await user.type(screen.getByLabelText("Email *"), "owner@example.test");
   await user.type(screen.getByLabelText("Password *"), "a-good-password");
   await user.click(screen.getByRole("button", { name: "Sign in" }));
@@ -112,6 +116,10 @@ it("signs in and derives setup completion from API records", async () => {
 });
 it("creates a clinic using the register contract", async () => {
   const { user } = setup("/signup");
+  expect(screen.getByLabelText("Password *")).toHaveAttribute(
+    "autocomplete",
+    "new-password",
+  );
   await user.type(screen.getByLabelText("Email *"), "new@example.test");
   await user.type(screen.getByLabelText("Password *"), "a-good-password");
   await user.type(screen.getByLabelText("Clinic name *"), "New Clinic");
@@ -346,4 +354,388 @@ it("assigns and removes provider services with the reviewed relationship endpoin
       `/providers/${id}/services/22222222-2222-4222-8222-222222222222`,
     ),
   );
+});
+
+for (const kind of ["closed", "custom"] as const)
+  it(`edits an existing ${kind} exception into closed dates with null hours`, async () => {
+    const original = globalThis.fetch;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string, init: RequestInit) =>
+        url.endsWith("/availability")
+          ? Response.json({
+              revision: "a".repeat(64),
+              rules: [],
+              exceptions: [
+                {
+                  id,
+                  provider_id: id,
+                  kind,
+                  start_date: "2026-12-01",
+                  end_date: "2026-12-02",
+                  start_time: kind === "closed" ? null : "09:00:00",
+                  end_time: kind === "closed" ? null : "12:00:00",
+                },
+              ],
+            })
+          : original(url, init),
+      ),
+    );
+    const { user } = setup();
+    await login(user);
+    await user.click(screen.getByRole("link", { name: "Hours & exceptions" }));
+    await user.click(await screen.findByRole("button", { name: "Edit" }));
+    await user.clear(screen.getByLabelText("End Date *"));
+    await user.type(screen.getByLabelText("End Date *"), "2026-12-03");
+    await user.selectOptions(screen.getByLabelText("Kind *"), "closed");
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    await waitFor(() =>
+      expect(writes.find((w) => w.method === "PUT")?.body).toMatchObject({
+        kind: "closed",
+        end_date: "2026-12-03",
+        start_time: null,
+        end_time: null,
+      }),
+    );
+  });
+
+it("keeps dirty profile values and captured revision across background refresh and failed save", async () => {
+  const original = globalThis.fetch;
+  let revision = 1;
+  const bodies: unknown[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init: RequestInit) => {
+      if (url.endsWith("/dashboard/clinic")) {
+        if (init.method === "PATCH") {
+          bodies.push(JSON.parse(String(init.body)));
+          return Response.json(
+            {
+              error: {
+                code: "revision_conflict",
+                message: "Review updated clinic.",
+              },
+            },
+            { status: 409 },
+          );
+        }
+        return Response.json({
+          ...clinic,
+          revision,
+          name: revision === 1 ? "Test Clinic" : "Remote clinic",
+        });
+      }
+      return original(url, init);
+    }),
+  );
+  const { user, client } = setup();
+  await login(user);
+  await user.click(screen.getByRole("link", { name: "Clinic profile" }));
+  const input = await screen.findByLabelText("Name");
+  await user.clear(input);
+  await user.type(input, "My draft");
+  revision = 2;
+  await client.refetchQueries();
+  await waitFor(() =>
+    expect(screen.getByText(/Saved configuration changed/)).toBeInTheDocument(),
+  );
+  expect(input).toHaveValue("My draft");
+  await user.click(screen.getByRole("button", { name: "Save changes" }));
+  await screen.findByText("Review updated clinic.");
+  expect(bodies[0]).toMatchObject({ revision: 1, name: "My draft" });
+  await client.refetchQueries();
+  expect(input).toHaveValue("My draft");
+});
+
+it("keeps dirty template hours and captured snapshot revision on refresh", async () => {
+  const original = globalThis.fetch;
+  let revision = "a".repeat(64);
+  const bodies: unknown[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init: RequestInit) => {
+      if (url.endsWith("/availability"))
+        return Response.json({ revision, rules: [], exceptions: [] });
+      if (url.endsWith("/availability/preview")) {
+        bodies.push(JSON.parse(String(init.body)));
+        return Response.json(
+          {
+            error: {
+              code: "revision_conflict",
+              message: "Review updated hours.",
+            },
+          },
+          { status: 409 },
+        );
+      }
+      return original(url, init);
+    }),
+  );
+  const { user, client } = setup();
+  await login(user);
+  await user.click(screen.getByRole("link", { name: "Hours & exceptions" }));
+  const input = await screen.findByLabelText("Prayer break starts");
+  await user.clear(input);
+  await user.type(input, "13:00");
+  revision = "b".repeat(64);
+  await client.refetchQueries();
+  await screen.findByText(/Saved configuration changed/);
+  expect(input).toHaveValue("13:00");
+  await user.click(screen.getByRole("button", { name: "Preview changes" }));
+  await screen.findByText("Review updated hours.");
+  expect(bodies[0]).toMatchObject({
+    revision: "a".repeat(64),
+    break_start: "13:00",
+  });
+  expect(input).toHaveValue("13:00");
+});
+
+it("requires contextual review for each timezone proposal and cancels without PATCH", async () => {
+  const { user } = setup();
+  await login(user);
+  await user.click(screen.getByRole("link", { name: "Clinic profile" }));
+  const zone = await screen.findByLabelText("Clinic timezone");
+  expect(
+    screen.queryByLabelText("Confirm timezone change"),
+  ).not.toBeInTheDocument();
+  await user.clear(zone);
+  await user.type(zone, "Europe/London");
+  await user.click(screen.getByRole("button", { name: "Save changes" }));
+  let dialog = await screen.findByRole("dialog");
+  expect(dialog).toHaveTextContent("Asia/Karachi");
+  expect(dialog).toHaveTextContent("Europe/London");
+  await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+  expect(writes.filter((w) => w.method === "PATCH")).toHaveLength(0);
+  expect(zone).toHaveValue("Europe/London");
+  await user.clear(zone);
+  await user.type(zone, "Asia/Dubai");
+  await user.click(screen.getByRole("button", { name: "Save changes" }));
+  dialog = await screen.findByRole("dialog");
+  expect(dialog).toHaveTextContent("Asia/Dubai");
+  expect(dialog).not.toHaveTextContent("Europe/London");
+  await user.click(
+    within(dialog).getByRole("button", { name: "Confirm timezone change" }),
+  );
+  await waitFor(() =>
+    expect(writes.find((w) => w.method === "PATCH")?.body).toMatchObject({
+      timezone: "Asia/Dubai",
+      confirm_timezone_change: true,
+      revision: 1,
+    }),
+  );
+});
+
+it("locks template/provider intent during deferred preview and uncertain apply, retaining retry key", async () => {
+  const original = globalThis.fetch;
+  let previewResolve!: (r: Response) => void;
+  let applyResolve!: (r: Response) => void;
+  const apply: RequestInit[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init: RequestInit) => {
+      if (url.endsWith("/availability/preview"))
+        return new Promise<Response>((r) => (previewResolve = r));
+      if (url.endsWith("/availability/apply")) {
+        apply.push(init);
+        return new Promise<Response>((r) => (applyResolve = r));
+      }
+      return original(url, init);
+    }),
+  );
+  const { user } = setup();
+  await login(user);
+  await user.click(screen.getByRole("link", { name: "Hours & exceptions" }));
+  await user.click(
+    await screen.findByRole("button", { name: "Preview changes" }),
+  );
+  expect(screen.getByRole("button", { name: "Ramadan hours" })).toBeDisabled();
+  expect(screen.getByLabelText("Provider")).toBeDisabled();
+  previewResolve(
+    Response.json({
+      revision: "a".repeat(64),
+      changes: { removed_rule_ids: [], added_rules: [], added_exceptions: [] },
+      after: { revision: "b".repeat(64), rules: [], exceptions: [] },
+    }),
+  );
+  await screen.findByRole("heading", { name: "Review proposed changes" });
+  await user.click(
+    screen.getByRole("button", { name: "Apply reviewed changes" }),
+  );
+  expect(screen.getByRole("button", { name: "Ramadan hours" })).toBeDisabled();
+  expect(screen.getByLabelText("Provider")).toBeDisabled();
+  applyResolve(
+    Response.json(
+      { error: { code: "unavailable", message: "Outcome uncertain. Retry." } },
+      { status: 503 },
+    ),
+  );
+  await screen.findByText("Outcome uncertain. Retry.");
+  expect(screen.getByRole("button", { name: "Edit proposal" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Ramadan hours" })).toBeDisabled();
+  expect(screen.getByLabelText("Provider")).toBeDisabled();
+  await user.click(
+    screen.getByRole("button", { name: "Apply reviewed changes" }),
+  );
+  expect(apply).toHaveLength(2);
+  expect(apply[0]?.body).toEqual(apply[1]?.body);
+  expect(new Headers(apply[0]?.headers).get("Idempotency-Key")).toBe(
+    new Headers(apply[1]?.headers).get("Idempotency-Key"),
+  );
+  applyResolve(
+    Response.json({ revision: "b".repeat(64), rules: [], exceptions: [] }),
+  );
+  await waitFor(() => expect(screen.getByLabelText("Provider")).toBeEnabled());
+});
+
+it("returns from a rejected template apply to the same edited hours and original revision", async () => {
+  const original = globalThis.fetch;
+  let revision = "a".repeat(64);
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init: RequestInit) => {
+      if (url.endsWith("/availability"))
+        return Response.json({ revision, rules: [], exceptions: [] });
+      if (url.endsWith("/availability/preview"))
+        return Response.json({
+          revision,
+          changes: {
+            removed_rule_ids: [],
+            added_rules: [],
+            added_exceptions: [],
+          },
+          after: { revision: "c".repeat(64), rules: [], exceptions: [] },
+        });
+      if (url.endsWith("/availability/apply"))
+        return Response.json(
+          { error: { code: "revision_conflict", message: "Hours changed." } },
+          { status: 409 },
+        );
+      return original(url, init);
+    }),
+  );
+  const { user, client } = setup();
+  await login(user);
+  await user.click(screen.getByRole("link", { name: "Hours & exceptions" }));
+  const input = await screen.findByLabelText("Prayer break starts");
+  await user.clear(input);
+  await user.type(input, "13:00");
+  await user.click(screen.getByRole("button", { name: "Preview changes" }));
+  await screen.findByRole("heading", { name: "Review proposed changes" });
+  revision = "b".repeat(64);
+  await client.refetchQueries();
+  await user.click(
+    screen.getByRole("button", { name: "Apply reviewed changes" }),
+  );
+  await screen.findByText("Hours changed.");
+  await user.click(screen.getByRole("button", { name: "Edit proposal" }));
+  expect(screen.getByLabelText("Prayer break starts")).toHaveValue("13:00");
+  await screen.findByText(/Saved configuration changed/);
+});
+
+it("explicitly reloads a dirty profile and then uses the reviewed remote revision", async () => {
+  const original = globalThis.fetch;
+  let revision = 1;
+  const bodies: unknown[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init: RequestInit) => {
+      if (url.endsWith("/dashboard/clinic")) {
+        if (init.method === "PATCH") bodies.push(JSON.parse(String(init.body)));
+        return Response.json({
+          ...clinic,
+          revision,
+          name: revision === 1 ? "Test Clinic" : "Updated clinic",
+        });
+      }
+      return original(url, init);
+    }),
+  );
+  const { user, client } = setup();
+  await login(user);
+  await user.click(screen.getByRole("link", { name: "Clinic profile" }));
+  await user.type(await screen.findByLabelText("Name"), " draft");
+  revision = 2;
+  await client.refetchQueries();
+  await user.click(
+    await screen.findByRole("button", { name: "Reload saved values" }),
+  );
+  const dialog = await screen.findByRole("dialog");
+  await user.click(
+    within(dialog).getByRole("button", { name: "Reload saved values" }),
+  );
+  expect(screen.getByLabelText("Name")).toHaveValue("Updated clinic");
+  await user.click(screen.getByRole("button", { name: "Save changes" }));
+  await waitFor(() =>
+    expect(bodies[0]).toMatchObject({ name: "Updated clinic", revision: 2 }),
+  );
+});
+
+it("reconciles clean profile refreshes without preserving an obsolete revision", async () => {
+  const original = globalThis.fetch;
+  let revision = 1;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init: RequestInit) =>
+      url.endsWith("/dashboard/clinic")
+        ? Response.json({
+            ...clinic,
+            revision,
+            name: revision === 1 ? "Test Clinic" : "Updated clinic",
+          })
+        : original(url, init),
+    ),
+  );
+  const { user, client } = setup();
+  await login(user);
+  await user.click(screen.getByRole("link", { name: "Clinic profile" }));
+  await screen.findByDisplayValue("Test Clinic");
+  revision = 2;
+  await client.refetchQueries();
+  await screen.findByDisplayValue("Updated clinic");
+  expect(
+    screen.queryByText(/Saved configuration changed/),
+  ).not.toBeInTheDocument();
+});
+
+it("requires fresh timezone acknowledgement after a previously confirmed change", async () => {
+  const original = globalThis.fetch;
+  let current = { ...clinic };
+  const bodies: unknown[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init: RequestInit) => {
+      if (url.endsWith("/dashboard/clinic")) {
+        if (init.method === "PATCH") {
+          const body = JSON.parse(String(init.body));
+          bodies.push(body);
+          current = { ...current, ...body, revision: current.revision + 1 };
+        }
+        return Response.json(current);
+      }
+      return original(url, init);
+    }),
+  );
+  const { user } = setup();
+  await login(user);
+  await user.click(screen.getByRole("link", { name: "Clinic profile" }));
+  const zone = await screen.findByLabelText("Clinic timezone");
+  await user.clear(zone);
+  await user.type(zone, "Asia/Dubai");
+  await user.click(screen.getByRole("button", { name: "Save changes" }));
+  await user.click(
+    within(await screen.findByRole("dialog")).getByRole("button", {
+      name: "Confirm timezone change",
+    }),
+  );
+  await screen.findByText("Saved.");
+  expect(bodies).toHaveLength(1);
+  await user.clear(zone);
+  await user.type(zone, "Europe/London");
+  await user.click(screen.getByRole("button", { name: "Save changes" }));
+  const dialog = await screen.findByRole("dialog");
+  expect(dialog).toHaveTextContent("Asia/Dubai → Europe/London");
+  expect(bodies).toHaveLength(1);
+  await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+  expect(bodies).toHaveLength(1);
+  expect(zone).toHaveValue("Europe/London");
 });

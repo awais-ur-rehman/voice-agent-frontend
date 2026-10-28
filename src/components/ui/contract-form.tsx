@@ -1,11 +1,11 @@
-import { useMemo, useState, useId } from "react";
+import { useMemo, useState, useId, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import document from "../../../contracts/dashboard.forms.generated.json";
 import type { DashboardSchemas } from "../../api/dashboard.generated";
 import { DashboardError } from "../../api/dashboard";
-import { ErrorSummary } from "./patterns";
+import { ErrorSummary, ConfirmDialog } from "./patterns";
 type Property = {
   type?: string;
   title?: string;
@@ -85,14 +85,21 @@ export function ContractForm<N extends Name>({
   fields = {},
   disabled = false,
   onSaved,
+  beforeSave,
+  resetOnSuccess = true,
 }: {
   schema: N;
+  resetOnSuccess?: boolean;
   initial?: Partial<DashboardSchemas[N]>;
   onSave: (value: DashboardSchemas[N]) => Promise<unknown>;
   submitLabel?: string;
   fields?: Record<string, FieldOptions>;
   disabled?: boolean;
   onSaved?: () => void;
+  beforeSave?: (
+    value: DashboardSchemas[N],
+    original: Record<string, unknown>,
+  ) => Promise<DashboardSchemas[N] | null>;
 }) {
   const id = useId();
   const definition = document.components.schemas[schema] as {
@@ -115,8 +122,24 @@ export function ContractForm<N extends Name>({
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    reset,
+    watch,
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<Record<string, unknown>>({ defaultValues: defaults });
+  const [baseline, setBaseline] = useState({
+    values: defaults,
+    provided: initial ?? {},
+  });
+  const remoteChanged =
+    JSON.stringify(defaults) !== JSON.stringify(baseline.values);
+  useEffect(() => {
+    if (remoteChanged && !isDirty && !isSubmitting) {
+      setBaseline({ values: defaults, provided: initial ?? {} });
+      reset(defaults);
+    }
+  }, [defaults, initial, remoteChanged, isDirty, isSubmitting, reset]);
+  const exceptionClosed =
+    schema === "ExceptionCreate" && watch("kind") === "closed";
   const [failure, setFailure] = useState<unknown>(null),
     [saved, setSaved] = useState(false);
   const validate = useMemo(
@@ -138,9 +161,11 @@ export function ContractForm<N extends Name>({
           const kind = p.type ?? p.anyOf?.find((x) => x.type !== "null")?.type;
           if (raw === "" || raw === undefined) {
             if (definition.required?.includes(name)) body[name] = "";
-            else if (initial && Object.hasOwn(initial, name))
+            else if (Object.hasOwn(baseline.provided, name))
               body[name] =
-                name === "name_ur" && p.anyOf?.some((x) => x.type === "null")
+                (name === "name_ur" ||
+                  p.anyOf?.some((x) => x.format === "time")) &&
+                p.anyOf?.some((x) => x.type === "null")
                   ? null
                   : "";
             continue;
@@ -151,6 +176,10 @@ export function ContractForm<N extends Name>({
               : kind === "boolean"
                 ? !!raw
                 : raw;
+        }
+        if (schema === "ExceptionCreate" && body.kind === "closed") {
+          body.start_time = null;
+          body.end_time = null;
         }
         if (!validate(body)) {
           for (const error of validate.errors ?? []) {
@@ -163,8 +192,13 @@ export function ContractForm<N extends Name>({
           return;
         }
         try {
-          await onSave(body);
-          setSaved(true);
+          const reviewed = beforeSave
+            ? await beforeSave(body, baseline.values)
+            : body;
+          if (!reviewed) return;
+          await onSave(reviewed);
+          if (resetOnSuccess) reset(values);
+          setSaved(resetOnSuccess);
           onSaved?.();
         } catch (error) {
           setFailure(error);
@@ -176,6 +210,28 @@ export function ContractForm<N extends Name>({
       noValidate
     >
       <ErrorSummary error={failure} />
+      {remoteChanged && isDirty && (
+        <div className="notice">
+          <p>
+            Saved configuration changed. Your edits still use the original
+            revision. Reload saved values to review the latest configuration
+            before editing again.
+          </p>
+          <ConfirmDialog
+            title="Discard your edits and reload?"
+            confirm="Reload saved values"
+            busy={isSubmitting}
+            onConfirm={async () => {
+              setBaseline({ values: defaults, provided: initial ?? {} });
+              reset(defaults);
+              setFailure(null);
+            }}
+          >
+            Your unsaved changes will be replaced with the latest saved
+            configuration.
+          </ConfirmDialog>
+        </div>
+      )}
       <fieldset disabled={disabled || isSubmitting}>
         <div className="form-grid">
           {Object.entries(definition.properties)
@@ -188,7 +244,12 @@ export function ContractForm<N extends Name>({
             })
             .map(([name, p]) => {
               const options = fields[name] ?? {};
-              if (options.hidden) return null;
+              if (
+                options.hidden ||
+                (exceptionClosed &&
+                  (name === "start_time" || name === "end_time"))
+              )
+                return null;
               const property = p.anyOf?.find((x) => x.type !== "null") ?? p;
               const type = property.type;
               const label =
@@ -261,7 +322,9 @@ export function ContractForm<N extends Name>({
                       step={type === "integer" ? 1 : "any"}
                       autoComplete={
                         name === "password"
-                          ? "new-password"
+                          ? schema === "Login"
+                            ? "current-password"
+                            : "new-password"
                           : name === "email"
                             ? "email"
                             : "off"

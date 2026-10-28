@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth, useSessionKey } from "../../app/auth";
 import { ContractForm } from "../../components/ui/contract-form";
@@ -14,6 +14,7 @@ import {
   QueryState,
   useDashboardQuery,
 } from "./ClinicPages";
+import { DashboardError } from "../../api/dashboard";
 import type {
   RuleOut,
   ExceptionOut,
@@ -41,6 +42,10 @@ export function upcomingClosures(exceptions: ExceptionOut[], today: string) {
 export function HoursPage() {
   const { providers } = useCatalog();
   const [selected, setSelected] = useState("");
+  const [intentLocked, setIntentLocked] = useState(false);
+  useEffect(() => {
+    if (!selected && providers.data?.[0]) setSelected(providers.data[0].id);
+  }, [selected, providers.data]);
   const provider = selected || providers.data?.[0]?.id || "";
   return (
     <>
@@ -53,6 +58,7 @@ export function HoursPage() {
           <label htmlFor="hours-provider">Provider</label>
           <select
             id="hours-provider"
+            disabled={intentLocked}
             value={provider}
             onChange={(e) => setSelected(e.target.value)}
           >
@@ -67,7 +73,11 @@ export function HoursPage() {
       </section>
       <QueryState query={providers}>
         {provider ? (
-          <ProviderHours key={provider} provider={provider} />
+          <ProviderHours
+            key={provider}
+            provider={provider}
+            onIntentLock={setIntentLocked}
+          />
         ) : (
           <EmptyState>Add a provider before configuring hours.</EmptyState>
         )}
@@ -75,7 +85,13 @@ export function HoursPage() {
     </>
   );
 }
-function ProviderHours({ provider }: { provider: string }) {
+function ProviderHours({
+  provider,
+  onIntentLock,
+}: {
+  provider: string;
+  onIntentLock: (locked: boolean) => void;
+}) {
   const auth = useAuth(),
     refresh = useRefreshClinic();
   const query = useQuery({
@@ -342,7 +358,11 @@ function ProviderHours({ provider }: { provider: string }) {
         </section>
       )}
       {auth.isManager && query.data && (
-        <TemplateEditor provider={provider} revision={query.data.revision} />
+        <TemplateEditor
+          provider={provider}
+          revision={query.data.revision}
+          onIntentLock={onIntentLock}
+        />
       )}
     </>
   );
@@ -350,9 +370,11 @@ function ProviderHours({ provider }: { provider: string }) {
 function TemplateEditor({
   provider,
   revision,
+  onIntentLock,
 }: {
   provider: string;
   revision: string;
+  onIntentLock: (locked: boolean) => void;
 }) {
   const auth = useAuth(),
     refresh = useRefreshClinic();
@@ -366,6 +388,8 @@ function TemplateEditor({
   } | null>(null);
   const [error, setError] = useState<unknown>(null),
     [busy, setBusy] = useState(false);
+  const [uncertain, setUncertain] = useState(false);
+  const [editorEpoch, setEditorEpoch] = useState(0);
   return (
     <section className="panel">
       <h2>Availability templates</h2>
@@ -377,6 +401,7 @@ function TemplateEditor({
       <div className="segmented" role="group" aria-label="Template">
         <button
           className="button secondary"
+          disabled={busy || uncertain}
           aria-pressed={template === "friday_prayer"}
           onClick={() => {
             setTemplate("friday_prayer");
@@ -387,6 +412,7 @@ function TemplateEditor({
         </button>
         <button
           className="button secondary"
+          disabled={busy || uncertain}
           aria-pressed={template === "ramadan"}
           onClick={() => {
             setTemplate("ramadan");
@@ -396,9 +422,10 @@ function TemplateEditor({
           Ramadan hours
         </button>
       </div>
-      {!review ? (
+      <div hidden={!!review}>
         <ContractForm
-          key={`${template}-${revision}`}
+          key={`${template}-${editorEpoch}`}
+          resetOnSuccess={false}
           schema="AvailabilityTemplate"
           initial={{
             revision,
@@ -429,14 +456,22 @@ function TemplateEditor({
           submitLabel="Preview changes"
           onSave={async (body) => {
             setError(null);
-            const preview = await auth.request(
-              "POST /dashboard/providers/{identity}/availability/preview",
-              { params: { identity: provider }, body },
-            );
-            setReview({ body, preview, key: crypto.randomUUID() });
+            setBusy(true);
+            onIntentLock(true);
+            try {
+              const preview = await auth.request(
+                "POST /dashboard/providers/{identity}/availability/preview",
+                { params: { identity: provider }, body },
+              );
+              setReview({ body, preview, key: crypto.randomUUID() });
+            } finally {
+              setBusy(false);
+              onIntentLock(false);
+            }
           }}
         />
-      ) : (
+      </div>
+      {review && (
         <div className="template-review">
           <h3>Review proposed changes</h3>
           <p>
@@ -459,7 +494,7 @@ function TemplateEditor({
           <div className="form-actions">
             <button
               className="button secondary"
-              disabled={busy}
+              disabled={busy || uncertain}
               onClick={() => setReview(null)}
             >
               Edit proposal
@@ -469,6 +504,7 @@ function TemplateEditor({
               disabled={busy}
               onClick={async () => {
                 setBusy(true);
+                onIntentLock(true);
                 setError(null);
                 try {
                   await auth.request(
@@ -479,9 +515,18 @@ function TemplateEditor({
                       idempotencyKey: review.key,
                     },
                   );
-                  setReview(null);
                   await refresh();
+                  setEditorEpoch((epoch) => epoch + 1);
+                  setReview(null);
+                  setUncertain(false);
+                  onIntentLock(false);
                 } catch (e) {
+                  const unknownOutcome =
+                    !(e instanceof DashboardError) ||
+                    e.status >= 500 ||
+                    e.status === 408;
+                  setUncertain(unknownOutcome);
+                  onIntentLock(unknownOutcome);
                   setError(e);
                 } finally {
                   setBusy(false);
@@ -491,6 +536,13 @@ function TemplateEditor({
               {busy ? "Applying…" : "Apply reviewed changes"}
             </button>
           </div>
+          {uncertain && (
+            <p role="status" className="notice">
+              The outcome is uncertain. Retry this reviewed change before
+              switching provider or template; the same request key prevents
+              duplicate changes.
+            </p>
+          )}
           <p className="muted">
             Retries reuse this review’s idempotency key. If hours changed, edit
             and preview again.

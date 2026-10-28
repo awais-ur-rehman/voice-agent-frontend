@@ -1,3 +1,4 @@
+import * as Dialog from "@radix-ui/react-dialog";
 import { useState, type ReactNode } from "react";
 import { Link, Navigate } from "react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -100,6 +101,15 @@ export function ClinicPage() {
   const auth = useAuth();
   const query = useDashboardQuery("GET /dashboard/clinic");
   const refresh = useRefreshClinic();
+  const [timezoneReview, setTimezoneReview] = useState<{
+    from: string;
+    to: string;
+    resolve: (accepted: boolean) => void;
+  } | null>(null);
+  const finishTimezoneReview = (accepted: boolean) => {
+    timezoneReview?.resolve(accepted);
+    setTimezoneReview(null);
+  };
   return (
     <>
       <PageHeader
@@ -117,9 +127,23 @@ export function ClinicPage() {
           {query.data && (
             <ContractForm
               schema="ProfilePatch"
-              key={`${query.data.id}-${query.data.revision}`}
+              key={query.data.id}
               initial={{ ...query.data, confirm_timezone_change: false }}
               disabled={!auth.isManager}
+              beforeSave={async (body, original) => {
+                if (!body.timezone || body.timezone === original.timezone)
+                  return { ...body, confirm_timezone_change: false };
+                const accepted = await new Promise<boolean>((resolve) =>
+                  setTimezoneReview({
+                    from: String(original.timezone),
+                    to: body.timezone!,
+                    resolve,
+                  }),
+                );
+                return accepted
+                  ? { ...body, confirm_timezone_change: true }
+                  : null;
+              }}
               onSave={async (body) => {
                 const result = await auth.request("PATCH /dashboard/clinic", {
                   body,
@@ -144,8 +168,7 @@ export function ClinicPage() {
                   help: "Use an IANA zone, for example Asia/Karachi.",
                 },
                 confirm_timezone_change: {
-                  label: "Confirm timezone change",
-                  help: "Existing appointment instants stay unchanged. Tick only when changing the clinic timezone.",
+                  hidden: true,
                 },
                 min_notice_min: { label: "Minimum notice (minutes)" },
                 cancellation_min: { label: "Cancellation notice (minutes)" },
@@ -156,6 +179,38 @@ export function ClinicPage() {
           )}
         </QueryState>
       </section>
+      <Dialog.Root
+        open={!!timezoneReview}
+        onOpenChange={(open) => {
+          if (!open) finishTimezoneReview(false);
+        }}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay className="dialog-overlay" />
+          <Dialog.Content className="dialog-content">
+            <Dialog.Title>Review clinic timezone change</Dialog.Title>
+            <Dialog.Description>
+              Change {timezoneReview?.from} → {timezoneReview?.to}. Booked
+              appointments stay at the same time; their displayed clinic-local
+              time may change.
+            </Dialog.Description>
+            <div className="form-actions">
+              <button
+                className="button secondary"
+                onClick={() => finishTimezoneReview(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="button"
+                onClick={() => finishTimezoneReview(true)}
+              >
+                Confirm timezone change
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </>
   );
 }
