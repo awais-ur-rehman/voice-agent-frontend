@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
 import type {
   CalendarAppointment,
   PatientDetail,
@@ -209,6 +209,41 @@ test("compact real day/week calendar, night reachability, focused booking/detail
       );
     });
   }
+  async function assertMobileTargets(
+    context: string,
+    controls: Locator,
+    surface: Locator,
+  ) {
+    const targets = await controls.evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const rect = node.getBoundingClientRect();
+        return {
+          label:
+            node.getAttribute("aria-label") ??
+            node.textContent?.trim() ??
+            node.tagName,
+          width: rect.width,
+          height: rect.height,
+        };
+      }),
+    );
+    console.log(`MOBILE_TARGETS ${context} ${JSON.stringify(targets)}`);
+    const gutters = await surface.evaluate((node) => {
+      const rect = node.getBoundingClientRect();
+      return { left: rect.left, right: innerWidth - rect.right };
+    });
+    console.log(`MOBILE_GUTTERS ${context} ${JSON.stringify(gutters)}`);
+    expect(gutters.left).toBeGreaterThanOrEqual(16);
+    expect(gutters.right).toBeGreaterThanOrEqual(16);
+    for (const target of targets) {
+      expect
+        .soft(target.width, `${context}: ${target.label} width`)
+        .toBeGreaterThanOrEqual(44);
+      expect
+        .soft(target.height, `${context}: ${target.label} height`)
+        .toBeGreaterThanOrEqual(44);
+    }
+  }
   for (const width of [1440, 1024, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.getByRole("button", { name: "Day", exact: true }).click();
@@ -223,11 +258,33 @@ test("compact real day/week calendar, night reachability, focused booking/detail
       ),
     ).toBe(true);
     await page.screenshot({ path: `${evidence}task-5-fix-day-${width}.png` });
+    if (width === 390) {
+      await assertMobileTargets(
+        "toolbar",
+        page.locator(
+          ".schedule-toolbar button, .schedule-toolbar input, .schedule-toolbar select",
+        ),
+        page.locator(".schedule-panel"),
+      );
+      await page.screenshot({
+        path: `${evidence}task-5-fix-round2-day-390.png`,
+      });
+    }
     await morning.click();
     const details = page.getByRole("dialog", { name: "Appointment details" });
     await expect(details).toBeVisible();
     await expect(details).toContainText("Synthetic morning patient");
     await expect(details).toContainText("09:00");
+    if (width === 390) {
+      await assertMobileTargets(
+        "details",
+        details.locator("button:visible"),
+        details,
+      );
+      await page.screenshot({
+        path: `${evidence}task-5-fix-round2-details-390.png`,
+      });
+    }
     await page.screenshot({
       path: `${evidence}task-5-fix-details-${width}.png`,
     });
@@ -269,6 +326,16 @@ test("compact real day/week calendar, night reachability, focused booking/detail
     await page.screenshot({
       path: `${evidence}task-5-fix-booking-${width}.png`,
     });
+    if (width === 390) {
+      await assertMobileTargets(
+        "booking review",
+        booking.locator("button:visible"),
+        booking,
+      );
+      await page.screenshot({
+        path: `${evidence}task-5-fix-round2-booking-390.png`,
+      });
+    }
     await page.keyboard.press("Escape");
     await expect(booking).toHaveCount(0);
     await expect(

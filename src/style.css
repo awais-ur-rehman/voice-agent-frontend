@@ -1196,13 +1196,17 @@ fieldset {
     justify-content: space-between;
     gap: 8px;
   }
+  .schedule-date-picker {
+    min-width: 44px;
+    min-height: 44px;
+  }
   .schedule-date-picker h2 {
     font-size: 13px;
     line-height: 1.6;
   }
   .date-navigation .button {
-    min-height: 36px;
-    min-width: 30px;
+    min-height: 44px;
+    min-width: 44px;
     padding: 4px 7px;
   }
   .schedule-filters {
@@ -1214,7 +1218,7 @@ fieldset {
   .schedule-filters select {
     width: 100%;
     min-width: 0;
-    min-height: 38px;
+    min-height: 44px;
     padding: 7px;
     font-size: 11px;
   }
@@ -1229,7 +1233,8 @@ fieldset {
   }
   .schedule-views .button {
     padding: 5px 9px;
-    min-height: 32px;
+    min-width: 44px;
+    min-height: 44px;
     font-size: 11px;
   }
   .schedule-list {
@@ -1273,6 +1278,10 @@ fieldset {
   .appointment-dialog {
     padding: 20px 16px;
     max-height: 92dvh;
+  }
+  .appointment-dialog .dialog-dismiss {
+    min-width: 44px;
+    min-height: 44px;
   }
   .appointment-form .patient-results .button {
     display: block;
