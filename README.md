@@ -1,22 +1,32 @@
-# Voice Agent Frontend
+# Clinic voice console
 
-Clinic dashboard and web voice-session interface for an English/Urdu appointment scheduler.
+Phase 3 browser test harness for the guarded clinic assistant. Staff can sign in, select a tenant-scoped published agent, and start/mute/end/reconnect a LiveKit microphone session. This is the CPU testing checkpoint; no dashboard or agent configuration is included.
 
-## Status
+**Speech acceptance is blocked on the tested memory budget: English ASR exceeded its safe cap and Urdu synthesis failed the headroom preflight.** The UI reports capability failure explicitly. A media connection alone never means the speech worker is ready. GPU latency, native English/Urdu voice quality and physical microphone/speaker acceptance remain pending.
 
-Repository setup only. Phase 0 feasibility work is pending; there is no runnable dashboard yet. Production screens follow the voice feasibility checkpoint and review of the combined v0.1/v0.2 requirements.
+## Run locally
 
-## Intended foundation
+Use Node **24.13.0 or newer** and the committed npm lockfile:
 
-React, Vite, strict TypeScript, TanStack Query, and shadcn/ui, as specified in v0.2. Verify supported stable versions, peer compatibility, and licenses at installation time and commit the lockfile.
+```sh
+npm ci
+npm run dev
+```
 
-Use shared tokens and reusable primitives before composing feature screens. Build clear navigation, tables, filters, forms, and loading/empty/error states around staff workflows. English is the MVP interface language, while Urdu patient names, knowledge content, and transcripts must render correctly from the start with `dir="auto"` and suitable Nastaliq typography.
+Open **http://localhost:5173** so the browser origin matches the API's development CORS allowlist. The default API origin is `http://localhost:8000`. Optionally set `VITE_API_URL` to a public API origin; never put provider keys, LiveKit signing secrets or model credentials in browser configuration. `VITE_API_URL` rejects embedded credentials, query strings and fragments.
 
-## Design references
+Run the backend API, PostgreSQL/Valkey, self-hosted LiveKit and native CPU worker using the backend Phase 3 instructions. Sign in with an existing synthetic development staff account. No credentials are supplied or persisted by the frontend. Refreshing the page requires signing in again. There is no typed transcript shortcut or browser speech replacement.
 
-- [BoardUI](https://github.com/BoardUI/boardui): dashboard composition, semantic tokens, consistent components.
-- [Awesome Design Systems](https://github.com/alexpate/awesome-design-systems): reference collection, not a runtime dependency.
-- [Thinking Orbs](https://libraries.dev/orbs): preferred candidate for voice/agent feedback; verify package license and map only supported, real session states.
-- React Bits and Lenis: evaluate for specific interactions, with keyboard accessibility and reduced-motion behavior. Avoid application-wide animation or scroll interception by default.
+## Verify
 
-See [Phase 0](docs/phase-0.md), [engineering rules](AGENTS.md), and [contribution workflow](CONTRIBUTING.md).
+```sh
+npm run check
+npx playwright install chromium
+npm run test:browser
+```
+
+`check` runs schema/type drift checks, ESLint/format checks, strict TypeScript, interaction/protocol tests and a production build. Browser tests cover fixture-based login, keyboard navigation, desktop/mobile layout, mixed English/Urdu agent labels and unavailable-worker errors. They do **not** prove model inference, audible speech, physical microphone permission or a real booking.
+
+The backend schema snapshot is `contracts/voice.v1.json`; types and runtime validation derive from it. After an intentional backend contract change, copy the exported schema and run `npm run contracts:generate`. `contracts:check` compares generated output and, when the sibling backend checkout exists, the upstream schema bytes. In standalone CI it verifies the pinned snapshot/type pairing; backend CI owns export freshness. Browser type generation explicitly allowlists public models and excludes WorkerGrant.
+
+See [testing evidence and owner steps](docs/phase-3-testing.md), [dependency/license pins](docs/dependencies.md), and [design decisions](docs/design-decisions.md).
