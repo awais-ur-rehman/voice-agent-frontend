@@ -358,3 +358,120 @@ it("denied staff credentials stay signed out without an isolated allocation", as
   expect(screen.getByRole("heading", { name: "Sign in" })).toBeInTheDocument();
   expect(writes.some((w) => w.path.endsWith("/tests"))).toBe(false);
 });
+it("waits for the actual active version before capturing publication changes", async () => {
+  const original = fetch;
+  let release: ((response: Response) => void) | undefined;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: string, init?: RequestInit) =>
+      input.endsWith("/versions")
+        ? new Promise<Response>((resolve) => {
+            release = resolve;
+          })
+        : original(input, init),
+    ),
+  );
+  saved = {
+    ...saved,
+    config: { ...saved.config, greeting_en: "New saved greeting" },
+  };
+  const { user } = await setup();
+  expect(screen.getByRole("button", { name: "Publish" })).toBeDisabled();
+  await user.click(screen.getByRole("button", { name: "Publish" }));
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  release!(Response.json([version]));
+  await waitFor(() =>
+    expect(screen.getByRole("button", { name: "Publish" })).toBeEnabled(),
+  );
+  await user.click(screen.getByRole("button", { name: "Publish" }));
+  const dialog = screen.getByRole("dialog");
+  expect(within(dialog).getByText("Hello")).toBeInTheDocument();
+  expect(within(dialog).getByText(/New saved greeting/)).toBeInTheDocument();
+  expect(within(dialog).queryByText("Not configured")).not.toBeInTheDocument();
+});
+it("failed history blocks publication while preserving edits and permits explicit history retry", async () => {
+  const original = fetch;
+  let fail = true;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: string, init?: RequestInit) =>
+      input.endsWith("/versions") && fail
+        ? Promise.resolve(
+            Response.json(
+              {
+                error: {
+                  code: "unavailable",
+                  message: "Version history unavailable",
+                },
+              },
+              { status: 503 },
+            ),
+          )
+        : original(input, init),
+    ),
+  );
+  const { user } = await setup();
+  await screen.findByText("Version history unavailable");
+  expect(screen.getByRole("button", { name: "Publish" })).toBeDisabled();
+  await user.clear(screen.getByLabelText("Agent name"));
+  await user.type(screen.getByLabelText("Agent name"), "Retained edit");
+  fail = false;
+  await user.click(
+    screen.getByRole("button", { name: "Retry version history" }),
+  );
+  await waitFor(() =>
+    expect(
+      screen.queryByText("Version history unavailable"),
+    ).not.toBeInTheDocument(),
+  );
+  expect(screen.getByLabelText("Agent name")).toHaveValue("Retained edit");
+  expect(screen.getByRole("button", { name: "Publish" })).toBeDisabled();
+  await user.click(screen.getByRole("button", { name: "Save draft" }));
+  await waitFor(() =>
+    expect(screen.getByRole("button", { name: "Publish" })).toBeEnabled(),
+  );
+  await user.click(screen.getByRole("button", { name: "Publish" }));
+  expect(
+    within(screen.getByRole("dialog")).getByText("Reception"),
+  ).toBeInTheDocument();
+  expect(
+    within(screen.getByRole("dialog")).getByText(/Retained edit/, {
+      selector: ".publication-changes p",
+    }),
+  ).toBeInTheDocument();
+});
+it("a never-published agent can review its first publication without a fabricated prior version", async () => {
+  const original = fetch;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: string, init?: RequestInit) => {
+      const path = new URL(input).pathname;
+      if (path.endsWith("/versions")) return Promise.resolve(Response.json([]));
+      if (
+        path === "/dashboard/agents/agent-one" &&
+        (init?.method ?? "GET") === "GET"
+      )
+        return Promise.resolve(
+          Response.json({
+            ...agent,
+            active_version_id: null,
+            published_number: null,
+          }),
+        );
+      return original(input, init);
+    }),
+  );
+  const { user } = await setup();
+  expect(screen.getByRole("button", { name: "Publish" })).toBeEnabled();
+  await user.click(screen.getByRole("button", { name: "Publish" }));
+  expect(
+    within(screen.getByRole("dialog")).getByRole("heading", {
+      name: "First publication",
+    }),
+  ).toBeInTheDocument();
+  expect(
+    within(screen.getByRole("dialog")).getByRole("button", {
+      name: "Confirm publish",
+    }),
+  ).toBeEnabled();
+});

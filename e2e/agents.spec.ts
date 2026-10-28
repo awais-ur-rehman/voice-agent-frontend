@@ -20,7 +20,8 @@ test("agent editor responsive layouts, guarded publication, isolated text and un
       console.log("Browser navigation:", frame.url());
   });
   let saved = structuredClone(draft),
-    publishFails = true;
+    publishFails = true,
+    historyFails = true;
   let currentAgent = structuredClone(agent);
   const history = [structuredClone(version)];
   const publishRequests: { body: unknown; key: string | undefined }[] = [];
@@ -67,8 +68,21 @@ test("agent editor responsive layouts, guarded publication, isolated text and un
         };
       }
       body = saved;
-    } else if (path.endsWith("/versions")) body = history;
-    else if (path.endsWith("/publish")) {
+    } else if (path.endsWith("/versions")) {
+      if (historyFails) {
+        await route.fulfill({
+          status: 503,
+          json: {
+            error: {
+              code: "unavailable",
+              message: "Version history unavailable",
+            },
+          },
+        });
+        return;
+      }
+      body = history;
+    } else if (path.endsWith("/publish")) {
       publishRequests.push({
         body: request.postDataJSON(),
         key: request.headers()["idempotency-key"],
@@ -132,6 +146,20 @@ test("agent editor responsive layouts, guarded publication, isolated text and un
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.getByRole("link", { name: "Agents", exact: true }).click();
   await page.getByRole("link", { name: "Reception", exact: true }).click();
+  await expect(page.getByText("Version history unavailable")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Publish", exact: true }),
+  ).toBeDisabled();
+  await page.screenshot({
+    path: "docs/evidence/task-6/fix-round1-history-unavailable.png",
+    fullPage: true,
+  });
+  historyFails = false;
+  await page.getByRole("button", { name: "Retry version history" }).click();
+  await expect(
+    page.getByRole("button", { name: "Publish", exact: true }),
+  ).toBeEnabled();
+  await expect(page.getByText("Version history unavailable")).toHaveCount(0);
   await page
     .getByLabel("Agent name")
     .fill("Synthetic receptionist · مصنوعی معاون");
@@ -168,7 +196,7 @@ test("agent editor responsive layouts, guarded publication, isolated text and un
       ),
     ).toBe(true);
     await page.screenshot({
-      path: `docs/evidence/task-6/agent-${width}.png`,
+      path: `docs/evidence/task-6/fix-round1-agent-${width}.png`,
       fullPage: true,
     });
     if (width === 390) {
@@ -196,7 +224,9 @@ test("agent editor responsive layouts, guarded publication, isolated text and un
   await expect(page.getByRole("dialog")).toContainText("outcome is unknown");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toBeVisible();
-  await page.screenshot({ path: "docs/evidence/task-6/publish-uncertain.png" });
+  await page.screenshot({
+    path: "docs/evidence/task-6/fix-round1-publish-uncertain.png",
+  });
   publishFails = false;
   await page.getByRole("button", { name: "Retry same operation" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -216,7 +246,7 @@ test("agent editor responsive layouts, guarded publication, isolated text and un
     page.getByText("find_slots · available · Succeeded"),
   ).toBeVisible();
   await page.screenshot({
-    path: "docs/evidence/task-6/isolated-text.png",
+    path: "docs/evidence/task-6/fix-round1-isolated-text.png",
     fullPage: true,
   });
   await page.getByRole("button", { name: "End test", exact: true }).click();

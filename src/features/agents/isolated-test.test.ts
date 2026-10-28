@@ -322,3 +322,110 @@ it("an uncertain end prevents replacement turns and voice until the same end is 
   expect(test.getSnapshot().pendingEnd).toBe(false);
   test.dispose();
 });
+it("releases a definitively rejected allocation so a corrected draft revision can start", async () => {
+  const { test } = await setup();
+  const original = fetch;
+  const attempts: { body: unknown; key: string | null }[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: string, init?: RequestInit) => {
+      if (input.endsWith("/tests")) {
+        const body = JSON.parse(String(init?.body));
+        attempts.push({
+          body,
+          key: new Headers(init?.headers).get("Idempotency-Key"),
+        });
+        if (body.draft_revision === 7)
+          return Promise.resolve(
+            Response.json(
+              {
+                error: {
+                  code: "revision_conflict",
+                  message: "Do not echo arbitrary server details",
+                },
+              },
+              { status: 409 },
+            ),
+          );
+        return Promise.resolve(
+          Response.json({ ...testSnapshot, draft_revision: 8 }),
+        );
+      }
+      return original(input, init);
+    }),
+  );
+  await test.start("agent-one", 7);
+  expect(test.getSnapshot().snapshot).toBeNull();
+  await test.start("agent-one", 8);
+  expect(test.getSnapshot().snapshot?.draft_revision).toBe(8);
+  expect(attempts.map((attempt) => attempt.body)).toEqual([
+    { draft_revision: 7 },
+    { draft_revision: 8 },
+  ]);
+  expect(attempts[0]?.key).toBeTruthy();
+  expect(attempts[1]?.key).not.toBe(attempts[0]?.key);
+  test.dispose();
+});
+it.each([408, 503, "network"] as const)(
+  "retains exact allocation identity body and key after unknown %s outcome",
+  async (failure) => {
+    const { test } = await setup();
+    const original = fetch;
+    const attempts: { path: string; body: unknown; key: string | null }[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: string, init?: RequestInit) => {
+        if (input.endsWith("/tests")) {
+          attempts.push({
+            path: new URL(input).pathname,
+            body: JSON.parse(String(init?.body)),
+            key: new Headers(init?.headers).get("Idempotency-Key"),
+          });
+          if (attempts.length === 1)
+            return failure === "network"
+              ? Promise.reject(new TypeError("Network unavailable"))
+              : Promise.resolve(new Response(null, { status: failure }));
+          return Promise.resolve(Response.json(testSnapshot));
+        }
+        return original(input, init);
+      }),
+    );
+    await test.start("agent-one", 7);
+    await test.start("replacement-agent", 8);
+    expect(attempts).toHaveLength(2);
+    expect(attempts[1]).toEqual(attempts[0]);
+    expect(attempts[0]).toMatchObject({
+      path: "/dashboard/agents/agent-one/tests",
+      body: { draft_revision: 7 },
+    });
+    expect(attempts[0]?.key).toBeTruthy();
+    expect(test.getSnapshot().snapshot?.draft_revision).toBe(7);
+    test.dispose();
+  },
+);
+it("explains a rejected draft revision without echoing arbitrary server details", async () => {
+  const { test } = await setup();
+  const original = fetch;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: string, init?: RequestInit) =>
+      input.endsWith("/tests")
+        ? Promise.resolve(
+            Response.json(
+              {
+                error: {
+                  code: "revision_conflict",
+                  message: "PRIVATE server details",
+                },
+              },
+              { status: 409 },
+            ),
+          )
+        : original(input, init),
+    ),
+  );
+  await test.start("agent-one", 7);
+  expect(test.getSnapshot().error).toMatch(/saved draft changed/i);
+  expect(test.getSnapshot().error).not.toContain("PRIVATE");
+  test.dispose();
+});

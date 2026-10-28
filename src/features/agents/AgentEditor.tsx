@@ -30,6 +30,7 @@ type Intent = {
   version?: VersionOut;
   enabled?: boolean;
   config?: AgentConfig;
+  firstPublication: boolean;
   changes: { label: string; before: string; after: string }[];
 };
 function editable(config: DraftOut["config"]): AgentConfig {
@@ -107,6 +108,9 @@ function EditorLoader({ identity }: { identity: string }) {
               voices={voices.data}
               versions={versions.data ?? []}
               versionsError={versions.error}
+              versionsPending={versions.isPending}
+              versionsFetching={versions.isFetching}
+              retryVersions={() => void versions.refetch()}
             />
           )}
         </QueryState>
@@ -120,12 +124,18 @@ function Editor({
   voices,
   versions,
   versionsError,
+  versionsPending,
+  versionsFetching,
+  retryVersions,
 }: {
   agent: AgentOut;
   saved: DraftOut;
   voices: VoiceOut[];
   versions: VersionOut[];
   versionsError: unknown;
+  versionsPending: boolean;
+  versionsFetching: boolean;
+  retryVersions: () => void;
 }) {
   const auth = useAuth(),
     refresh = useRefreshClinic();
@@ -143,6 +153,10 @@ function Editor({
     JSON.stringify(values) !== JSON.stringify(editable(baseline.config));
   const remote = saved.revision > baseline.revision;
   const frozen = !!intent || busy || !!agent.archived_at;
+  const publishedVersion = versions.find(
+    (version) => version.id === agent.active_version_id,
+  );
+  const publicationBlocked = !!agent.active_version_id && !publishedVersion;
   // Reconcile only a clean editor; a dirty editor retains its original revision through refetch.
   if (remote && !dirty && !intent) {
     setBaseline(saved);
@@ -172,6 +186,12 @@ function Editor({
       return;
     }
     if (kind === "publish") {
+      if (publicationBlocked) {
+        setError(
+          "Load the active published version before reviewing publication.",
+        );
+        return;
+      }
       const problem = validate(values, voices);
       if (problem) {
         setError(problem);
@@ -184,6 +204,7 @@ function Editor({
       revision: kind === "enabled" ? agent.revision : baseline.revision,
       key: crypto.randomUUID(),
       name: values.name ?? agent.name,
+      firstPublication: !agent.active_version_id,
       changes: (
         [
           ["name", "Name"],
@@ -198,9 +219,9 @@ function Editor({
           ["prayer_break", "Friday prayer break"],
         ] as const
       ).flatMap(([field, label]) => {
-        const previous = editable(
-          versions.find((v) => v.id === agent.active_version_id)?.config ?? {},
-        );
+        const previous: AgentConfig = publishedVersion
+          ? editable(publishedVersion.config)
+          : {};
         const format = (value: unknown) =>
           Array.isArray(value)
             ? value.join(" – ")
@@ -216,7 +237,9 @@ function Editor({
           : [
               {
                 label,
-                before: format(previous[field]),
+                before: agent.active_version_id
+                  ? format(previous[field])
+                  : "No published version",
                 after: format(values[field]),
               },
             ];
@@ -235,6 +258,12 @@ function Editor({
   }
   async function execute(next: Intent) {
     if (busy) return;
+    if (next.kind === "publish" && publicationBlocked) {
+      setError(
+        "Load the active published version before confirming publication.",
+      );
+      return;
+    }
     setBusy(true);
     setError(undefined);
     try {
@@ -381,7 +410,11 @@ function Editor({
           <button
             className="button"
             disabled={
-              frozen || dirty || testActive || values.schema_version !== 2
+              frozen ||
+              dirty ||
+              testActive ||
+              publicationBlocked ||
+              values.schema_version !== 2
             }
             onClick={() => review("publish")}
           >
@@ -389,6 +422,23 @@ function Editor({
           </button>
         </div>
       </div>
+      {publicationBlocked && (
+        <div className="notice" role="status">
+          <p>
+            {versionsPending
+              ? "Loading published version details. Publication requires the active version for comparison."
+              : "Published version details are unavailable. Retry version history before publishing."}
+          </p>
+          <ErrorSummary error={versionsError} />
+          <button
+            className="button secondary"
+            disabled={versionsFetching}
+            onClick={retryVersions}
+          >
+            Retry version history
+          </button>
+        </div>
+      )}
       {notice && (
         <p className="notice" role="status">
           {notice}
@@ -652,7 +702,7 @@ function Editor({
           {tab === "Versions" && (
             <>
               <h2>Published history</h2>
-              <ErrorSummary error={versionsError} />
+              <ErrorSummary error={publicationBlocked ? null : versionsError} />
               {versions.length ? (
                 <ol className="version-list">
                   {versions.map((version) => (
@@ -788,7 +838,11 @@ function Editor({
             )}
             {intent?.kind === "publish" && (
               <div className="publication-changes">
-                <h3>Changes from published version</h3>
+                <h3>
+                  {intent.firstPublication
+                    ? "First publication"
+                    : "Changes from published version"}
+                </h3>
                 {intent.changes.length ? (
                   intent.changes.map((change) => (
                     <div key={change.label}>
@@ -828,7 +882,9 @@ function Editor({
               </button>
               <button
                 className="button"
-                disabled={busy}
+                disabled={
+                  busy || (intent?.kind === "publish" && publicationBlocked)
+                }
                 onClick={() => intent && void execute(intent)}
               >
                 {busy

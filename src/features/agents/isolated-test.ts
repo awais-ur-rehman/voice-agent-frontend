@@ -134,13 +134,34 @@ export class IsolatedTest {
       this.command = null;
       this.update({ snapshot });
     } catch (error) {
-      if (this.current(epoch))
+      if (this.current(epoch)) {
+        // A rejected request did not allocate a scope. Only uncertain outcomes
+        // retain the reviewed revision/key for recovery on the next attempt.
+        const rejected =
+          error instanceof DashboardError &&
+          error.status >= 400 &&
+          error.status < 500 &&
+          error.status !== 408;
+        if (rejected) this.allocation = null;
+        const rejectionReason =
+          error instanceof DashboardError && error.code === "revision_conflict"
+            ? "The saved draft changed. Review the current saved draft before starting a new test."
+            : error instanceof DashboardError &&
+                error.code === "test_already_active"
+              ? "An isolated test is already active for this agent. End it or wait for expiry before starting another."
+              : error instanceof DashboardError &&
+                  error.code === "test_capacity"
+                ? "Isolated test capacity is full. End an existing test or wait for expiry."
+                : "The isolated test request was rejected. Review the saved draft and your access before starting a new test.";
         this.update({
-          error: this.failure(
-            error,
-            "Could not start the isolated test. Retry uses the same request.",
-          ),
+          error: rejected
+            ? rejectionReason
+            : this.failure(
+                error,
+                "Could not start the isolated test. Retry uses the same request.",
+              ),
         });
+      }
     } finally {
       if (this.current(epoch)) this.update({ busy: false });
       if (!this.mounted) this.unregister();
