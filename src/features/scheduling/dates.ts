@@ -24,3 +24,34 @@ export function weekStart(date: string) {
   const d = Temporal.PlainDate.from(date);
   return d.subtract({ days: d.dayOfWeek - 1 }).toString();
 }
+
+export function dateHeading(first: string, last = first, short = false) {
+  const format = new Intl.DateTimeFormat("en", {
+    month: short ? "short" : "long",
+    day: "numeric",
+    ...(short ? { weekday: "short" as const } : { year: "numeric" as const }),
+    timeZone: "UTC",
+  });
+  return first === last
+    ? format.format(new Date(`${first}T12:00:00Z`))
+    : format.formatRange(
+        new Date(`${first}T12:00:00Z`),
+        new Date(`${last}T12:00:00Z`),
+      );
+}
+export function timeLabel(instant: string, zone: string) {
+  const date = Temporal.Instant.from(instant).toZonedDateTimeISO(zone);
+  const wall = date.toPlainDateTime();
+  const ambiguous =
+    wall.toZonedDateTime(zone, { disambiguation: "earlier" })
+      .epochNanoseconds !==
+    wall.toZonedDateTime(zone, { disambiguation: "later" }).epochNanoseconds;
+  return `${String(date.hour).padStart(2, "0")}:${String(date.minute).padStart(2, "0")}${ambiguous ? ` UTC${date.offset}` : ""}`;
+}
+
+export function clinicDate(instant: string, zone: string) {
+  return Temporal.Instant.from(instant)
+    .toZonedDateTimeISO(zone)
+    .toPlainDate()
+    .toString();
+}

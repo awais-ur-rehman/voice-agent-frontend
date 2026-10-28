@@ -16,8 +16,14 @@ import type {
   CalendarAppointment,
   Slot,
 } from "../../api/dashboard.generated";
+const calendarDriver = vi.hoisted(() => ({
+  select: null as ((row: CalendarAppointment) => void) | null,
+}));
 vi.mock("./Calendar", () => ({
-  default: () => <div aria-label="Calendar fixture" />,
+  default: ({ onSelect }: { onSelect: (row: CalendarAppointment) => void }) => {
+    calendarDriver.select = onSelect;
+    return <div aria-label="Calendar fixture" />;
+  },
 }));
 const id = "11111111-1111-4111-8111-111111111111",
   other = "22222222-2222-4222-8222-222222222222";
@@ -216,6 +222,8 @@ async function setup(path = "/schedule") {
   await user.type(screen.getByLabelText("Password *"), "synthetic-password");
   await user.click(screen.getByRole("button", { name: "Sign in" }));
   await screen.findByRole("heading", { name: "Schedule" });
+  await screen.findByLabelText("Calendar fixture");
+  await user.click(screen.getByRole("button", { name: "List" }));
   if (path !== "/schedule") await router.navigate(path);
   return { user, router, client };
 }
@@ -751,4 +759,214 @@ it("keeps the selected day window and provider when switching from calendar to l
     .at(-1);
   expect(query?.searchParams.get("date_from")).toBe("2026-11-05");
   expect(query?.searchParams.get("provider_id")).toBe(id);
+});
+
+for (const phase of ["pending", "503"] as const)
+  it(`keeps captured reschedule identity, body and key after ${phase} while external selection and close are attempted`, async () => {
+    const original = globalThis.fetch;
+    const second = {
+      ...appointment,
+      id: other,
+      patient_id: other,
+      patient_name: "Other booking",
+    };
+    let finish!: (response: Response) => void;
+    const requests: { path: string; init: RequestInit }[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string, init: RequestInit) => {
+        const p = new URL(url).pathname;
+        if (p === "/dashboard/appointments")
+          return Response.json({
+            items: [appointment, second],
+            total: 2,
+            limit: 100,
+            offset: 0,
+          });
+        if (p.endsWith("/reschedule")) {
+          requests.push({ path: p, init });
+          return new Promise<Response>((resolve) => {
+            finish = resolve;
+          });
+        }
+        return original(url, init);
+      }),
+    );
+    const { user } = await setup();
+    const otherRow = await screen.findByRole("button", {
+      name: /Other booking/,
+    });
+    await user.click(screen.getByRole("button", { name: /Synthetic patient/ }));
+    await user.click(screen.getByRole("button", { name: "Reschedule" }));
+    await user.click(await screen.findByRole("radio"));
+    await user.click(
+      screen.getByRole("button", { name: "Review appointment" }),
+    );
+    const review = screen.getByRole("region", { name: "Review appointment" });
+    await user.click(
+      screen.getByRole("button", { name: "Confirm appointment" }),
+    );
+    await waitFor(() => expect(requests).toHaveLength(1));
+    if (phase === "503") {
+      finish(
+        Response.json(
+          {
+            error: {
+              code: "unavailable",
+              message: "Reschedule outcome uncertain.",
+            },
+          },
+          { status: 503 },
+        ),
+      );
+      await screen.findByText("Reschedule outcome uncertain.");
+    }
+    calendarDriver.select?.(second);
+    fireEvent.click(otherRow);
+    fireEvent.click(screen.getByRole("button", { name: "Close details" }));
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("region", { name: "Review appointment" })).toBe(
+      review,
+    );
+    expect(screen.getByLabelText("Provider")).toBeDisabled();
+    if (phase === "pending") {
+      finish(
+        Response.json(
+          {
+            error: {
+              code: "unavailable",
+              message: "Reschedule outcome uncertain.",
+            },
+          },
+          { status: 503 },
+        ),
+      );
+      await screen.findByText("Reschedule outcome uncertain.");
+    }
+    await user.click(
+      screen.getByRole("button", { name: "Confirm appointment" }),
+    );
+    await waitFor(() => expect(requests).toHaveLength(2));
+    expect(requests[1]?.path).toBe(`/appointments/${id}/reschedule`);
+    expect(requests[1]?.init.body).toBe(requests[0]?.init.body);
+    expect(new Headers(requests[1]?.init.headers).get("Idempotency-Key")).toBe(
+      new Headers(requests[0]?.init.headers).get("Idempotency-Key"),
+    );
+    finish(Response.json(appointment));
+  });
+for (const status of [503, 408])
+  it(`locks uncertain cancellation dismissal and reselection after HTTP ${status}, retaining its exact key`, async () => {
+    const original = globalThis.fetch;
+    const second = { ...appointment, id: other, patient_name: "Other booking" };
+    const requests: RequestInit[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string, init: RequestInit) => {
+        const p = new URL(url).pathname;
+        if (p === "/dashboard/appointments")
+          return Response.json({
+            items: [appointment, second],
+            total: 2,
+            offset: 0,
+            limit: 100,
+          });
+        if (p.endsWith("/cancel")) {
+          requests.push(init);
+          return requests.length === 1
+            ? Response.json(
+                {
+                  error: {
+                    code: "unavailable",
+                    message: "Cancellation remains uncertain.",
+                  },
+                },
+                { status },
+              )
+            : Response.json({ ...appointment, status: "cancelled" });
+        }
+        return original(url, init);
+      }),
+    );
+    const { user } = await setup();
+    const otherRow = await screen.findByRole("button", {
+      name: /Other booking/,
+    });
+    await user.click(screen.getByRole("button", { name: /Synthetic patient/ }));
+    await user.click(
+      screen.getByRole("button", { name: "Confirm cancellation" }),
+    );
+    const dialog = screen.getByRole("dialog");
+    await user.click(
+      within(dialog).getByRole("button", { name: "Confirm cancellation" }),
+    );
+    await within(dialog).findByText("Cancellation remains uncertain.");
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("dialog")).toBe(dialog);
+    expect(
+      within(dialog).getByRole("button", { name: "Cancel" }),
+    ).toBeDisabled();
+    fireEvent.pointerDown(document.body);
+    fireEvent.click(otherRow);
+    calendarDriver.select?.(second);
+    expect(screen.getByRole("dialog")).toBe(dialog);
+    await user.click(
+      within(dialog).getByRole("button", { name: "Confirm cancellation" }),
+    );
+    await waitFor(() => expect(requests).toHaveLength(2));
+    expect(requests[0]?.body).toBe(requests[1]?.body);
+    expect(new Headers(requests[0]?.headers).get("Idempotency-Key")).toBe(
+      new Headers(requests[1]?.headers).get("Idempotency-Key"),
+    );
+  });
+
+it("opens booking in a focused dialog and returns focus to New appointment on dismissal", async () => {
+  const { user } = await setup();
+  const trigger = screen.getByRole("button", { name: "New appointment" });
+  await user.click(trigger);
+  const dialog = await screen.findByRole("dialog", { name: "New appointment" });
+  expect(dialog).toContainElement(document.activeElement as HTMLElement);
+  await user.keyboard("{Escape}");
+  await waitFor(() =>
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+  );
+  expect(trigger).toHaveFocus();
+});
+it("opens selected appointment details and rescheduling in the same discoverable dialog", async () => {
+  const { user } = await setup();
+  const trigger = await screen.findByRole("button", {
+    name: /Synthetic patient/,
+  });
+  await user.click(trigger);
+  const dialog = await screen.findByRole("dialog", {
+    name: "Appointment details",
+  });
+  expect(dialog).toContainElement(document.activeElement as HTMLElement);
+  await user.click(within(dialog).getByRole("button", { name: "Reschedule" }));
+  expect(screen.getByRole("dialog", { name: "Reschedule appointment" })).toBe(
+    dialog,
+  );
+  await user.click(await within(dialog).findByRole("radio"));
+  await user.click(
+    within(dialog).getByRole("button", { name: "Review appointment" }),
+  );
+  expect(
+    within(dialog).getByRole("heading", { name: "Review appointment" }),
+  ).toHaveFocus();
+  expect(
+    within(dialog).queryByRole("combobox", { name: "Provider" }),
+  ).not.toBeInTheDocument();
+  expect(
+    within(dialog).getByRole("region", { name: "Review appointment" }),
+  ).toHaveTextContent(source.name);
+  await user.click(
+    within(dialog).getByRole("button", { name: "Edit selection" }),
+  );
+  expect(within(dialog).getByRole("radio")).toBeChecked();
+  expect(
+    within(dialog).getByRole("button", { name: "Review appointment" }),
+  ).toHaveFocus();
+  await user.click(
+    within(dialog).getByRole("button", { name: "Close appointment form" }),
+  );
+  await waitFor(() => expect(trigger).toHaveFocus());
 });

@@ -17,3 +17,18 @@ it("bounds spring gap and autumn fold days without shifting API instants", () =>
     slotLabel("2026-11-01T06:30:00Z", "America/New_York"),
   );
 });
+
+it("uses human clock labels while distinguishing both repeated times", async () => {
+  const { timeLabel, clinicDate, dateHeading } = await import("./dates");
+  expect(timeLabel("2026-11-05T14:00:00Z", "America/New_York")).toBe("09:00");
+  expect(timeLabel("2026-11-01T05:30:00Z", "America/New_York")).toBe(
+    "01:30 UTC-04:00",
+  );
+  expect(timeLabel("2026-11-01T06:30:00Z", "America/New_York")).toBe(
+    "01:30 UTC-05:00",
+  );
+  expect(clinicDate("2026-11-06T04:15:00Z", "America/New_York")).toBe(
+    "2026-11-05",
+  );
+  expect(dateHeading("2026-11-05")).toBe("November 5, 2026");
+});

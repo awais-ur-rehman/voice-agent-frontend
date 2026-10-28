@@ -1,4 +1,5 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useRef, useState, useSyncExternalStore } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
 import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth, useSessionKey } from "../../app/auth";
@@ -15,7 +16,6 @@ import {
   EmptyState,
   ErrorSummary,
   StatusBadge,
-  ConfirmDialog,
 } from "../../components/ui/patterns";
 import { AppointmentForm } from "./AppointmentForm";
 import {
@@ -24,8 +24,26 @@ import {
   shiftDate,
   slotLabel,
   weekStart,
+  dateHeading,
+  timeLabel,
+  clinicDate,
 } from "./dates";
 const Calendar = lazy(() => import("./Calendar"));
+function subscribeMobile(listener: () => void) {
+  const media = window.matchMedia?.("(max-width: 767px)");
+  media?.addEventListener("change", listener);
+  return () => media?.removeEventListener("change", listener);
+}
+function mobileSnapshot() {
+  return window.matchMedia?.("(max-width: 767px)").matches ?? false;
+}
+type Workspace =
+  | { kind: "new"; key: string }
+  | {
+      kind: "details" | "reschedule" | "cancel";
+      appointment: CalendarAppointment;
+      key: string;
+    };
 export function SchedulePage() {
   const clinic = useDashboardQuery("GET /dashboard/clinic");
   return (
@@ -38,17 +56,24 @@ function Schedule({ zone }: { zone: string }) {
   const auth = useAuth(),
     refresh = useRefreshClinic(),
     catalog = useCatalog();
+  const mobile = useSyncExternalStore(
+    subscribeMobile,
+    mobileSnapshot,
+    () => false,
+  );
   const [date, setDate] = useState(() => clinicToday(zone)),
     [view, setView] = useState<"day" | "week" | "list">("week"),
     [spanDays, setSpanDays] = useState(7),
-    [provider, setProvider] = useState(""),
-    [selected, setSelected] = useState<CalendarAppointment | null>(null),
-    [editing, setEditing] = useState(false),
-    [adding, setAdding] = useState(false),
-    [error, setError] = useState<unknown>(null),
+    [provider, setProvider] = useState("");
+  const [workspace, setWorkspace] = useState<Workspace | null>(null),
+    [locked, setLocked] = useState(false),
     [busy, setBusy] = useState(false),
-    [cancelKey, setCancelKey] = useState(() => crypto.randomUUID()),
-    [uncertain, setUncertain] = useState(false);
+    [uncertain, setUncertain] = useState(false),
+    [error, setError] = useState<unknown>(null);
+  const owner = useRef<Workspace | null>(null),
+    lock = useRef(false),
+    opener = useRef<HTMLElement | null>(null),
+    newButton = useRef<HTMLButtonElement>(null);
   const range = dateWindow(
     spanDays === 1 ? date : weekStart(date),
     spanDays,
@@ -80,39 +105,91 @@ function Schedule({ zone }: { zone: string }) {
       }
     },
   });
+  function replaceWorkspace(next: Workspace | null) {
+    owner.current = next;
+    setWorkspace(next);
+  }
+  function lockIntent(next: boolean) {
+    lock.current = next;
+    setLocked(next);
+  }
+  function finish() {
+    lockIntent(false);
+    replaceWorkspace(null);
+    setUncertain(false);
+    setError(null);
+  }
+  function close() {
+    if (!lock.current) finish();
+  }
+  function select(row: CalendarAppointment) {
+    if (owner.current || lock.current) return;
+    opener.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    setError(null);
+    setUncertain(false);
+    replaceWorkspace({
+      kind: "details",
+      appointment: { ...row },
+      key: crypto.randomUUID(),
+    });
+  }
+  function changeKind(kind: "details" | "reschedule" | "cancel") {
+    const current = owner.current;
+    if (lock.current || !current || current.kind === "new") return;
+    setError(null);
+    replaceWorkspace({ ...current, kind });
+  }
   async function cancel() {
-    if (!selected) return;
+    const intent = owner.current;
+    if (!intent || intent.kind !== "cancel" || busy) return;
+    lockIntent(true);
     setBusy(true);
     setError(null);
     try {
       await auth.request("POST /appointments/{identity}/cancel", {
-        params: { identity: selected.id },
+        params: { identity: intent.appointment.id },
         body: { confirmed: true },
-        idempotencyKey: cancelKey,
+        idempotencyKey: intent.key,
       });
       await refresh();
-      setSelected(null);
-      setUncertain(false);
-      setCancelKey(crypto.randomUUID());
+      finish();
     } catch (e) {
       setError(e);
-      setUncertain(!(e instanceof DashboardError) || e.status >= 500);
+      const unknownOutcome =
+        !(e instanceof DashboardError) || e.status >= 500 || e.status === 408;
+      setUncertain(unknownOutcome);
+      lockIntent(unknownOutcome);
     } finally {
       setBusy(false);
     }
   }
+  const selected =
+    workspace && workspace.kind !== "new" ? workspace.appointment : null;
+  const title =
+    workspace?.kind === "new"
+      ? "New appointment"
+      : workspace?.kind === "reschedule"
+        ? "Reschedule appointment"
+        : workspace?.kind === "cancel"
+          ? "Cancel this appointment?"
+          : "Appointment details";
   return (
-    <>
+    <div className="schedule-page">
       <PageHeader
         title="Schedule"
-        description={`Appointments · ${zone}`}
+        description={`Appointments and the day ahead · ${zone}`}
         actions={
           <button
+            ref={newButton}
             className="button"
-            disabled={busy || uncertain || adding || editing}
-            onClick={() => {
-              setSelected(null);
-              setAdding(true);
+            disabled={!!workspace || locked}
+            onClick={(e) => {
+              if (owner.current || lock.current) return;
+              opener.current = e.currentTarget;
+              replaceWorkspace({ kind: "new", key: crypto.randomUUID() });
             }}
           >
             New appointment
@@ -120,60 +197,53 @@ function Schedule({ zone }: { zone: string }) {
         }
       />
       <SetupReminder />
-      <section className="panel">
+      <section className="panel schedule-panel">
         <div className="schedule-toolbar">
-          <div className="button-group">
-            <button
-              className="button secondary"
-              onClick={() => setDate(shiftDate(date, -spanDays))}
-            >
-              Previous
-            </button>
-            <button
-              className="button secondary"
-              onClick={() => setDate(clinicToday(zone))}
-            >
-              Today
-            </button>
-            <button
-              className="button secondary"
-              onClick={() => setDate(shiftDate(date, spanDays))}
-            >
-              Next
-            </button>
+          <div className="schedule-date-nav">
+            <div className="schedule-date-picker">
+              <h2>{dateHeading(range.first, range.last)}</h2>
+              <span aria-hidden="true">⌄</span>
+              <input
+                aria-label="Clinic date"
+                title="Choose date"
+                type="date"
+                value={date}
+                onChange={(e) => {
+                  if (e.target.value) setDate(e.target.value);
+                }}
+              />
+            </div>
+            <div className="button-group date-navigation">
+              <button
+                className="button secondary"
+                aria-label="Previous"
+                onClick={() => setDate(shiftDate(date, -spanDays))}
+              >
+                ‹
+              </button>
+              <button
+                className="button secondary"
+                onClick={() => setDate(clinicToday(zone))}
+              >
+                Today
+              </button>
+              <button
+                className="button secondary"
+                aria-label="Next"
+                onClick={() => setDate(shiftDate(date, spanDays))}
+              >
+                ›
+              </button>
+            </div>
           </div>
-          <div className="form-field">
-            <label htmlFor="schedule-date">Clinic date</label>
-            <input
-              id="schedule-date"
-              type="date"
-              required
-              value={date}
-              onChange={(e) => {
-                if (e.target.value) setDate(e.target.value);
-              }}
-            />
-          </div>
-          <div className="form-field">
-            <label htmlFor="schedule-provider">Provider filter</label>
-            <select
-              id="schedule-provider"
-              value={provider}
-              onChange={(e) => setProvider(e.target.value)}
-            >
-              <option value="">All providers</option>
-              {catalog.providers.data?.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="button-group" aria-label="Calendar view">
+          <div
+            className="button-group schedule-views"
+            aria-label="Calendar view"
+          >
             {(["day", "week", "list"] as const).map((v) => (
               <button
                 key={v}
-                className={`button ${view === v ? "" : "secondary"}`}
+                className="button secondary"
                 aria-pressed={view === v}
                 onClick={() => {
                   setView(v);
@@ -184,48 +254,66 @@ function Schedule({ zone }: { zone: string }) {
               </button>
             ))}
           </div>
+          <div className="schedule-filters">
+            <select
+              aria-label="Provider filter"
+              value={provider}
+              onChange={(e) => setProvider(e.target.value)}
+            >
+              <option value="">All providers</option>
+              {catalog.providers.data?.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            <span className="calendar-zone">Clinic time · {zone}</span>
+          </div>
         </div>
-        <p className="muted">
-          {range.first} – {range.last} · {zone}. The appointment list below
-          supports keyboard and mobile use.
-        </p>
         <QueryState query={query}>
           {query.data?.length === 0 ? (
             <EmptyState>No appointments in this period.</EmptyState>
+          ) : view !== "list" && !mobile ? (
+            <div
+              className="calendar-region"
+              role="region"
+              aria-label="Appointment calendar"
+            >
+              <Suspense fallback={<p role="status">Loading calendar…</p>}>
+                <Calendar
+                  date={date}
+                  zone={zone}
+                  view={view}
+                  events={query.data ?? []}
+                  onSelect={select}
+                />
+              </Suspense>
+            </div>
           ) : (
-            <>
-              {view !== "list" && (
-                <div className="desktop-calendar">
-                  <Suspense fallback={<p role="status">Loading calendar…</p>}>
-                    <Calendar
-                      date={date}
-                      zone={zone}
-                      view={view}
-                      events={query.data ?? []}
-                      onSelect={setSelected}
-                    />
-                  </Suspense>
-                </div>
-              )}
-              <h2 className="list-heading">Appointment list</h2>
+            <div className="schedule-list">
+              <h2 className="sr-only">Appointment list</h2>
               <div className="appointment-list">
                 {query.data?.map((row) => (
                   <button
                     className="appointment-row"
                     key={row.id}
-                    onClick={() => {
-                      setSelected(row);
-                      setError(null);
-                      setCancelKey(crypto.randomUUID());
-                    }}
+                    disabled={!!workspace || locked}
+                    onClick={() => select(row)}
                   >
                     <span className="appointment-time" dir="ltr">
-                      {slotLabel(row.starts_at, zone)}
+                      <span>
+                        {dateHeading(
+                          clinicDate(row.starts_at, zone),
+                          clinicDate(row.starts_at, zone),
+                          true,
+                        )}
+                      </span>
+                      <strong>{timeLabel(row.starts_at, zone)}</strong>
                     </span>
-                    <span dir="auto">
+                    <span className="appointment-person" dir="auto">
                       <strong>{row.patient_name}</strong>
                       {row.patient_name_ur && (
-                        <small className="urdu" lang="ur">
+                        <small className="urdu" lang="ur" dir="auto">
                           {row.patient_name_ur}
                         </small>
                       )}
@@ -237,85 +325,149 @@ function Schedule({ zone }: { zone: string }) {
                   </button>
                 ))}
               </div>
-            </>
-          )}
-        </QueryState>
-      </section>
-      {selected && (
-        <section className="panel editor">
-          <h2>Appointment details</h2>
-          <p dir="auto">
-            {selected.patient_name} · {selected.provider_name} ·{" "}
-            {selected.service_name}
-          </p>
-          <p dir="ltr">
-            {slotLabel(selected.starts_at, zone)} –{" "}
-            {slotLabel(selected.ends_at, zone)} · {zone}
-          </p>
-          <Link to={`/patients/${selected.patient_id}`}>
-            View patient history
-          </Link>
-          <ErrorSummary error={error} />
-          {selected.status === "booked" && (
-            <div className="form-actions">
-              <button
-                className="button secondary"
-                disabled={busy || uncertain}
-                onClick={() => setEditing(true)}
-              >
-                Reschedule
-              </button>
-              <ConfirmDialog
-                title="Cancel this appointment?"
-                confirm="Confirm cancellation"
-                busy={busy}
-                onConfirm={cancel}
-              >
-                Cancel {selected.patient_name}'s appointment at{" "}
-                {slotLabel(selected.starts_at, zone)}. This action must be
-                confirmed.
-                <ErrorSummary error={error} />
-                {uncertain && (
-                  <p>
-                    Outcome uncertain. Retry this same cancellation to resolve
-                    it.
-                  </p>
-                )}
-              </ConfirmDialog>
-              {uncertain && (
-                <p>
-                  The outcome is uncertain. Retry the same cancellation to
-                  resolve it.
-                </p>
-              )}
             </div>
           )}
-          <button
-            className="button secondary"
-            disabled={busy || uncertain}
-            onClick={() => {
-              setSelected(null);
-              setEditing(false);
+        </QueryState>
+        <footer className="calendar-footer">
+          All appointment times in {zone}
+        </footer>
+      </section>
+      <Dialog.Root
+        open={!!workspace}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay className="dialog-overlay" />
+          <Dialog.Content
+            className="dialog-content appointment-dialog"
+            onEscapeKeyDown={(e) => {
+              if (lock.current) e.preventDefault();
+            }}
+            onPointerDownOutside={(e) => {
+              if (lock.current) e.preventDefault();
+            }}
+            onCloseAutoFocus={(e) => {
+              e.preventDefault();
+              if (opener.current?.isConnected) opener.current.focus();
+              else newButton.current?.focus();
             }}
           >
-            Close details
-          </button>
-        </section>
-      )}
-      {(adding || editing) && (
-        <AppointmentForm
-          key={editing ? selected?.id : "new"}
-          date={date}
-          zone={zone}
-          {...(editing && selected ? { appointment: selected } : {})}
-          onDone={() => {
-            setAdding(false);
-            setEditing(false);
-            setSelected(null);
-          }}
-        />
-      )}
-    </>
+            <div className="appointment-dialog-heading">
+              <Dialog.Title>{title}</Dialog.Title>
+              <button
+                className="button secondary dialog-dismiss"
+                aria-label="Close details"
+                disabled={locked}
+                onClick={close}
+              >
+                ×
+              </button>
+            </div>
+            <Dialog.Description>
+              {workspace?.kind === "new"
+                ? "Choose a patient and an available time, then review before confirming."
+                : workspace?.kind === "reschedule"
+                  ? "Choose an available time. The saved appointment duration is retained."
+                  : workspace?.kind === "cancel"
+                    ? "Review this appointment before confirming cancellation."
+                    : "Review the appointment and patient details."}
+            </Dialog.Description>
+            {(workspace?.kind === "new" ||
+              workspace?.kind === "reschedule") && (
+              <AppointmentForm
+                key={workspace.key}
+                embedded
+                date={date}
+                zone={zone}
+                {...(workspace.kind === "reschedule"
+                  ? {
+                      appointment: workspace.appointment,
+                      appointmentName: workspace.appointment.patient_name,
+                    }
+                  : {})}
+                onLockChange={lockIntent}
+                onDone={finish}
+              />
+            )}
+            {selected &&
+              (workspace?.kind === "details" ||
+                workspace?.kind === "cancel") && (
+                <>
+                  <div className="appointment-summary">
+                    <p className="appointment-summary-name" dir="auto">
+                      {selected.patient_name}
+                    </p>
+                    {selected.patient_name_ur && (
+                      <p className="urdu" dir="auto" lang="ur">
+                        {selected.patient_name_ur}
+                      </p>
+                    )}
+                    <p dir="auto">
+                      {selected.service_name} · {selected.provider_name}
+                    </p>
+                    <p dir="ltr">
+                      {slotLabel(selected.starts_at, zone)} –{" "}
+                      {slotLabel(selected.ends_at, zone)} · {zone}
+                    </p>
+                    <StatusBadge>{selected.status}</StatusBadge>
+                  </div>
+                  <ErrorSummary error={error} />
+                  {workspace?.kind === "details" ? (
+                    <>
+                      <Link to={`/patients/${selected.patient_id}`}>
+                        View patient history
+                      </Link>
+                      {selected.status === "booked" && (
+                        <div className="form-actions">
+                          <button
+                            className="button"
+                            onClick={() => changeKind("reschedule")}
+                          >
+                            Reschedule
+                          </button>
+                          <button
+                            className="button secondary"
+                            onClick={() => changeKind("cancel")}
+                          >
+                            Confirm cancellation
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {uncertain && (
+                        <p className="notice">
+                          Outcome uncertain. Retry this same cancellation to
+                          resolve it.
+                        </p>
+                      )}
+                      <div className="form-actions">
+                        <button
+                          className="button secondary"
+                          disabled={locked}
+                          onClick={() => changeKind("details")}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          className="button"
+                          disabled={busy}
+                          onClick={() => void cancel()}
+                        >
+                          {busy ? "Saving…" : "Confirm cancellation"}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </div>
   );
 }
 function SetupReminder() {

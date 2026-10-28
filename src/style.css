@@ -854,3 +854,514 @@ fieldset {
   font-size: 13px;
   min-height: 34px;
 }
+/* Compact schedule: the date range, filters and views share one operations panel. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.schedule-panel {
+  padding: 0;
+  overflow: hidden;
+}
+.schedule-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "date views" "filters filters";
+  gap: 0;
+  margin: 0;
+  align-items: center;
+}
+.schedule-date-nav {
+  grid-area: date;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+  padding: 16px;
+}
+.schedule-date-picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.schedule-date-picker h2 {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0;
+  font-weight: 600;
+}
+.schedule-date-picker > span {
+  color: var(--muted);
+  font-size: 14px;
+}
+.schedule-date-picker input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.schedule-date-picker:focus-within {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
+}
+.date-navigation {
+  flex: none;
+  gap: 4px;
+}
+.date-navigation .button {
+  min-width: 30px;
+  min-height: 32px;
+  padding: 4px 9px;
+  font-size: 12px;
+}
+.date-navigation .button:first-child,
+.date-navigation .button:last-child {
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1;
+}
+.schedule-views {
+  grid-area: views;
+  justify-self: end;
+  margin: 0 16px;
+  background: #f5f7fa;
+  border: 1px solid #e8ecf1;
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+}
+.schedule-views .button {
+  border: 0;
+  min-height: 28px;
+  padding: 4px 11px;
+  font-size: 12px;
+  background: transparent;
+  color: #687486;
+  box-shadow: none;
+}
+.schedule-views .button[aria-pressed="true"] {
+  background: white;
+  color: #26344b;
+  box-shadow: 0 1px 3px #17223816;
+}
+.schedule-filters {
+  grid-area: filters;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.schedule-filters select {
+  width: 180px;
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.calendar-zone,
+.calendar-footer {
+  font-size: 11px;
+  color: #7b8798;
+}
+.calendar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+.calendar-region {
+  min-height: 600px;
+  max-height: 600px;
+  overflow: hidden;
+}
+.clinic-calendar {
+  font-family: inherit !important;
+  font-size: 12px !important;
+  --fc-classic-border: #e7ebf1;
+  --fc-classic-foreground: #526174;
+  --fc-classic-muted-foreground: #8793a3;
+  --fc-classic-today: #f7f9ff;
+  --fc-classic-event: #edf2fd;
+  --fc-classic-event-contrast: #33558e;
+  --fc-classic-primary: #edf2fd;
+  --fc-classic-primary-foreground: #33558e;
+}
+.clinic-calendar table {
+  font-size: 12px;
+}
+.clinic-calendar th {
+  font-weight: 500;
+  color: #6f7c90;
+  background: #fff;
+}
+.clinic-calendar td {
+  padding: 0;
+}
+.clinic-calendar .clinic-calendar-event {
+  background: #edf2fd;
+  border: 1px solid #e2e9f8;
+  border-inline-start: 3px solid #809cdb;
+  border-radius: 5px;
+  color: #33558e;
+  box-shadow: none;
+  font-size: 12px;
+}
+.clinic-calendar-event-inner {
+  display: block !important;
+  padding: 7px 8px !important;
+  overflow: auto !important;
+}
+.calendar-event-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  font-family: "DM Sans", "Noto Nastaliq Urdu", sans-serif;
+  overflow-wrap: anywhere;
+}
+.calendar-event-time {
+  font-size: 10px;
+  line-height: 1.4;
+  color: #526d9d;
+  font-variant-numeric: tabular-nums;
+}
+.calendar-event-content strong {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.calendar-event-content strong.urdu {
+  font-size: 14px;
+  line-height: 2.1;
+}
+.calendar-event-content small {
+  font-size: 10px;
+  line-height: 1.5;
+  color: #7185a6;
+}
+.schedule-list .appointment-row {
+  grid-template-columns: 110px minmax(0, 1fr) auto;
+  padding: 18px 20px;
+  align-items: start;
+}
+.schedule-list .appointment-time > span {
+  display: block;
+  font-size: 11px;
+  color: #8290a3;
+  margin-bottom: 5px;
+}
+.schedule-list .appointment-time > strong {
+  font-size: 12px;
+  font-weight: 500;
+}
+.schedule-list .appointment-person {
+  border-inline-start: 3px solid #91a9e1;
+  padding-inline-start: 14px;
+  min-width: 0;
+}
+.appointment-dialog {
+  width: min(700px, calc(100vw - 32px));
+  padding: 24px;
+  max-height: 90dvh;
+}
+.appointment-dialog-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.appointment-dialog-heading h2 {
+  font-size: 19px;
+  line-height: 1.4;
+  margin: 4px 0 12px;
+}
+.appointment-dialog .dialog-dismiss {
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 22px;
+  line-height: 1;
+  padding: 3px 8px;
+  flex: none;
+}
+.appointment-dialog > p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+.appointment-form > p {
+  font-size: 12px;
+  color: var(--muted);
+}
+.appointment-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 16px 0;
+}
+.appointment-form .form-grid {
+  margin: 20px 0;
+}
+.appointment-form .form-grid .form-field {
+  margin: 0;
+}
+.appointment-form .patient-results {
+  max-height: 190px;
+  overflow: auto;
+}
+.appointment-form .patient-results .button {
+  padding: 9px 12px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.appointment-form .slot-options {
+  max-height: 180px;
+  overflow: auto;
+}
+.appointment-form .slot-options label {
+  padding: 8px;
+  font-size: 12px;
+}
+.appointment-form .review-panel {
+  margin: 16px 0;
+}
+.appointment-summary {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #fafbfd;
+  margin-bottom: 20px;
+}
+.appointment-summary p {
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.appointment-summary .appointment-summary-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+.appointment-summary .urdu {
+  line-height: 2.2;
+}
+@media (max-width: 1023px) {
+  .schedule-date-nav {
+    gap: 10px;
+  }
+  .schedule-date-picker h2 {
+    font-size: 13px;
+  }
+  .schedule-views {
+    margin-left: 0;
+  }
+  .schedule-views .button {
+    padding-inline: 8px;
+  }
+}
+@media (max-width: 767px) {
+  .schedule-page > .page-header {
+    flex-wrap: nowrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .schedule-page > .page-header p {
+    font-size: 11px;
+    line-height: 1.6;
+  }
+  .schedule-page > .page-header > .button {
+    font-size: 12px;
+    padding: 8px 10px;
+    white-space: nowrap;
+    flex: none;
+  }
+  .schedule-toolbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "date date" "filters views";
+    padding-bottom: 0;
+  }
+  .schedule-date-nav {
+    padding: 14px 12px;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .schedule-date-picker h2 {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .date-navigation .button {
+    min-height: 36px;
+    min-width: 30px;
+    padding: 4px 7px;
+  }
+  .schedule-filters {
+    padding: 0 8px 12px 12px;
+    border: 0;
+    min-width: 0;
+    gap: 0;
+  }
+  .schedule-filters select {
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+    padding: 7px;
+    font-size: 11px;
+  }
+  .calendar-zone {
+    display: none;
+  }
+  .schedule-views {
+    margin: 0 12px 12px 0;
+    padding: 2px;
+    gap: 0;
+    align-self: center;
+  }
+  .schedule-views .button {
+    padding: 5px 9px;
+    min-height: 32px;
+    font-size: 11px;
+  }
+  .schedule-list {
+    border-top: 1px solid var(--border);
+  }
+  .schedule-list .appointment-row {
+    grid-template-columns: 62px minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 16px 12px;
+  }
+  .schedule-list .appointment-time {
+    grid-column: auto;
+  }
+  .schedule-list .appointment-time > span {
+    font-size: 10px;
+    line-height: 1.6;
+  }
+  .schedule-list .appointment-time > strong {
+    font-size: 11px;
+    line-height: 1.8;
+  }
+  .schedule-list .appointment-person {
+    padding-inline-start: 10px;
+  }
+  .schedule-list .appointment-person > strong {
+    font-size: 12px;
+  }
+  .schedule-list .appointment-person .urdu {
+    font-size: 14px;
+    line-height: 2.2;
+  }
+  .schedule-list .appointment-person > small:last-child {
+    font-size: 11px;
+    line-height: 1.7;
+    color: #8290a3;
+  }
+  .schedule-list .status-badge {
+    font-size: 10px;
+    padding: 2px 5px;
+  }
+  .appointment-dialog {
+    padding: 20px 16px;
+    max-height: 92dvh;
+  }
+  .appointment-form .patient-results .button {
+    display: block;
+    text-align: start;
+  }
+  .appointment-form .slot-options label {
+    width: 100%;
+  }
+  .calendar-footer {
+    font-size: 10px;
+    padding: 10px 12px;
+  }
+}
+.schedule-filters select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+  color: #526174;
+  font-family: inherit;
+}
+.clinic-calendar-event-inner {
+  scrollbar-width: thin;
+  scrollbar-color: #bac9e3 transparent;
+}
+.appointment-form [aria-label="Patient selection"] > label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.appointment-form #patient-search {
+  display: block;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fff;
+}
+.patient-results .button > span[dir="ltr"] {
+  flex: none;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.patient-results .button > span[dir="auto"] {
+  min-width: 0;
+}
+.appointment-form .review-panel h3 {
+  font-size: 15px;
+  margin-top: 0;
+}
+.appointment-form .review-panel h3:focus {
+  outline: none;
+}
+/* Calendar summaries truncate whole text lines, never the Nastaliq glyph box. Full values stay in details. */
+.clinic-calendar-event-inner {
+  padding: 7px 8px !important;
+  overflow: hidden !important;
+}
+.calendar-event-content {
+  gap: 4px;
+}
+.calendar-event-content strong {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 100%;
+}
+.calendar-event-content strong.urdu {
+  height: 34px;
+  min-height: 34px;
+  line-height: 34px;
+  font-size: 14px;
+}
+.calendar-event-content small:not(.sr-only) {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.compact-event {
+  gap: 2px;
+  margin: -4px -3px;
+}
+.compact-event strong.urdu {
+  height: 31px;
+  min-height: 31px;
+  line-height: 31px;
+}

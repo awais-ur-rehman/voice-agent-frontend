@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth, useSessionKey } from "../../app/auth";
 import { DashboardError } from "../../api/dashboard";
@@ -21,12 +21,18 @@ export function AppointmentForm({
   zone,
   date,
   appointment,
+  appointmentName,
   onDone,
+  onLockChange,
+  embedded = false,
 }: {
   zone: string;
   date: string;
   appointment?: AppointmentOut;
+  appointmentName?: string;
   onDone: () => void;
+  onLockChange?: (locked: boolean) => void;
+  embedded?: boolean;
 }) {
   const auth = useAuth(),
     refresh = useRefreshClinic(),
@@ -63,9 +69,19 @@ export function AppointmentForm({
       }),
     enabled: !!provider && !!service && !!day,
   });
+  const reviewTitle = useRef<HTMLHeadingElement>(null),
+    reviewTrigger = useRef<HTMLButtonElement>(null),
+    hadReview = useRef(false);
+  useEffect(() => {
+    if (review && !hadReview.current) reviewTitle.current?.focus();
+    else if (!review && hadReview.current && !error)
+      reviewTrigger.current?.focus();
+    hadReview.current = !!review;
+  }, [review, error]);
   const locked = busy || !!review;
   async function confirm() {
     if (!review) return;
+    onLockChange?.(true);
     setBusy(true);
     setError(null);
     try {
@@ -91,6 +107,7 @@ export function AppointmentForm({
       const unknownOutcome =
         !(e instanceof DashboardError) || e.status >= 500 || e.status === 408;
       setUncertain(unknownOutcome);
+      onLockChange?.(unknownOutcome);
       if (!unknownOutcome) {
         setReview(null);
         setSlot(null);
@@ -101,8 +118,10 @@ export function AppointmentForm({
     }
   }
   return (
-    <section className="panel editor">
-      <h2>{appointment ? "Reschedule appointment" : "New appointment"}</h2>
+    <section className={embedded ? "appointment-form" : "panel editor"}>
+      {!embedded && (
+        <h2>{appointment ? "Reschedule appointment" : "New appointment"}</h2>
+      )}
       <p>Times in {zone}. Availability is checked again when confirmed.</p>
       <ErrorSummary
         error={error ?? catalog.providers.error ?? catalog.services.error}
@@ -133,14 +152,17 @@ export function AppointmentForm({
           ))}
         </section>
       )}
-      <fieldset disabled={locked}>
+      <fieldset disabled={locked} hidden={!!review}>
         {!appointment && (
           <>
             <PatientSearch onSelect={setPatient} />
             {patient && (
               <p role="status" dir="auto">
-                Selected patient: {patient.name} {patient.name_ur} ·{" "}
-                {patient.phone}
+                Selected patient:{" "}
+                <bdi dir="auto">
+                  {patient.name} {patient.name_ur}
+                </bdi>{" "}
+                · <bdi dir="ltr">{patient.phone}</bdi>
               </p>
             )}
           </>
@@ -229,8 +251,10 @@ export function AppointmentForm({
         <button
           className="button"
           type="button"
+          ref={reviewTrigger}
           disabled={!slot || (!appointment && !patient)}
           onClick={() => {
+            setError(null);
             if (slot)
               setReview({
                 body: {
@@ -256,9 +280,11 @@ export function AppointmentForm({
       </fieldset>
       {review && (
         <section className="review-panel" aria-label="Review appointment">
-          <h3>Review appointment</h3>
+          <h3 ref={reviewTitle} tabIndex={-1}>
+            Review appointment
+          </h3>
           <p dir="auto">
-            {patient?.name ?? "Existing patient"} ·{" "}
+            {patient?.name ?? appointmentName ?? "Existing patient"} ·{" "}
             {
               catalog.providers.data?.find(
                 (p) => p.id === review.body.provider_id,
