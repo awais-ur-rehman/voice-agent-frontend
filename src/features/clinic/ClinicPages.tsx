@@ -57,6 +57,7 @@ export function SetupPage() {
     providers: "/providers",
     services: "/services",
     hours: "/hours",
+    agent: "/agents",
   };
   return (
     <>

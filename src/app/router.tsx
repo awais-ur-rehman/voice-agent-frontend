@@ -25,6 +25,16 @@ const PatientDetail = lazy(() =>
     default: m.PatientDetail,
   })),
 );
+const AgentsPage = lazy(() =>
+  import("../features/agents/AgentsPage").then((m) => ({
+    default: m.AgentsPage,
+  })),
+);
+const AgentEditor = lazy(() =>
+  import("../features/agents/AgentEditor").then((m) => ({
+    default: m.AgentEditor,
+  })),
+);
 function Landing() {
   const query = useDashboardQuery("GET /dashboard/setup");
   return (
@@ -74,6 +84,22 @@ export const routes = [
         element: (
           <Suspense fallback={<p role="status">Loading patient…</p>}>
             <PatientDetail />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/agents",
+        element: (
+          <Suspense fallback={<p role="status">Loading agents…</p>}>
+            <AgentsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/agents/:identity",
+        element: (
+          <Suspense fallback={<p role="status">Loading agent…</p>}>
+            <AgentEditor />
           </Suspense>
         ),
       },

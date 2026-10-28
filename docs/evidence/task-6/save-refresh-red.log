@@ -1,0 +1,35 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/agents/editor.test.tsx
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+ ❯ src/features/agents/editor.test.tsx (7 tests | 1 failed) 2449ms
+   × retains own successful save revision before a background response arrives 233ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/agents/editor.test.tsx > retains own successful save revision before a background response arrives
+Error: expect(element).toHaveValue(New saved name)
+
+Expected the element to have value:
+  New saved name
+Received:
+  Reception
+ ❯ src/features/agents/editor.test.tsx:256:47
+    254|   await user.click(screen.getByRole('button',{name:'Save draft'}));
+    255|   await screen.findByText('Draft saved.');
+    256|   expect(screen.getByLabelText('Agent name')).toHaveValue('New saved n…
+       |                                               ^
+    257|   expect(screen.getByText('Saved draft · revision 8')).toBeInTheDocume…
+    258| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  00:58:12
+   Duration  3.58s (tests 72%, environment 17%, import 5%, setup 4%, transform 2%)
+

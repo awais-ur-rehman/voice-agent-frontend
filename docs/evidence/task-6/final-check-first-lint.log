@@ -1,0 +1,18 @@
+
+> clinic-voice-console@0.1.0 check
+> npm run contracts:check && npm run lint && npm run typecheck && npm test && npm run build
+
+
+> clinic-voice-console@0.1.0 contracts:check
+> node scripts/contracts.mjs --check && node scripts/dashboard-contracts.mjs --check
+
+
+> clinic-voice-console@0.1.0 lint
+> eslint . && prettier --check src scripts vite.config.ts
+
+
+/Users/awaisurrehman/Documents/experimental/voice-agent/frontend/src/features/agents/isolated-test.test.ts
+  30:33  error  'init' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 1 problem (1 error, 0 warnings)
+

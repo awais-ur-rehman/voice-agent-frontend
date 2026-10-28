@@ -1,0 +1,48 @@
+
+> clinic-voice-console@0.1.0 test:browser
+> playwright test e2e/agents.spec.ts
+
+[WebServer] (node:82898) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:82899) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Browser navigation: http://127.0.0.1:5175/
+Browser console: debug [vite] connecting...
+Browser console: debug [vite] connected.
+Browser console: info %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Browser navigation: http://127.0.0.1:5175/
+Browser navigation: http://127.0.0.1:5175/login
+Browser navigation: http://127.0.0.1:5175/login
+Browser navigation: http://127.0.0.1:5175/
+Browser navigation: http://127.0.0.1:5175/
+Browser navigation: http://127.0.0.1:5175/setup
+Browser navigation: http://127.0.0.1:5175/setup
+Browser navigation: http://127.0.0.1:5175/agents
+Browser navigation: http://127.0.0.1:5175/agents/agent-one
+Mobile agent name dimensions: { x: 111.109375, y: 498.140625, width: 155, height: 26.296875 }
+  ✘  1 e2e/agents.spec.ts:4:1 › agent editor responsive layouts, guarded publication, isolated text and unavailable speech (2.5s)
+
+
+  1) e2e/agents.spec.ts:4:1 › agent editor responsive layouts, guarded publication, isolated text and unavailable speech 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 280
+    Received:   155
+
+      26 |  await page.getByRole('button',{name:'Voice',exact:true}).click();await expect(page.getByRole('button',{name:'Preview unavailable'})).toHaveCount(2);await page.getByRole('button',{name:'General',exact:true}).click();await expect(page.getByLabel('Agent name')).toHaveValue('Synthetic receptionist · مصنوعی معاون');
+      27 |  await page.getByRole('link',{name:'All agents'}).click();await expect(page.getByRole('dialog')).toContainText('unsaved');await page.getByRole('button',{name:'Stay',exact:true}).click();await page.getByRole('button',{name:'Save draft'}).click();await expect(page.getByText('Saved draft · revision 8')).toBeVisible();
+    > 28 |  for(const width of [1440,1024,390]){await page.setViewportSize({width,height:1000});await page.evaluate(async()=>{scrollTo(0,0);await document.fonts.ready;await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:`docs/evidence/task-6/agent-${width}.png`,fullPage:true});if(width===390){const nameBox=await page.getByLabel('Agent name').boundingBox();console.log('Mobile agent name dimensions:',nameBox);expect(nameBox!.width).toBeGreaterThan(280);expect(nameBox!.height).toBeGreaterThanOrEqual(44);const buttons=await page.locator('.agent-tabs button').evaluateAll(buttons=>buttons.map(button=>button.getBoundingClientRect().height));expect(buttons.every(height=>height>=44)).toBe(true);}}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+      29 |  await page.setViewportSize({width:1440,height:1000});await page.getByRole('button',{name:'Publish',exact:true}).click();await expect(page.getByRole('dialog')).toContainText('Changes from published version');await expect(page.getByRole('dialog')).toContainText('Synthetic receptionist');await page.getByRole('button',{name:'Confirm publish'}).click();await expect(page.getByRole('dialog')).toContainText('outcome is unknown');await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toBeVisible();await page.screenshot({path:'docs/evidence/task-6/publish-uncertain.png'});publishFails=false;await page.getByRole('button',{name:'Retry same operation'}).click();await expect(page.getByRole('dialog')).toHaveCount(0);expect(publishRequests[0]).toEqual(publishRequests[1]);
+      30 |  await page.getByRole('button',{name:'Start isolated test'}).click();await expect(page.getByRole('button',{name:'Start voice',exact:true})).toBeDisabled();await expect(page.getByText('ASR and Urdu acceptance blocked.')).toBeVisible();await page.getByLabel('Test message').fill('Show synthetic availability');await page.getByRole('button',{name:'Send test message'}).click();await expect(page.getByRole('log')).toContainText('مصنوعی کلینک');await page.getByText('Redacted tool decisions').click();await expect(page.getByText('find_slots · available · Succeeded')).toBeVisible();await page.screenshot({path:'docs/evidence/task-6/isolated-text.png',fullPage:true});
+      31 |  await page.getByRole('button',{name:'End test',exact:true}).click();await expect(page.getByText('ended',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Sign out'}).click();await expect(page.getByRole('heading',{name:'Sign in'})).toBeVisible();expect(await page.evaluate(()=>({local:localStorage.length,session:sessionStorage.length}))).toEqual({local:0,session:0});console.log('Agent browser page errors:',errors);expect(errors).toEqual([]);
+        at /Users/awaisurrehman/Documents/experimental/voice-agent/frontend/e2e/agents.spec.ts:28:593
+
+    Error Context: test-results/agents-agent-editor-respon-0d44f-text-and-unavailable-speech/error-context.md
+
+  1 failed
+    e2e/agents.spec.ts:4:1 › agent editor responsive layouts, guarded publication, isolated text and unavailable speech 

@@ -62,6 +62,7 @@ export function AppShell() {
           }}
         >
           <NavLink to="/schedule">Schedule</NavLink>
+          <NavLink to="/agents">Agents</NavLink>
           <NavLink to="/patients">Patients</NavLink>
           <NavLink to="/clinic" className={inSettings ? "active" : ""}>
             Clinic settings

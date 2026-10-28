@@ -1,0 +1,31 @@
+
+> clinic-voice-console@0.1.0 test:browser
+> playwright test e2e/agents.spec.ts
+
+[WebServer] (node:81724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:81726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Browser navigation: http://127.0.0.1:5175/
+Browser console: debug [vite] connecting...
+Browser console: info %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Browser console: debug [vite] connected.
+Browser navigation: http://127.0.0.1:5175/
+Browser navigation: http://127.0.0.1:5175/login
+Browser navigation: http://127.0.0.1:5175/login
+Browser navigation: http://127.0.0.1:5175/
+Browser navigation: http://127.0.0.1:5175/
+Browser navigation: http://127.0.0.1:5175/setup
+Browser navigation: http://127.0.0.1:5175/setup
+Browser navigation: http://127.0.0.1:5175/agents
+Browser navigation: http://127.0.0.1:5175/agents/agent-one
+Browser console: error Failed to load resource: the server responded with a status of 503 (Service Unavailable)
+Browser navigation: http://127.0.0.1:5175/login
+Browser navigation: http://127.0.0.1:5175/login
+Agent browser page errors: []
+  ✓  1 e2e/agents.spec.ts:4:1 › agent editor responsive layouts, guarded publication, isolated text and unavailable speech (4.3s)
+
+  1 passed (8.1s)
