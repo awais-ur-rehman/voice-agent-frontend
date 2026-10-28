@@ -739,3 +739,40 @@ it("requires fresh timezone acknowledgement after a previously confirmed change"
   expect(bodies).toHaveLength(1);
   expect(zone).toHaveValue("Europe/London");
 });
+
+it("retains dirty form and original revision when a cached background refetch fails", async () => {
+  const original = globalThis.fetch;
+  let failing = false;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init: RequestInit) => {
+      if (url.endsWith("/dashboard/clinic") && failing && init.method === "GET")
+        return Response.json(
+          {
+            error: { code: "unavailable", message: "Profile refresh failed." },
+          },
+          { status: 503 },
+        );
+      return original(url, init);
+    }),
+  );
+  const { user, client } = setup();
+  await login(user);
+  await user.click(screen.getByRole("link", { name: "Clinic profile" }));
+  const input = await screen.findByLabelText("Name");
+  await user.clear(input);
+  await user.type(input, "Retained unsaved clinic");
+  failing = true;
+  await client.refetchQueries();
+  await screen.findByText("Profile refresh failed.");
+  expect(screen.getByLabelText("Name")).toBe(input);
+  expect(input).toHaveValue("Retained unsaved clinic");
+  failing = false;
+  await user.click(screen.getByRole("button", { name: "Save changes" }));
+  await waitFor(() =>
+    expect(writes.find((w) => w.method === "PATCH")?.body).toMatchObject({
+      name: "Retained unsaved clinic",
+      revision: 1,
+    }),
+  );
+});

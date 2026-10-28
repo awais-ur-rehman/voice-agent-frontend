@@ -32,17 +32,22 @@ export function QueryState({
   query,
   children,
 }: {
-  query: { isPending: boolean; error: unknown };
+  query: { isPending: boolean; error: unknown; data?: unknown };
   children: ReactNode;
 }) {
-  return query.isPending ? (
-    <p role="status" className="empty-state">
-      Loading…
-    </p>
-  ) : query.error ? (
-    <ErrorSummary error={query.error} />
-  ) : (
-    <>{children}</>
+  if (query.data === undefined)
+    return query.isPending ? (
+      <p role="status" className="empty-state">
+        Loading…
+      </p>
+    ) : (
+      <ErrorSummary error={query.error} />
+    );
+  return (
+    <>
+      <ErrorSummary error={query.error} />
+      {children}
+    </>
   );
 }
 export function SetupPage() {

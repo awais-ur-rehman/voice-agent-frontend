@@ -9,13 +9,14 @@ test('dashboard auth, responsive profile, Urdu fields and keyboard confirmation'
   if(path==='/auth/me')body={id,tenant_id:id,email:'synthetic@example.test',role:'owner'};
   if(path==='/dashboard/clinic')body={id,name:'Synthetic clinic · مصنوعی کلینک',timezone:'Asia/Karachi',currency:'PKR',revision:1,min_notice_min:60,horizon_days:30,cancellation_min:60,daily_limit:5,address_en:'Synthetic public fixture address',address_ur:'مصنوعی کلینک کا پتہ',preparation_en:'Synthetic preparation instructions.',preparation_ur:'براہ کرم وقت پر تشریف لائیں'};
   if(path==='/dashboard/setup')body={profile:true,providers:true,services:true,hours:true,agent:false};
+  if(path==='/dashboard/appointments')body={items:[],total:0,limit:100,offset:0};
   if(path==='/providers')body=[{id,name:'Synthetic provider',name_ur:'مصنوعی ڈاکٹر',active:true,specialty:'General care'}];
   if(path==='/services')body=[{id,name:'Synthetic consultation',duration_min:30,active:true}];
   if(path==='/dashboard/provider-services')body={items:[{provider_id:id,service_id:id}],total:1,offset:0,limit:25};
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});
  });
  await page.setViewportSize({width:1440,height:1000});await page.goto('/');await page.getByLabel('Email *').focus();await expect(page.getByLabel('Email *')).toBeFocused();await page.keyboard.press('Tab');await expect(page.getByLabel('Password *')).toBeFocused();
- await page.getByLabel('Email *').fill('synthetic@example.test');await page.getByLabel('Password *').fill('synthetic-password');await page.getByRole('button',{name:'Sign in'}).click();await expect(page.getByRole('heading',{name:'Set up your clinic'})).toBeVisible();
+ await page.getByLabel('Email *').fill('synthetic@example.test');await page.getByLabel('Password *').fill('synthetic-password');await page.getByRole('button',{name:'Sign in'}).click();await expect(page.getByRole('heading',{name:'Schedule',exact:true})).toBeVisible();
  await page.getByRole('link',{name:'Clinic profile',exact:true}).click();await expect(page.getByLabel('Address · Urdu')).toHaveValue('مصنوعی کلینک کا پتہ');
  await expect(page.getByLabel('Confirm timezone change')).toHaveCount(0);
  await page.getByLabel('Clinic timezone').fill('Europe/London');await page.getByRole('button',{name:'Save changes'}).click();const timezoneReview=page.getByRole('dialog');await expect(timezoneReview).toContainText('Asia/Karachi → Europe/London');await expect(timezoneReview).toContainText('Booked appointments stay at the same time');await page.screenshot({path:'../backend/.superpowers/sdd/2026-10-28-phase-4-dashboard/task-4-fix-timezone-review.png'});await timezoneReview.getByRole('button',{name:'Cancel'}).click();await expect(timezoneReview).toHaveCount(0);await page.getByLabel('Clinic timezone').fill('Asia/Karachi');

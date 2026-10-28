@@ -1,0 +1,34 @@
+import {test,expect} from '@playwright/test';
+import type {CalendarAppointment,PatientDetail,Slot} from '../src/api/dashboard.generated';
+const id='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222';
+const patient:PatientDetail={id,name:'Synthetic patient with a longer English name',name_ur:'مصنوعی مریض عبدالرحمن محمد احمد ایک لمبا نام جو مکمل طور پر پڑھا جا سکتا ہے',phone:'+923001234567',dob:null,revision:1,merged_into_id:null};
+const destination:PatientDetail={...patient,id:other,name:'Synthetic retained patient',name_ur:null,revision:2};
+const slot:Slot={provider_id:id,service_id:id,starts_at:'2026-11-01T05:30:00Z',ends_at:'2026-11-01T06:00:00Z'};
+const appointment:CalendarAppointment={id,patient_id:id,provider_id:id,service_id:id,starts_at:slot.starts_at,ends_at:slot.ends_at,created_at:'2026-10-01T00:00:00Z',status:'booked',rescheduled_from_id:null,patient_name:patient.name,patient_name_ur:patient.name_ur??null,provider_name:'Synthetic provider',provider_name_ur:null,service_name:'Consultation',service_name_ur:null};
+test.use({timezoneId:'Asia/Tokyo'});
+test('fixture schedule, real calendar rendering, responsive Urdu list, reviewed booking and manager merge',async({page})=>{
+ const writes:{path:string;body:unknown}[]=[];
+ await page.route('http://localhost:8000/**',async route=>{const request=route.request(),u=new URL(request.url()),p=u.pathname;let body:unknown={};if(request.method()!=='GET')writes.push({path:p,body:request.postDataJSON()});
+ if(p==='/auth/login')body={access_token:'fixture-access',refresh_token:'fixture-refresh',expires_in:300};
+ if(p==='/auth/me')body={id,tenant_id:id,email:'fixture@example.test',role:'owner'};
+ if(p==='/dashboard/clinic')body={id,name:'Synthetic clinic · مصنوعی کلینک',timezone:'America/New_York',revision:1,currency:'PKR',min_notice_min:0,horizon_days:30,cancellation_min:0,daily_limit:5,address_en:'',address_ur:'',preparation_en:'',preparation_ur:''};
+ if(p==='/dashboard/setup')body={profile:true,providers:true,services:true,hours:true,agent:true};
+ if(p==='/providers')body=[{id,name:'Synthetic provider',name_ur:'مصنوعی ڈاکٹر',active:true}];
+ if(p==='/services')body=[{id,name:'Consultation',duration_min:30,active:true}];
+ if(p==='/dashboard/appointments')body={items:[appointment],total:1,offset:0,limit:100};
+ if(p==='/dashboard/patients')body={items:[patient,destination],total:2,offset:0,limit:25};
+ if(p===`/dashboard/patients/${id}`)body=patient;
+ if(p===`/dashboard/patients/${other}`||p.endsWith('/merge'))body=destination;
+ if(p.startsWith('/patients/')&&p.endsWith('/appointments'))body=[appointment];
+ if(p==='/slots')body=[slot];
+ if(p==='/appointments')body=appointment;
+ await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});
+ });
+ await page.setViewportSize({width:1440,height:1000});await page.goto('/');await page.getByLabel('Email *').fill('fixture@example.test');await page.getByLabel('Password *').fill('synthetic-password');await page.getByRole('button',{name:'Sign in'}).click();await expect(page.getByRole('heading',{name:'Schedule',exact:true})).toBeVisible();
+ await page.getByLabel('Clinic date').fill('2026-11-01');await page.getByRole('button',{name:'Day',exact:true}).click();await expect(page.getByRole('table',{name:'November 1, 2026',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Appointment list'})).toBeVisible();await page.screenshot({path:'../backend/.superpowers/sdd/2026-10-28-phase-4-dashboard/task-5-fixture-calendar-1440.png'});await page.getByRole('button',{name:'List',exact:true}).click();
+ for(const width of [1440,1024,390]){await page.setViewportSize({width,height:1000});await page.evaluate(async()=>{scrollTo(0,0);await document.fonts.ready;await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));});await expect(page.locator('.appointment-list').getByRole('button',{name:/Synthetic patient with/})).toContainText(patient.name_ur!);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:`../backend/.superpowers/sdd/2026-10-28-phase-4-dashboard/task-5-fixture-schedule-${width}.png`,fullPage:false});}
+ await page.getByRole('button',{name:'Toggle navigation'}).click();await page.keyboard.press('Tab');await expect(page.getByRole('link',{name:'Schedule',exact:true})).toBeFocused();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Toggle navigation'})).toBeFocused();
+ await page.getByRole('button',{name:'New appointment',exact:true}).click();const search=page.getByRole('region',{name:'Patient selection'});await search.getByRole('button',{name:/Synthetic patient with/}).click();await page.getByLabel('Provider',{exact:true}).selectOption(id);await page.getByLabel('Service',{exact:true}).selectOption(id);await page.getByRole('radio').check();await page.getByRole('button',{name:'Review appointment'}).click();expect(writes.filter(w=>w.path==='/appointments')).toHaveLength(0);await expect(page.getByRole('region',{name:'Review appointment'})).toContainText('UTC-04:00');await page.getByRole('button',{name:'Confirm appointment'}).click();await expect(page.getByRole('button',{name:'Close appointment form'})).toHaveCount(0);expect(writes.find(w=>w.path==='/appointments')?.body).toMatchObject({confirmed:true,starts_at:slot.starts_at});
+ await page.getByRole('button',{name:'Toggle navigation'}).click();await page.getByRole('link',{name:'Patients',exact:true}).click();await page.getByLabel('Search patients by name or phone').fill('عبدالرحمن');await page.getByRole('button',{name:/Synthetic patient with/}).click();await page.getByRole('button',{name:'Merge patient',exact:true}).click();const dialog=page.getByRole('dialog');await dialog.getByRole('button',{name:/Synthetic retained patient/}).click();for(const label of ['Retain name','Retain phone','Retain Urdu name','Retain date of birth'])await dialog.getByLabel(label).selectOption('destination');await dialog.getByRole('button',{name:'Review merge'}).click();await page.screenshot({path:'../backend/.superpowers/sdd/2026-10-28-phase-4-dashboard/task-5-fixture-merge-390.png'});await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);expect(writes.filter(w=>w.path.endsWith('/merge'))).toHaveLength(0);
+ expect(await page.evaluate(()=>({local:localStorage.length,session:sessionStorage.length}))).toEqual({local:0,session:0});expect(page.url()).not.toContain('عبدالرحمن');
+});

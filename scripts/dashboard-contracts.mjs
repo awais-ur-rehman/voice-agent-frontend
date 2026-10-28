@@ -87,6 +87,7 @@ const formNames = [
   "ExceptionCreate",
   "UserCreate",
   "AvailabilityTemplate",
+  "PatientCreate",
 ];
 const forms =
   JSON.stringify(

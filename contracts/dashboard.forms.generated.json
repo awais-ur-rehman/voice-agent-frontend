@@ -693,6 +693,54 @@
         ],
         "title": "AvailabilityTemplate",
         "type": "object"
+      },
+      "PatientCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "dob": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dob"
+          },
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "name_ur": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Ur"
+          },
+          "phone": {
+            "maxLength": 40,
+            "minLength": 5,
+            "title": "Phone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "phone"
+        ],
+        "title": "PatientCreate",
+        "type": "object"
       }
     }
   }

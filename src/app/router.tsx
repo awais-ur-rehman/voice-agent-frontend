@@ -8,6 +8,43 @@ import {
   ServicesPage,
   StaffPage,
 } from "../features/clinic/ClinicPages";
+import { Suspense, lazy } from "react";
+import { useDashboardQuery, QueryState } from "../features/clinic/ClinicPages";
+const SchedulePage = lazy(() =>
+  import("../features/scheduling/SchedulePage").then((m) => ({
+    default: m.SchedulePage,
+  })),
+);
+const PatientsPage = lazy(() =>
+  import("../features/patients/PatientsPage").then((m) => ({
+    default: m.PatientsPage,
+  })),
+);
+const PatientDetail = lazy(() =>
+  import("../features/patients/PatientDetail").then((m) => ({
+    default: m.PatientDetail,
+  })),
+);
+function Landing() {
+  const query = useDashboardQuery("GET /dashboard/setup");
+  return (
+    <QueryState query={query}>
+      {query.data && (
+        <Navigate
+          to={
+            query.data.profile &&
+            query.data.providers &&
+            query.data.services &&
+            query.data.hours
+              ? "/schedule"
+              : "/setup"
+          }
+          replace
+        />
+      )}
+    </QueryState>
+  );
+}
 import { HoursPage } from "../features/clinic/HoursPage";
 export const routes = [
   { path: "/login", element: <AuthPage /> },
@@ -15,7 +52,31 @@ export const routes = [
   {
     element: <AppShell />,
     children: [
-      { index: true, element: <Navigate to="/setup" replace /> },
+      { index: true, element: <Landing /> },
+      {
+        path: "/schedule",
+        element: (
+          <Suspense fallback={<p role="status">Loading schedule…</p>}>
+            <SchedulePage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/patients",
+        element: (
+          <Suspense fallback={<p role="status">Loading patients…</p>}>
+            <PatientsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/patients/:identity",
+        element: (
+          <Suspense fallback={<p role="status">Loading patient…</p>}>
+            <PatientDetail />
+          </Suspense>
+        ),
+      },
       { path: "/setup", element: <SetupPage /> },
       { path: "/clinic", element: <ClinicPage /> },
       { path: "/providers", element: <ProvidersPage /> },

@@ -20,6 +20,12 @@ export class DashboardError extends Error {
     readonly code: string,
     message: string,
     readonly fields: Record<string, string> = {},
+    readonly alternatives: {
+      starts_at: string;
+      ends_at: string;
+      provider_id: string;
+      service_id: string;
+    }[] = [],
   ) {
     super(message);
   }
@@ -27,6 +33,12 @@ export class DashboardError extends Error {
     let code = "request_failed",
       message = `Request failed (${response.status}). Please try again.`,
       fields: Record<string, string> = {};
+    let alternatives: {
+      starts_at: string;
+      ends_at: string;
+      provider_id: string;
+      service_id: string;
+    }[] = [];
     try {
       const text = await response.text();
       if (text.length < 16000) {
@@ -37,6 +49,18 @@ export class DashboardError extends Error {
           if (typeof error.message === "string" && error.message.length < 1000)
             message = error.message;
           if (record(error.details)) {
+            const slots = z
+              .array(
+                z.object({
+                  starts_at: z.iso.datetime({ offset: true }),
+                  ends_at: z.iso.datetime({ offset: true }),
+                  provider_id: z.string().uuid(),
+                  service_id: z.string().uuid(),
+                }),
+              )
+              .max(100)
+              .safeParse(error.details.alternatives);
+            if (slots.success) alternatives = slots.data;
             const parsed = z
               .union([
                 z.array(z.string().max(200)).max(100),
@@ -55,7 +79,13 @@ export class DashboardError extends Error {
     } catch {
       /* Fall back without rendering an arbitrary response. */
     }
-    return new DashboardError(response.status, code, message, fields);
+    return new DashboardError(
+      response.status,
+      code,
+      message,
+      fields,
+      alternatives,
+    );
   }
 }
 export async function http<K extends Operation>(

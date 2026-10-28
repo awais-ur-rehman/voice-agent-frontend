@@ -695,3 +695,162 @@ td .button {
 .form-field .urdu {
   line-height: 2;
 }
+/* Daily operations follow the shared compact clinic grid. */
+.schedule-toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.schedule-toolbar .form-field {
+  margin: 0;
+  min-width: 150px;
+}
+.button-group {
+  display: flex;
+  gap: 6px;
+}
+.appointment-list {
+  display: grid;
+  gap: 0;
+}
+.appointment-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr) auto;
+  gap: 16px;
+  align-items: center;
+  text-align: start;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 16px 8px;
+  background: transparent;
+  color: inherit;
+  width: 100%;
+  font: inherit;
+  overflow-wrap: anywhere;
+}
+button.appointment-row {
+  cursor: pointer;
+}
+.appointment-row:hover {
+  background: #f8fafc;
+}
+.appointment-row small {
+  display: block;
+  margin-top: 4px;
+}
+.appointment-row .urdu {
+  line-height: 2.2;
+}
+.appointment-time {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: #475569;
+}
+.patient-results {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.patient-results .button {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  height: auto;
+  white-space: normal;
+  text-align: start;
+  line-height: 2;
+  overflow-wrap: anywhere;
+}
+.slot-options {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.slot-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 400;
+}
+.slot-options input {
+  width: auto;
+}
+.review-panel {
+  border: 1px solid #bfdbfe;
+  background: #f8fbff;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 8px;
+}
+.review-panel .button {
+  margin: 4px;
+}
+.merge-dialog {
+  max-width: 720px;
+  max-height: 90dvh;
+  overflow: auto;
+}
+.merge-dialog .form-field {
+  margin: 16px 0;
+}
+fieldset {
+  min-width: 0;
+}
+.desktop-calendar {
+  margin-top: 20px;
+}
+.mobile-nav-trigger {
+  display: none;
+}
+@media (max-width: 767px) {
+  .mobile-nav-trigger {
+    display: block;
+    position: fixed;
+    top: 12px;
+    left: 16px;
+    z-index: 45;
+  }
+  .topbar {
+    padding-left: 90px;
+  }
+  .desktop-calendar {
+    display: none;
+  }
+  .appointment-row {
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+  .appointment-time {
+    grid-column: 1/-1;
+  }
+  .schedule-toolbar {
+    gap: 12px;
+  }
+  .schedule-toolbar .form-field {
+    width: 100%;
+  }
+  .patient-results .button {
+    flex-direction: column;
+    align-items: start;
+    gap: 0;
+  }
+}
+.settings-subnav {
+  display: grid;
+  gap: 2px;
+  margin-left: 14px;
+  padding-left: 8px;
+  border-left: 1px solid var(--border);
+}
+.sidebar .settings-subnav a {
+  font-size: 13px;
+  min-height: 34px;
+}
