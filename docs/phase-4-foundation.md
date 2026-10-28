@@ -1,0 +1,23 @@
+# Phase 4 foundation integration
+
+This commit delivers authentication, shared shell and clinic settings. It does not deliver the schedule, patients or agent editor (Tasks5/6), and is not the Phase4 owner checkpoint. Only implemented navigation is shown. The setup checklist explicitly reports the pending agent-editor integration rather than supplying an inactive link. Task5 should replace the index redirect with the completed-clinic schedule destination; Task6 should replace the agent checklist note with the actual agent route.
+
+## Shared interfaces
+
+`useAuth()` exposes `me`, `sessionId`, `request`, `logout`, `isManager`, `registerCleanup`, plus auth entry points. `request('PATCH /resource/{identity}', {params:{identity},body,signal,idempotencyKey})` is typed from `DashboardOperations`. Literal endpoint templates select generated request and response types. Mutation retries must reuse the same key for the same reviewed user intent. Register media cleanup with `registerCleanup(() => media.disconnect())`; this is required when Task6 mounts voice. Tokens are private to Session memory and never returned by the hook. Use `useSessionKey(...)` for every feature query. Session reset aborts requests, clears QueryClient and invokes registered media cleanup. A generation fence rejects results even if an underlying fetch ignores abort. Singleflight refresh handles both simultaneous401 and a late401 after rotation.
+
+`routes` is a React Router DataRouter configuration, compatible with real `useBlocker` in Task6. `PageHeader`, `ErrorSummary`, `StatusBadge`, `EmptyState`, `ConfirmDialog`, `ContractForm`, and shared CSS provide page/form/table treatments. A form validates generated JSON schemas, maps server field arrays/maps, disables fields during save and preserves inputs on failure. Use focused feature components for complex agent editing rather than exposing raw config objects in this general-purpose form.
+
+`useDashboardQuery`, `useRefreshClinic`, `useCatalog` provide session-scoped clinic data. Catalog selectors fetch every page; visible tables paginate25 records. Availability is a single server snapshot. Friday/Ramadan edits preview server changes and apply the identical body/revision with a stable per-review key. No client-side delete/create template chain exists. Closures remind only within14 calendar days of a manually configured start date in the clinic timezone.
+
+## Regression mapping and follow-up
+
+The former App is temporarily retained as **test-only** `LegacyVoiceConsole`; it is not imported by the delivered application. Its existing tests preserve independent protocol/media lifecycle intents during Task4: admission failures, permission failure, playback resume, end/disconnect cleanup, unmount cancellation, late responses, logout and account isolation. These tests do **not** prove the new app's voice UI works. New session tests cover the new auth lifecycle and generic media cleanup registration. Task6 must port UI-specific voice assertions to its real isolated test adapter, then remove this test-only legacy component and obsolete UI tests. Independent `media.test.ts` and `protocol.test.ts` must remain.
+
+The Phase3 Playwright spec was migrated to actual dashboard routes with synthetic HTTP fixtures: keyboard sign-in, profile/Urdu layout at1440/1024/390, mobile navigation, Radix confirmation focus/Escape, logout and empty browser storage. Voice-unavailable browser assertions must return against Task6's adapter; corresponding legacy unit and independent protocol/media tests remain. Existing docs/evidence screenshots document Phase3 only. Task4 screenshots are explicitly fixture-backed and saved in the controller evidence directory.
+
+## Verification boundary
+
+Unit tests use synthetic HTTP fixtures shaped from the public contract, with no credentials or real patient data. The live backend still runs Phase3 until Task7 redeployment. Do not infer live integration or visual acceptance from these unit results. Task7 must inspect1440/1024/390 layouts, keyboard dialogs, long Urdu content and real server flows through the approved CUA workflow. All fonts are locally bundled. No patient or token browser persistence is introduced.
+
+Calendar and voice must use lazy route/feature imports in Tasks5/6. The Task4 build warning (~661KB raw /201KB gzip) is from shared React/DataRouter/Query/RHF/Radix/Ajv/Zod code and generated form schemas, not LiveKit, a Lucide namespace/barrel or the full177KB OpenAPI document. The browser imports only the generated16KB forms subset. Do not add large calendar/media SDKs to this initial bundle; review final route splitting during Task7.

@@ -1,0 +1,699 @@
+{
+  "components": {
+    "schemas": {
+      "Login": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "Login",
+        "type": "object"
+      },
+      "Register": {
+        "additionalProperties": false,
+        "properties": {
+          "clinic_name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Clinic Name",
+            "type": "string"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 128,
+            "minLength": 12,
+            "title": "Password",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "clinic_name",
+          "timezone"
+        ],
+        "title": "Register",
+        "type": "object"
+      },
+      "ProfilePatch": {
+        "additionalProperties": false,
+        "properties": {
+          "address_en": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address En"
+          },
+          "address_ur": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address Ur"
+          },
+          "cancellation_min": {
+            "anyOf": [
+              {
+                "maximum": 43200,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancellation Min"
+          },
+          "confirm_timezone_change": {
+            "default": false,
+            "title": "Confirm Timezone Change",
+            "type": "boolean"
+          },
+          "daily_limit": {
+            "anyOf": [
+              {
+                "maximum": 100,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Daily Limit"
+          },
+          "horizon_days": {
+            "anyOf": [
+              {
+                "maximum": 365,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Horizon Days"
+          },
+          "min_notice_min": {
+            "anyOf": [
+              {
+                "maximum": 43200,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Notice Min"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "preparation_en": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preparation En"
+          },
+          "preparation_ur": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preparation Ur"
+          },
+          "revision": {
+            "minimum": 1,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timezone"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "title": "ProfilePatch",
+        "type": "object"
+      },
+      "ProviderCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "name_ur": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Ur"
+          },
+          "specialty": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Specialty",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "ProviderCreate",
+        "type": "object"
+      },
+      "ProviderPatch": {
+        "additionalProperties": false,
+        "properties": {
+          "active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "name_ur": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Ur"
+          },
+          "specialty": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Specialty"
+          }
+        },
+        "title": "ProviderPatch",
+        "type": "object"
+      },
+      "ServiceCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "buffer_after_min": {
+            "default": 0,
+            "maximum": 120,
+            "minimum": 0,
+            "title": "Buffer After Min",
+            "type": "integer"
+          },
+          "buffer_before_min": {
+            "default": 0,
+            "maximum": 120,
+            "minimum": 0,
+            "title": "Buffer Before Min",
+            "type": "integer"
+          },
+          "duration_min": {
+            "maximum": 480,
+            "minimum": 1,
+            "title": "Duration Min",
+            "type": "integer"
+          },
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "name_ur": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Ur"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Price"
+          }
+        },
+        "required": [
+          "name",
+          "duration_min"
+        ],
+        "title": "ServiceCreate",
+        "type": "object"
+      },
+      "ServicePatch": {
+        "additionalProperties": false,
+        "properties": {
+          "active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active"
+          },
+          "buffer_after_min": {
+            "anyOf": [
+              {
+                "maximum": 120,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buffer After Min"
+          },
+          "buffer_before_min": {
+            "anyOf": [
+              {
+                "maximum": 120,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buffer Before Min"
+          },
+          "duration_min": {
+            "anyOf": [
+              {
+                "maximum": 480,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Min"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "name_ur": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name Ur"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          }
+        },
+        "title": "ServicePatch",
+        "type": "object"
+      },
+      "RuleCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "end_time": {
+            "format": "time",
+            "title": "End Time",
+            "type": "string"
+          },
+          "provider_id": {
+            "format": "uuid",
+            "title": "Provider Id",
+            "type": "string"
+          },
+          "slot_min": {
+            "default": 15,
+            "maximum": 240,
+            "minimum": 5,
+            "title": "Slot Min",
+            "type": "integer"
+          },
+          "start_time": {
+            "format": "time",
+            "title": "Start Time",
+            "type": "string"
+          },
+          "weekday": {
+            "maximum": 7,
+            "minimum": 1,
+            "title": "Weekday",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "provider_id",
+          "weekday",
+          "start_time",
+          "end_time"
+        ],
+        "title": "RuleCreate",
+        "type": "object"
+      },
+      "ExceptionCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "end_date": {
+            "format": "date",
+            "title": "End Date",
+            "type": "string"
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time"
+          },
+          "kind": {
+            "enum": [
+              "closed",
+              "custom"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "provider_id": {
+            "format": "uuid",
+            "title": "Provider Id",
+            "type": "string"
+          },
+          "start_date": {
+            "format": "date",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          }
+        },
+        "required": [
+          "provider_id",
+          "start_date",
+          "end_date",
+          "kind"
+        ],
+        "title": "ExceptionCreate",
+        "type": "object"
+      },
+      "UserCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 128,
+            "minLength": 12,
+            "title": "Password",
+            "type": "string"
+          },
+          "role": {
+            "default": "staff",
+            "enum": [
+              "admin",
+              "staff"
+            ],
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "UserCreate",
+        "type": "object"
+      },
+      "AvailabilityTemplate": {
+        "additionalProperties": false,
+        "properties": {
+          "break_end": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Break End"
+          },
+          "break_start": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Break Start"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time"
+          },
+          "revision": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Revision",
+            "type": "string"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "template": {
+            "enum": [
+              "friday_prayer",
+              "ramadan"
+            ],
+            "title": "Template",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "template"
+        ],
+        "title": "AvailabilityTemplate",
+        "type": "object"
+      }
+    }
+  }
+}

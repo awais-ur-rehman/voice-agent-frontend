@@ -38,3 +38,20 @@ Verified 2026-10-28 from npm registry metadata, installed package manifests and 
 Font files are bundled locally under OFL-1.1. Keep their installed license notices when redistributing. LiveKit client is Apache-2.0; the shadcn Button source pattern is MIT. No BoardUI, Libraries.dev, React Bits or Lenis code is adopted. See [design decisions](design-decisions.md) for references and rationale.
 
 Transitive artifacts are pinned in package-lock.json. `npm audit` reported zero vulnerabilities at installation. This is a point-in-time result, not a future security guarantee.
+
+## Phase 4 foundation
+
+Verified directly with `npm view PACKAGE version license peerDependencies engines --json` on 2026-10-28 before installation. `npm install` resolved without peer overrides, with zero audit vulnerabilities.
+
+| Package | Version | License | Purpose / primary source |
+| --- | --- | --- | --- |
+| react-router | 8.5.1 | MIT | DataRouter, nested layouts and future unsaved-edit blockers; [package](https://www.npmjs.com/package/react-router/v/8.5.1), [docs](https://reactrouter.com/start/data/installation) |
+| react-hook-form | 7.91.0 | MIT | Form state, pending controls and field errors; [package](https://www.npmjs.com/package/react-hook-form/v/7.91.0), [docs](https://react-hook-form.com/get-started) |
+| @radix-ui/react-dialog | 1.3.1 | MIT | Focus containment, accessible confirmations and keyboard dismissal; [package](https://www.npmjs.com/package/@radix-ui/react-dialog/v/1.3.1), [docs](https://www.radix-ui.com/primitives/docs/components/dialog) |
+| zod | 4.6.7 | MIT | Bounded validation of server error field arrays/maps; [package](https://www.npmjs.com/package/zod/v/4.6.7), [docs](https://zod.dev/) |
+
+Router requires Node >=22.22 and React >=19.2.7; installed Node24/React19.3 satisfy these. RHF and Radix explicitly support React19. Keep upstream MIT notices with redistribution.
+
+`openapi-typescript`7.13.0 was reviewed but rejected because its TypeScript^5 peer conflicts with this repository's TypeScript6.0.3. Existing `json-schema-to-typescript`16 generates the dashboard types and HTTP operation map from the copied public OpenAPI artifact. Generation checks both the upstream artifact and generated outputs. Form runtime schemas are an automatically extracted subset; validation is Ajv against those schemas, not hand-maintained domain duplicates. Existing voice generation and Ajv protocol validation remain intact.
+
+BoardUI remains a visual reference only. Thinking Orbs0.3.2 (MIT, React>=18 per controller research) is deferred to the real agent-test state in Task6. No decorative React Bits or Lenis dependency is needed: ordinary operations pages use native scrolling, restrained CSS and reduced-motion support. No source from those references is copied into this foundation. Current shadcn-style Button and Radix Dialog form one primitive system; native selects preserve keyboard interaction without an additional custom select package.
