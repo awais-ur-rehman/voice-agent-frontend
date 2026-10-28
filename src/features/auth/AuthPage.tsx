@@ -50,7 +50,7 @@ export function AuthPage({ signup = false }: { signup?: boolean }) {
         </p>
       </section>
       <p className="auth-note">
-        Your session stays in memory. Reloading requires signing in again.
+        Refreshing the page requires signing in again.
       </p>
     </main>
   );

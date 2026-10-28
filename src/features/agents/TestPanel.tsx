@@ -202,8 +202,7 @@ export function TestPanel({
             <p>
               {snapshot.transport_capabilities.voice.available
                 ? "Native speech is admitted for this test."
-                : (snapshot.transport_capabilities.voice.reason ??
-                  "Native speech is unavailable.")}
+                : "Speech is unavailable. You can continue testing with text."}
             </p>
             <button
               className="button secondary"

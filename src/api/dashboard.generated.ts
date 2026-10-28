@@ -305,6 +305,7 @@ export type CreatedAt2 = string;
 export type Id16 = string;
 export type Number = number | null;
 export type PublisherId = string | null;
+export type PublisherName = string | null;
 export type RollbackSourceId = string | null;
 export type Warnings = string[];
 export type Id17 = string;
@@ -872,6 +873,7 @@ export interface VersionOut {
   id: Id16;
   number: Number;
   publisher_id: PublisherId;
+  publisher_name?: PublisherName;
   rollback_source_id: RollbackSourceId;
   warnings?: Warnings;
 }

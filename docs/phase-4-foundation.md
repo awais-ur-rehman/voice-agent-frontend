@@ -1,3 +1,7 @@
+# Current Phase 4 integration status
+
+Tasks 4–6 and Task 7 local integration are implemented. Schedule, Patients, Agents and clinic settings are working routes; the test-only LegacyVoiceConsole was removed in Task 6. The API was rebuilt and additively migrated during Task 7. See [current results](phase-4-results.md). Sections below preserve the historical foundation contracts and task evidence; their task-time pending notes are superseded by the current results.
+
 # Phase 4 foundation integration
 
 This commit delivers authentication, shared shell and clinic settings. It does not deliver the schedule, patients or agent editor (Tasks5/6), and is not the Phase4 owner checkpoint. Only implemented navigation is shown. The setup checklist explicitly reports the pending agent-editor integration rather than supplying an inactive link. Task5 should replace the index redirect with the completed-clinic schedule destination; Task6 should replace the agent checklist note with the actual agent route.

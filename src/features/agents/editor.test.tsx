@@ -245,7 +245,9 @@ it("locks reviewed publish across uncertain retry and preserves exact body and k
 it("keeps text testing available while unavailable speech never allocates media", async () => {
   const { user } = await setup();
   await user.click(screen.getByRole("button", { name: "Start isolated test" }));
-  await screen.findByText("ASR and Urdu acceptance blocked.");
+  await screen.findByText(
+    "Speech is unavailable. You can continue testing with text.",
+  );
   expect(screen.getByRole("button", { name: "Start voice" })).toBeDisabled();
   expect(writes.some((w) => w.path.endsWith("/voice"))).toBe(false);
   expect(screen.getByText(/Tested draft revision 7/)).toBeInTheDocument();
@@ -263,7 +265,7 @@ it("retains own successful save revision before a background response arrives", 
 it("creates trimmed drafts, reviews rollback with source identity, and confirms admission changes", async () => {
   const { user } = await setup();
   await user.click(screen.getByRole("button", { name: "Versions" }));
-  expect(screen.getByText(/Publisher staff-one/)).toBeInTheDocument();
+  expect(screen.getByText(/Publisher QA Clinic Owner/)).toBeInTheDocument();
   await user.click(
     screen.getByRole("button", { name: "Restore as new version" }),
   );

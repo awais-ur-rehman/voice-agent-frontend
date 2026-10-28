@@ -710,7 +710,11 @@ function Editor({
                       <strong>Version {version.number ?? "Legacy"}</strong>
                       <p>
                         {new Date(version.created_at).toLocaleString()} ·
-                        Publisher {version.publisher_id ?? "Legacy record"}
+                        Publisher{" "}
+                        {version.publisher_name?.trim() ||
+                          (version.publisher_id
+                            ? "Staff member (name unavailable)"
+                            : "Historical record (publisher unavailable)")}
                       </p>
                       {version.rollback_source_id && (
                         <p>

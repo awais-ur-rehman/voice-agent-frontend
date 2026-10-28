@@ -1,0 +1,378 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/agents/editor.test.tsx
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+ ❯ src/features/agents/editor.test.tsx (11 tests | 1 failed) 2970ms
+   × creates trimmed drafts, reviews rollback with source identity, and confirms admission changes 162ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/agents/editor.test.tsx > creates trimmed drafts, reviews rollback with source identity, and confirms admission changes
+TestingLibraryElementError: Unable to find an element with the text: /Publisher QA Clinic Owner/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"app-shell"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#workspace"[39m
+      [36m>[39m
+        [0mSkip to content[0m
+      [36m</a>[39m
+      [36m<button[39m
+        [33maria-controls[39m=[32m"main-navigation"[39m
+        [33maria-expanded[39m=[32m"false"[39m
+        [33maria-label[39m=[32m"Toggle navigation"[39m
+        [33mclass[39m=[32m"menu-toggle mobile-nav-trigger button secondary"[39m
+      [36m>[39m
+        [0mMenu[0m
+      [36m</button>[39m
+      [36m<aside[39m
+        [33mclass[39m=[32m"sidebar "[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"brand"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"brand-mark"[39m
+          [36m>[39m
+            [0mC[0m
+          [36m</span>[39m
+          [36m<span>[39m
+            [0mClinic workspace[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"nav-label"[39m
+        [36m>[39m
+          [0mWORKSPACE[0m
+        [36m</p>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mid[39m=[32m"main-navigation"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/schedule"[39m
+          [36m>[39m
+            [0mSchedule[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33maria-current[39m=[32m"page"[39m
+            [33mclass[39m=[32m"active"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/agents"[39m
+          [36m>[39m
+            [0mAgents[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/patients"[39m
+          [36m>[39m
+            [0mPatients[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/clinic"[39m
+          [36m>[39m
+            [0mClinic settings[0m
+          [36m</a>[39m
+          [36m<div[39m
+            [33maria-label[39m=[32m"Clinic settings pages"[39m
+            [33mclass[39m=[32m"settings-subnav"[39m
+            [33mrole[39m=[32m"group"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/setup"[39m
+            [36m>[39m
+              [0mSetup checklist[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/clinic"[39m
+            [36m>[39m
+              [0mClinic profile[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/providers"[39m
+            [36m>[39m
+              [0mProviders[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/services"[39m
+            [36m>[39m
+              [0mServices[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/hours"[39m
+            [36m>[39m
+              [0mHours & exceptions[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/staff"[39m
+            [36m>[39m
+              [0mTeam access[0m
+            [36m</a>[39m
+          [36m</div>[39m
+        [36m</nav>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"sidebar-footer"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"avatar"[39m
+          [36m>[39m
+            [0mO[0m
+          [36m</span>[39m
+          [36m<div>[39m
+            [36m<strong>[39m
+              [0mowner[0m
+            [36m</strong>[39m
+            [36m<small>[39m
+              [0mowner@example.test[0m
+            [36m</small>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</aside>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"shell-main"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"topbar"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mdir[39m=[32m"auto"[39m
+          [36m>[39m
+            [0mTest clinic[0m
+          [36m</strong>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"topbar-actions"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAsia/Karachi[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"button secondary"[39m
+            [36m>[39m
+              [0mSign out[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</header>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"workspace"[39m
+          [33mid[39m=[32m"workspace"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"page-header"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<h1>[39m
+                [0mReception[0m
+              [36m</h1>[39m
+              [36m<p>[39m
+                [0mDraft changes take effect only after publication.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"button secondary"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/agents"[39m
+            [36m>[39m
+              [0mAll agents[0m
+            [36m</a>[39m
+          [36m</header>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"agent-toolbar"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"status-badge"[39m
+            [36m>[39m
+              [0mEnabled[0m
+            [36m</span>[39m
+            [36m<span>[39m
+              [0mPublished v1[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mrole[39m=[32m"status"[39m
+            [36m>[39m
+              [0mSaved draft · revision 7[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"form-actions"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button secondary"[39m
+                [33mdisabled[39m=[32m""[39m
+              [36m>[39m
+                [0mSave draft[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button"[39m
+              [36m>[39m
+                [0mPublish[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"agent-layout"[39m
+          [36m>[39m
+            [36m<section[39m
+              [33mclass[39m=[32m"panel agent-editor"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33maria-label[39m=[32m"Agent sections"[39m
+                [33mclass[39m=[32m"agent-tabs"[39m
+                [33mrole[39m=[32m"group"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mGeneral[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mVoice[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"true"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mVersions[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mTest[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<h2>[39m
+                [0mPublished history[0m
+              [36m</h2>[39m
+              [36m<ol[39m
+                [33mclass[39m=[32m"version-list"[39m
+              [36m>[39m
+                [36m<li>[39m
+                  [36m<strong>[39m
+                    [0mVersion [0m
+                    [0m1[0m
+                  [36m</strong>[39m
+                  [36m<p>[39m
+                    [0m10/28/2026, 5:00:00 PM[0m
+                    [0m · Publisher [0m
+                    [0mstaff-one[0m
+                  [36m</p>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"button secondary"[39m
+                  [36m>[39m
+                    [0mRestore as new version[0m
+                  [36m</button>[39m
+                [36m</li>[39m
+              [36m</ol>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"muted"[39m
+              [36m>[39m
+                [0mRestoring creates a new immutable version. History and existing sessions stay pinned.[0m
+              [36m</p>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"agent-danger"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"button secondary"[39m
+                [36m>[39m
+                  [0mDisable agent[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"button secondary"[39m
+                [36m>[39m
+                  [0mArchive agent[0m
+                [36m</button>[39m
+              [36m</div>[39m
+            [36m</section>[39m
+            [36m<aside[39m
+              [33maria-labelledby[39m=[32m"test-title"[39m
+              [33mclass[39m=[32m"panel agent-test"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"agent-test-heading"[39m
+              [36m>[39m
+                [36m<canvas[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Working…"[39m
+                  [33mheight[39m=[32m"32"[39m
+                  [33mrole[39m=[32m"img"[39m
+                  [33mstyle[39m=[32m"width: 32px; height: 32px; display: block;"[39m
+                  [33mwidth[39m=[32m"32"[39m
+                [36m/>[39m
+                [36m<div>[39m
+                  [36m<h2[39m
+                    [33mid[39m=[32m"test-title"[39m
+                  [36m>[39m
+                    [0mIsolated test clinic[0m
+                  [36m</h2>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"status-badge"[39m
+                  [36m>[39m
+                    [0mNot started[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<p>[39m
+                [0mChanges affect synthetic test records only. Real patients and bookings are never copied.[0m
+              [36m</p>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button"[39m
+              [36m>[39m
+                [0mStart isolated test[0m
+              [36m</button>[39m
+            [36m</aside>[39m
+          [36m</div>[39m
+        [36m</main>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/agents/editor.test.tsx:266:17
+    264|   const { user } = await setup();
+    265|   await user.click(screen.getByRole("button", { name: "Versions" }));
+    266|   expect(screen.getByText(/Publisher QA Clinic Owner/)).toBeInTheDocum…
+       |                 ^
+    267|   await user.click(
+    268|     screen.getByRole("button", { name: "Restore as new version" }),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  01:17:32
+   Duration  4.09s (tests 74%, environment 16%, import 5%, setup 3%, transform 2%)
+

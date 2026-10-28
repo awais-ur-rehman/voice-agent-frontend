@@ -68,7 +68,7 @@ export const testSnapshot: TestSnapshot = {
   },
   transport_capabilities: {
     text: { available: true },
-    voice: { available: false, reason: "ASR and Urdu acceptance blocked." },
+    voice: { available: false, reason: "voice_unavailable" },
   },
 };
 export const voiceSnapshot: VoiceSnapshot = {
@@ -93,6 +93,7 @@ export const version: VersionOut = {
   config: draft.config,
   created_at: "2026-10-28T12:00:00Z",
   publisher_id: "staff-one",
+  publisher_name: "QA Clinic Owner",
   rollback_source_id: null,
   warnings: [],
 };

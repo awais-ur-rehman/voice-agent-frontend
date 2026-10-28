@@ -1,0 +1,4 @@
+
+> clinic-voice-console@0.1.0 contracts:check
+> node scripts/contracts.mjs --check && node scripts/dashboard-contracts.mjs --check
+
