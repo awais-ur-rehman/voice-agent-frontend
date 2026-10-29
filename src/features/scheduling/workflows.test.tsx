@@ -970,3 +970,164 @@ it("opens selected appointment details and rescheduling in the same discoverable
   );
   await waitFor(() => expect(trigger).toHaveFocus());
 });
+
+for (const operation of ["book", "move", "cancel", "merge"] as const)
+  for (const status of [503, 408])
+    it(`blocks router Back and unload for pending and HTTP ${status} ${operation}, preserving exact retry`, async () => {
+      const original = globalThis.fetch;
+      const requests: RequestInit[] = [];
+      let resolve!: (response: Response) => void;
+      const response = new Promise<Response>((done) => {
+        resolve = done;
+      });
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async (url: string, init: RequestInit = {}) => {
+          const path = new URL(url).pathname;
+          const target =
+            operation === "book"
+              ? path === "/appointments"
+              : path.endsWith(
+                  operation === "move" ? "/reschedule" : `/${operation}`,
+                );
+          if (init.method === "POST" && target) {
+            requests.push(init);
+            return requests.length === 1
+              ? response
+              : Response.json(
+                  operation === "merge" ? destination : appointment,
+                );
+          }
+          return original(url, init);
+        }),
+      );
+      const { user, router } = await setup();
+      await router.navigate("/patients");
+      const path = operation === "merge" ? `/patients/${id}` : "/schedule";
+      await router.navigate(path);
+      if (operation !== "merge") {
+        await screen.findByRole("heading", { name: "Schedule" });
+        await user.click(screen.getByRole("button", { name: "List" }));
+      }
+      let confirm: string;
+      if (operation === "book") {
+        await selectBooking(user);
+        confirm = "Confirm appointment";
+      } else if (operation === "merge") {
+        await user.click(
+          await screen.findByRole("button", { name: "Merge patient" }),
+        );
+        await user.click(
+          await screen.findByRole("button", { name: /Retained patient/ }),
+        );
+        for (const label of [
+          "Retain name",
+          "Retain phone",
+          "Retain Urdu name",
+          "Retain date of birth",
+        ])
+          await user.selectOptions(screen.getByLabelText(label), "source");
+        await user.click(screen.getByRole("button", { name: "Review merge" }));
+        confirm = "Confirm merge";
+      } else {
+        await user.click(
+          await screen.findByRole("button", { name: /Synthetic patient/ }),
+        );
+        if (operation === "move") {
+          await user.click(screen.getByRole("button", { name: "Reschedule" }));
+          await user.click(await screen.findByRole("radio"));
+          await user.click(
+            screen.getByRole("button", { name: "Review appointment" }),
+          );
+          confirm = "Confirm appointment";
+        } else {
+          confirm = "Confirm cancellation";
+          await user.click(screen.getByRole("button", { name: confirm }));
+        }
+      }
+      await user.click(screen.getByRole("button", { name: confirm }));
+      await waitFor(() => expect(requests).toHaveLength(1));
+      async function blocked() {
+        await router.navigate(-1);
+        expect(router.state.location.pathname).toBe(path);
+        const event = new Event("beforeunload", { cancelable: true });
+        window.dispatchEvent(event);
+        expect(event.defaultPrevented).toBe(true);
+        await user.click(
+          await screen.findByRole("button", { name: "Stay and resolve" }),
+        );
+        await router.navigate("/clinic");
+        expect(router.state.location.pathname).toBe(path);
+        await user.click(
+          await screen.findByRole("button", { name: "Stay and resolve" }),
+        );
+      }
+      await blocked();
+      resolve(
+        Response.json(
+          { error: { code: "unavailable", message: "Outcome unknown." } },
+          { status },
+        ),
+      );
+      await screen.findByText("Outcome unknown.");
+      await blocked();
+      await user.click(screen.getByRole("button", { name: confirm }));
+      await waitFor(() => expect(requests).toHaveLength(2));
+      expect(requests[1]?.body).toBe(requests[0]?.body);
+      expect(new Headers(requests[1]?.headers).get("Idempotency-Key")).toBe(
+        new Headers(requests[0]?.headers).get("Idempotency-Key"),
+      );
+      await waitFor(() =>
+        expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+      );
+      const event = new Event("beforeunload", { cancelable: true });
+      window.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(false);
+      await router.navigate("/patients");
+      expect(router.state.location.pathname).toBe("/patients");
+      expect(localStorage.length + sessionStorage.length).toBe(0);
+    });
+
+it("allows deliberate auth-reset cleanup while a booking outcome is unknown", async () => {
+  mode = "retry";
+  const { user, router } = await setup();
+  const signOut = screen.getByRole("button", { name: "Sign out" });
+  await selectBooking(user);
+  await user.click(screen.getByRole("button", { name: "Confirm appointment" }));
+  await screen.findByText("Try again.");
+  fireEvent.click(signOut);
+  await screen.findByRole("button", { name: "Sign in" });
+  expect(router.state.location.pathname).toBe("/login");
+  const event = new Event("beforeunload", { cancelable: true });
+  window.dispatchEvent(event);
+  expect(event.defaultPrevented).toBe(false);
+  expect(localStorage.length + sessionStorage.length).toBe(0);
+});
+
+it("dismisses the navigation warning when a pending booking resolves definitively", async () => {
+  const original = globalThis.fetch;
+  let resolve!: (response: Response) => void;
+  const response = new Promise<Response>((done) => {
+    resolve = done;
+  });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string, init: RequestInit = {}) =>
+      new URL(url).pathname === "/appointments" && init.method === "POST"
+        ? response
+        : original(url, init),
+    ),
+  );
+  const { user, router } = await setup();
+  await selectBooking(user);
+  await user.click(screen.getByRole("button", { name: "Confirm appointment" }));
+  await router.navigate("/patients");
+  await screen.findByRole("button", { name: "Stay and resolve" });
+  resolve(Response.json(appointment));
+  await waitFor(() =>
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+  );
+  expect(router.state.location.pathname).toBe("/schedule");
+  await router.navigate("/patients");
+  expect(router.state.location.pathname).toBe("/patients");
+});

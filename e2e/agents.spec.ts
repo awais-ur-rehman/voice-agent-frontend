@@ -236,7 +236,7 @@ test("agent editor responsive layouts, guarded publication, isolated text and un
     page.getByRole("button", { name: "Start voice", exact: true }),
   ).toBeDisabled();
   await expect(
-    page.getByText("ASR and Urdu acceptance blocked."),
+    page.getByText("Speech is unavailable. You can continue testing with text."),
   ).toBeVisible();
   await page.getByLabel("Test message").fill("Show synthetic availability");
   await page.getByRole("button", { name: "Send test message" }).click();

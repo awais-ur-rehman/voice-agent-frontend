@@ -1,3 +1,4 @@
+import { useResolveBeforeLeaving } from "../../components/ui/useResolveBeforeLeaving";
 import { lazy, Suspense, useRef, useState, useSyncExternalStore } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Link } from "react-router";
@@ -70,6 +71,7 @@ function Schedule({ zone }: { zone: string }) {
     [busy, setBusy] = useState(false),
     [uncertain, setUncertain] = useState(false),
     [error, setError] = useState<unknown>(null);
+  const navigation = useResolveBeforeLeaving(locked);
   const owner = useRef<Workspace | null>(null),
     lock = useRef(false),
     opener = useRef<HTMLElement | null>(null),
@@ -110,6 +112,7 @@ function Schedule({ zone }: { zone: string }) {
     setWorkspace(next);
   }
   function lockIntent(next: boolean) {
+    if (!next) navigation.release();
     lock.current = next;
     setLocked(next);
   }
@@ -178,6 +181,7 @@ function Schedule({ zone }: { zone: string }) {
           : "Appointment details";
   return (
     <div className="schedule-page">
+      {navigation.guard}
       <PageHeader
         title="Schedule"
         description={`Appointments and the day ahead · ${zone}`}

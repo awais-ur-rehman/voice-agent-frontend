@@ -1,0 +1,788 @@
+
+> clinic-voice-console@0.1.0 check
+> npm run contracts:check && npm run lint && npm run typecheck && npm test && npm run build
+
+
+> clinic-voice-console@0.1.0 contracts:check
+> node scripts/contracts.mjs --check && node scripts/dashboard-contracts.mjs --check
+
+
+> clinic-voice-console@0.1.0 lint
+> eslint . && prettier --check src scripts vite.config.ts
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> clinic-voice-console@0.1.0 typecheck
+> tsc --noEmit
+
+
+> clinic-voice-console@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+ ❯ src/features/agents/editor.test.tsx (11 tests | 2 failed) 21908ms
+   × retains dirty values and captured revision through tabs, refresh and conflicting save 5161ms
+   × requires deliberate legacy upgrade and matching bilingual selections, removes frozen profiles on save 2741ms
+ ❯ src/features/scheduling/workflows.test.tsx (32 tests | 2 failed) 31667ms
+   × lands existing clinics on schedule, uses joined names and clinic week boundaries, and exposes keyboard list 4660ms
+   × books only after slot review; preserves selection on conflict and submits returned actual alternative 5374ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/agents/editor.test.tsx > retains dirty values and captured revision through tabs, refresh and conflicting save
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/features/agents/editor.test.tsx:144:1
+    142|   return { user, client, router };
+    143| }
+    144| it("retains dirty values and captured revision through tabs, refresh a…
+       | ^
+    145|   const { user, client } = await setup();
+    146|   await user.clear(screen.getByLabelText("Agent name"));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/features/agents/editor.test.tsx > requires deliberate legacy upgrade and matching bilingual selections, removes frozen profiles on save
+TestingLibraryElementError: Unable to find role="heading" and name "Set up your clinic"
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"app-shell"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#workspace"[39m
+      [36m>[39m
+        [0mSkip to content[0m
+      [36m</a>[39m
+      [36m<button[39m
+        [33maria-controls[39m=[32m"main-navigation"[39m
+        [33maria-expanded[39m=[32m"false"[39m
+        [33maria-label[39m=[32m"Toggle navigation"[39m
+        [33mclass[39m=[32m"menu-toggle mobile-nav-trigger button secondary"[39m
+      [36m>[39m
+        [0mMenu[0m
+      [36m</button>[39m
+      [36m<aside[39m
+        [33mclass[39m=[32m"sidebar "[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"brand"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"brand-mark"[39m
+          [36m>[39m
+            [0mC[0m
+          [36m</span>[39m
+          [36m<span>[39m
+            [0mClinic workspace[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"nav-label"[39m
+        [36m>[39m
+          [0mWORKSPACE[0m
+        [36m</p>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mid[39m=[32m"main-navigation"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/schedule"[39m
+          [36m>[39m
+            [0mSchedule[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/agents"[39m
+          [36m>[39m
+            [0mAgents[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/patients"[39m
+          [36m>[39m
+            [0mPatients[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/clinic"[39m
+          [36m>[39m
+            [0mClinic settings[0m
+          [36m</a>[39m
+          [36m<div[39m
+            [33maria-label[39m=[32m"Clinic settings pages"[39m
+            [33mclass[39m=[32m"settings-subnav"[39m
+            [33mrole[39m=[32m"group"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/setup"[39m
+            [36m>[39m
+              [0mSetup checklist[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/clinic"[39m
+            [36m>[39m
+              [0mClinic profile[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/providers"[39m
+            [36m>[39m
+              [0mProviders[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/services"[39m
+            [36m>[39m
+              [0mServices[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/hours"[39m
+            [36m>[39m
+              [0mHours & exceptions[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/staff"[39m
+            [36m>[39m
+              [0mTeam access[0m
+            [36m</a>[39m
+          [36m</div>[39m
+        [36m</nav>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"sidebar-footer"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"avatar"[39m
+          [36m>[39m
+            [0mO[0m
+          [36m</span>[39m
+          [36m<div>[39m
+            [36m<strong>[39m
+              [0mowner[0m
+            [36m</strong>[39m
+            [36m<small>[39m
+              [0mowner@example.test[0m
+            [36m</small>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</aside>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"shell-main"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"topbar"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mdir[39m=[32m"auto"[39m
+          [36m>[39m
+            [0mTest clinic[0m
+          [36m</strong>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"topbar-actions"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAsia/Karachi[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"button secondary"[39m
+            [36m>[39m
+              [0mSign out[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</header>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"workspace"[39m
+          [33mid[39m=[32m"workspace"[39m
+        [36m/>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"app-shell"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#workspace"[39m
+      [36m>[39m
+        [0mSkip to content[0m
+      [36m</a>[39m
+      [36m<button[39m
+        [33maria-controls[39m=[32m"main-navigation"[39m
+        [33maria-expanded[39m=[32m"false"[39m
+        [33maria-label[39m=[32m"Toggle navigation"[39m
+        [33mclass[39m=[32m"menu-toggle mobile-nav-trigger button secondary"[39m
+      [36m>[39m
+        [0mMenu[0m
+      [36m</button>[39m
+      [36m<aside[39m
+        [33mclass[39m=[32m"sidebar "[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"brand"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"brand-mark"[39m
+          [36m>[39m
+            [0mC[0m
+          [36m</span>[39m
+          [36m<span>[39m
+            [0mClinic workspace[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"nav-label"[39m
+        [36m>[39m
+          [0mWORKSPACE[0m
+        [36m</p>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mid[39m=[32m"main-navigation"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/schedule"[39m
+          [36m>[39m
+            [0mSchedule[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/agents"[39m
+          [36m>[39m
+            [0mAgents[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/patients"[39m
+          [36m>[39m
+            [0mPatients[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/clinic"[39m
+          [36m>[39m
+            [0mClinic settings[0m
+          [36m</a>[39m
+          [36m<div[39m
+            [33maria-label[39m=[32m"Clinic settings pages"[39m
+            [33mclass[39m=[32m"settings-subnav"[39m
+            [33mrole[39m=[32m"group"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/setup"[39m
+            [36m>[39m
+              [0mSetup checklist[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/clinic"[39m
+            [36m>[39m
+              [0mClinic profile[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/providers"[39m
+            [36m>[39m
+              [0mProviders[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/services"[39m
+            [36m>[39m
+              [0mServices[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/hours"[39m
+            [36m>[39m
+              [0mHours & exceptions[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/staff"[39m
+            [36m>[39m
+              [0mTeam access[0m
+            [36m</a>[39m
+          [36m</div>[39m
+        [36m</nav>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"sidebar-footer"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"avatar"[39m
+          [36m>[39m
+            [0mO[0m
+          [36m</span>[39m
+          [36m<div>[39m
+            [36m<strong>[39m
+              [0mowner[0m
+            [36m</strong>[39m
+            [36m<small>[39m
+              [0mowner@example.test[0m
+            [36m</small>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</aside>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"shell-main"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"topbar"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mdir[39m=[32m"auto"[39m
+          [36m>[39m
+            [0mTest clinic[0m
+          [36m</strong>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"topbar-actions"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAsia/Karachi[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"button secondary"[39m
+            [36m>[39m
+              [0mSign out[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</header>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"workspace"[39m
+          [33mid[39m=[32m"workspace"[39m
+        [36m/>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ setup src/features/agents/editor.test.tsx:138:16
+    136|   await user.type(screen.getByLabelText("Password *"), "a-good-passwor…
+    137|   await user.click(screen.getByRole("button", { name: "Sign in" }));
+    138|   await screen.findByRole("heading", { name: "Set up your clinic" });
+       |                ^
+    139|   await user.click(screen.getByRole("link", { name: "Agents" }));
+    140|   await user.click(await screen.findByRole("link", { name: "Reception"…
+ ❯ src/features/agents/editor.test.tsx:184:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/features/scheduling/workflows.test.tsx > lands existing clinics on schedule, uses joined names and clinic week boundaries, and exposes keyboard list
+TestingLibraryElementError: Unable to find role="heading" and name "Schedule"
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"app-shell"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#workspace"[39m
+      [36m>[39m
+        [0mSkip to content[0m
+      [36m</a>[39m
+      [36m<button[39m
+        [33maria-controls[39m=[32m"main-navigation"[39m
+        [33maria-expanded[39m=[32m"false"[39m
+        [33maria-label[39m=[32m"Toggle navigation"[39m
+        [33mclass[39m=[32m"menu-toggle mobile-nav-trigger button secondary"[39m
+      [36m>[39m
+        [0mMenu[0m
+      [36m</button>[39m
+      [36m<aside[39m
+        [33mclass[39m=[32m"sidebar "[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"brand"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"brand-mark"[39m
+          [36m>[39m
+            [0mC[0m
+          [36m</span>[39m
+          [36m<span>[39m
+            [0mClinic workspace[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"nav-label"[39m
+        [36m>[39m
+          [0mWORKSPACE[0m
+        [36m</p>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mid[39m=[32m"main-navigation"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33maria-current[39m=[32m"page"[39m
+            [33mclass[39m=[32m"active"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/schedule"[39m
+          [36m>[39m
+            [0mSchedule[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/agents"[39m
+          [36m>[39m
+            [0mAgents[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/patients"[39m
+          [36m>[39m
+            [0mPatients[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/clinic"[39m
+          [36m>[39m
+            [0mClinic settings[0m
+          [36m</a>[39m
+          [36m<div[39m
+            [33maria-label[39m=[32m"Clinic settings pages"[39m
+            [33mclass[39m=[32m"settings-subnav"[39m
+            [33mrole[39m=[32m"group"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/clinic"[39m
+            [36m>[39m
+              [0mClinic profile[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/providers"[39m
+            [36m>[39m
+              [0mProviders[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/services"[39m
+            [36m>[39m
+              [0mServices[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/hours"[39m
+            [36m>[39m
+              [0mHours & exceptions[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/staff"[39m
+            [36m>[39m
+              [0mTeam access[0m
+            [36m</a>[39m
+          [36m</div>[39m
+        [36m</nav>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"sidebar-footer"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"avatar"[39m
+          [36m>[39m
+            [0mF[0m
+          [36m</span>[39m
+          [36m<div>[39m
+            [36m<strong>[39m
+              [0mowner[0m
+            [36m</strong>[39m
+            [36m<small>[39m
+              [0mfixture@example.test[0m
+            [36m</small>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</aside>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"shell-main"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"topbar"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mdir[39m=[32m"auto"[39m
+          [36m>[39m
+            [0mFixture clinic[0m
+          [36m</strong>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"topbar-actions"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAmerica/New_York[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"button secondary"[39m
+            [36m>[39m
+              [0mSign out[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</header>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"workspace"[39m
+          [33mid[39m=[32m"workspace"[39m
+        [36m>[39m
+          [36m<p[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m>[39m
+            [0mLoading schedule…[0m
+          [36m</p>[39m
+        [36m</main>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"app-shell"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#workspace"[39m
+      [36m>[39m
+        [0mSkip to content[0m
+      [36m</a>[39m
+      [36m<button[39m
+        [33maria-controls[39m=[32m"main-navigation"[39m
+        [33maria-expanded[39m=[32m"false"[39m
+        [33maria-label[39m=[32m"Toggle navigation"[39m
+        [33mclass[39m=[32m"menu-toggle mobile-nav-trigger button secondary"[39m
+      [36m>[39m
+        [0mMenu[0m
+      [36m</button>[39m
+      [36m<aside[39m
+        [33mclass[39m=[32m"sidebar "[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"brand"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"brand-mark"[39m
+          [36m>[39m
+            [0mC[0m
+          [36m</span>[39m
+          [36m<span>[39m
+            [0mClinic workspace[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"nav-label"[39m
+        [36m>[39m
+          [0mWORKSPACE[0m
+        [36m</p>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mid[39m=[32m"main-navigation"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33maria-current[39m=[32m"page"[39m
+            [33mclass[39m=[32m"active"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/schedule"[39m
+          [36m>[39m
+            [0mSchedule[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/agents"[39m
+          [36m>[39m
+            [0mAgents[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/patients"[39m
+          [36m>[39m
+            [0mPatients[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/clinic"[39m
+          [36m>[39m
+            [0mClinic settings[0m
+          [36m</a>[39m
+          [36m<div[39m
+            [33maria-label[39m=[32m"Clinic settings pages"[39m
+            [33mclass[39m=[32m"settings-subnav"[39m
+            [33mrole[39m=[32m"group"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/clinic"[39m
+            [36m>[39m
+              [0mClinic profile[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/providers"[39m
+            [36m>[39m
+              [0mProviders[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/services"[39m
+            [36m>[39m
+              [0mServices[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/hours"[39m
+            [36m>[39m
+              [0mHours & exceptions[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/staff"[39m
+            [36m>[39m
+              [0mTeam access[0m
+            [36m</a>[39m
+          [36m</div>[39m
+        [36m</nav>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"sidebar-footer"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"avatar"[39m
+          [36m>[39m
+            [0mF[0m
+          [36m</span>[39m
+          [36m<div>[39m
+            [36m<strong>[39m
+              [0mowner[0m
+            [36m</strong>[39m
+            [36m<small>[39m
+              [0mfixture@example.test[0m
+            [36m</small>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</aside>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"shell-main"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"topbar"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mdir[39m=[32m"auto"[39m
+          [36m>[39m
+            [0mFixture clinic[0m
+          [36m</strong>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"topbar-actions"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAmerica/New_York[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"button secondary"[39m
+            [36m>[39m
+              [0mSign out[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</header>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"workspace"[39m
+          [33mid[39m=[32m"workspace"[39m
+        [36m>[39m
+          [36m<p[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m>[39m
+            [0mLoading schedule…[0m
+          [36m</p>[39m
+        [36m</main>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ setup src/features/scheduling/workflows.test.tsx:224:16
+    222|   await user.type(screen.getByLabelText("Password *"), "synthetic-pass…
+    223|   await user.click(screen.getByRole("button", { name: "Sign in" }));
+    224|   await screen.findByRole("heading", { name: "Schedule" });
+       |                ^
+    225|   await screen.findByLabelText("Calendar fixture");
+    226|   await user.click(screen.getByRole("button", { name: "List" }));
+ ❯ src/features/scheduling/workflows.test.tsx:243:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/features/scheduling/workflows.test.tsx > books only after slot review; preserves selection on conflict and submits returned actual alternative
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/features/scheduling/workflows.test.tsx:265:1
+    263|   ).toBeInTheDocument();
+    264| });
+    265| it("books only after slot review; preserves selection on conflict and …
+       | ^
+    266|   mode = "conflict";
+    267|   const { user } = await setup();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  2 failed | 8 passed (10)
+      Tests  4 failed | 103 passed (107)
+   Start at  21:37:56
+   Duration  45.30s (tests 41%, environment 31%, setup 14%, import 10%, transform 3%)
+
+Environment  jsdom was created 10 times · 61.50s total, 31% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

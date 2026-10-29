@@ -1,0 +1,37 @@
+
+> clinic-voice-console@0.1.0 test:browser
+> playwright test e2e/scheduling.spec.ts
+
+[WebServer] (node:97903) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:97904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 9:36:30 PM [vite] (client) [Unhandled error] Error: ResizeObserver loop completed with undelivered notifications.
+[WebServer]  > ../../../../../../@vite/client:374:50
+[WebServer] 
+  ✘  1 e2e/scheduling.spec.ts:89:1 › compact real day/week calendar, night reachability, focused booking/details and protected cancellation (3.5s)
+
+
+  1) e2e/scheduling.spec.ts:89:1 › compact real day/week calendar, night reachability, focused booking/details and protected cancellation 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 624.84375
+    Received:    633.84375
+
+      362 |       });
+      363 |       expect(fit.statusHeight).toBeLessThanOrEqual(16);
+    > 364 |       expect(fit.nameBottom).toBeLessThanOrEqual(fit.eventBottom + 1);
+          |                              ^
+      365 |       await page.screenshot({
+      366 |         path: `${evidence}task-5-fix-week-${width}.png`,
+      367 |       });
+        at /Users/awaisurrehman/Documents/experimental/voice-agent/frontend/e2e/scheduling.spec.ts:364:30
+
+    Error Context: test-results/scheduling-compact-real-da-607a1--and-protected-cancellation/error-context.md
+
+  1 failed
+    e2e/scheduling.spec.ts:89:1 › compact real day/week calendar, night reachability, focused booking/details and protected cancellation 

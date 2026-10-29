@@ -1,0 +1,13 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/scheduling/workflows.test.tsx src/features/scheduling/Calendar.test.tsx
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+
+ Test Files  2 passed (2)
+      Tests  34 passed (34)
+   Start at  01:38:43
+   Duration  14.18s (tests 81%, environment 13%, import 2%, setup 2%, transform 2%)
+

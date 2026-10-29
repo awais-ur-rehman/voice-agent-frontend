@@ -1,0 +1,44 @@
+
+> clinic-voice-console@0.1.0 test:browser
+> playwright test
+
+[WebServer] (node:8782) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:8786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Browser navigation: http://127.0.0.1:5175/
+Browser console: debug [vite] connecting...
+Browser console: info %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Browser navigation: http://127.0.0.1:5175/
+Browser navigation: http://127.0.0.1:5175/login
+Browser navigation: http://127.0.0.1:5175/login
+Browser console: debug [vite] connected.
+Browser navigation: http://127.0.0.1:5175/
+Browser navigation: http://127.0.0.1:5175/
+Browser navigation: http://127.0.0.1:5175/setup
+Browser navigation: http://127.0.0.1:5175/setup
+Browser navigation: http://127.0.0.1:5175/agents
+Browser navigation: http://127.0.0.1:5175/agents/agent-one
+Browser console: error Failed to load resource: the server responded with a status of 503 (Service Unavailable)
+Mobile agent name dimensions: { x: 33, y: 502.53125, width: 324, height: 44 }
+Browser console: error Failed to load resource: the server responded with a status of 503 (Service Unavailable)
+Browser navigation: http://127.0.0.1:5175/login
+Browser navigation: http://127.0.0.1:5175/login
+Agent browser page errors: []
+  ✓  1 e2e/agents.spec.ts:10:1 › agent editor responsive layouts, guarded publication, isolated text and unavailable speech (4.0s)
+  ✓  2 e2e/console.spec.ts:4:1 › dashboard auth, responsive profile, Urdu fields and keyboard confirmation (2.1s)
+[WebServer] 9:46:25 PM [vite] (client) [Unhandled error] Error: ResizeObserver loop completed with undelivered notifications.
+[WebServer]  > ../../../../../../@vite/client:374:50
+[WebServer] 
+MOBILE_TARGETS toolbar [{"label":"Clinic date","width":130.6875,"height":44},{"label":"Previous","width":44,"height":44},{"label":"Today","width":49.953125,"height":44},{"label":"Next","width":44,"height":44},{"label":"Day","width":44,"height":44},{"label":"Week","width":46.796875,"height":44},{"label":"List","width":44,"height":44},{"label":"Provider filter","width":183.203125,"height":44}]
+MOBILE_GUTTERS toolbar {"left":16,"right":16}
+MOBILE_TARGETS details [{"label":"Close details","width":44,"height":44},{"label":"Reschedule","width":106.375,"height":44},{"label":"Confirm cancellation","width":166.96875,"height":44}]
+MOBILE_GUTTERS details {"left":16,"right":16}
+MOBILE_TARGETS booking review [{"label":"Close details","width":44,"height":44},{"label":"Confirm appointment","width":172.515625,"height":44},{"label":"Edit selection","width":120.125,"height":44},{"label":"Close appointment form","width":191.375,"height":44}]
+MOBILE_GUTTERS booking review {"left":16,"right":16}
+  ✓  3 e2e/scheduling.spec.ts:89:1 › compact real day/week calendar, night reachability, focused booking/details and protected cancellation (6.5s)
+
+  3 passed (16.7s)

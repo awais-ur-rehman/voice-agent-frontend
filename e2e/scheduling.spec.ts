@@ -79,6 +79,11 @@ const appointments: CalendarAppointment[] = [
     patient_name: "Synthetic Friday patient",
   },
 ];
+appointments.push({
+  ...appointments[1]!,
+  id: "66666666-6666-4666-8666-666666666666",
+  status: "cancelled",
+});
 const evidence = "../backend/.superpowers/sdd/2026-10-28-phase-4-dashboard/";
 test.use({ timezoneId: "Asia/Tokyo" });
 test("compact real day/week calendar, night reachability, focused booking/details and protected cancellation", async ({
@@ -199,6 +204,8 @@ test("compact real day/week calendar, night reachability, focused booking/detail
   await expect(
     page.getByRole("heading", { name: "Schedule", exact: true }),
   ).toBeVisible();
+  await page.getByRole("link", { name: "Patients", exact: true }).click();
+  await page.getByRole("link", { name: "Schedule", exact: true }).click();
   await page.getByLabel("Clinic date").fill("2026-11-05");
   await page.getByRole("button", { name: "Day", exact: true }).click();
   async function settle() {
@@ -347,6 +354,25 @@ test("compact real day/week calendar, night reachability, focused booking/detail
         page.getByRole("button", { name: /Synthetic Friday patient/ }),
       ).toBeVisible();
       await settle();
+      const cancelled = page
+        .locator(".calendar-event-content")
+        .filter({ hasText: "Cancelled" });
+      await expect(cancelled).toBeVisible();
+      const fit = await cancelled.evaluate((element) => {
+        const label = element.querySelector(".calendar-event-status")!;
+        const name = element.querySelector("strong")!;
+        const event = element.closest(".clinic-calendar-event")!;
+        return {
+          statusWidth: label.getBoundingClientRect().width,
+          eventWidth: event.getBoundingClientRect().width,
+          statusHeight: label.getBoundingClientRect().height,
+          nameBottom: name.getBoundingClientRect().bottom,
+          eventBottom: event.getBoundingClientRect().bottom,
+        };
+      });
+      expect(fit.statusWidth).toBeLessThan(fit.eventWidth - 6);
+      expect(fit.statusHeight).toBeLessThanOrEqual(16);
+      expect(fit.nameBottom).toBeLessThanOrEqual(fit.eventBottom + 1);
       await page.screenshot({
         path: `${evidence}task-5-fix-week-${width}.png`,
       });
@@ -411,6 +437,21 @@ test("compact real day/week calendar, night reachability, focused booking/detail
   await page.screenshot({
     path: `${evidence}task-5-fix-cancel-uncertain.png`,
   });
+  await page.goBack();
+  await expect(
+    page.getByRole("dialog", { name: "Resolve this operation before leaving" }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/\/schedule$/);
+  await page.getByRole("button", { name: "Stay and resolve" }).click();
+  const unload = page.waitForEvent("dialog");
+  // Trigger a real reload without awaiting a load event that dismissal prevents.
+  await page.evaluate(() => {
+    setTimeout(() => window.location.reload(), 0);
+  });
+  const warning = await unload;
+  expect(warning.type()).toBe("beforeunload");
+  await warning.dismiss();
+  await expect(cancel).toBeVisible();
   await cancel
     .getByRole("button", { name: "Confirm cancellation", exact: true })
     .click();

@@ -1,3 +1,4 @@
+import { useResolveBeforeLeaving } from "../../components/ui/useResolveBeforeLeaving";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -39,6 +40,7 @@ export function MergeDialog({
     [error, setError] = useState<unknown>(null),
     [busy, setBusy] = useState(false),
     [uncertain, setUncertain] = useState(false);
+  const navigation = useResolveBeforeLeaving(busy || uncertain);
   const counts = useQuery({
     queryKey: useSessionKey("merge-counts", undefined, {
       source: source.id,
@@ -106,6 +108,7 @@ export function MergeDialog({
         },
       );
       await refresh();
+      navigation.release();
       onClose();
       void navigate(`/patients/${retained.id}`);
     } catch (e) {
@@ -118,164 +121,173 @@ export function MergeDialog({
     }
   }
   return (
-    <Dialog.Root
-      open
-      onOpenChange={(open) => {
-        if (!open && !busy && !uncertain) onClose();
-      }}
-    >
-      <Dialog.Portal>
-        <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content
-          className="dialog-content merge-dialog"
-          onEscapeKeyDown={(e) => {
-            if (busy || uncertain) e.preventDefault();
-          }}
-          onPointerDownOutside={(e) => e.preventDefault()}
-        >
-          <Dialog.Title>Merge patient records</Dialog.Title>
-          <Dialog.Description>
-            Explicitly select the destination and every retained field. Shared
-            phones do not prove two records belong to one person. Appointments
-            move to the destination; the source remains a read-only link.
-          </Dialog.Description>
-          <ErrorSummary error={error ?? counts.error} />
-          {error instanceof DashboardError && error.status === 409 && (
-            <button
-              className="button secondary"
-              onClick={() => {
-                void refresh().then(onClose);
-              }}
-            >
-              Reload current records before another merge
-            </button>
-          )}
-          <p dir="auto">
-            Source: {source.name} · {source.phone} · revision {source.revision}
-          </p>
-          <fieldset disabled={busy || !!review} hidden={!!review}>
-            <PatientSearch
-              exclude={source.id}
-              onSelect={(p) => {
-                setDestination(p);
-                setChoices({});
-              }}
-            />
-            {destination && (
-              <>
-                <p dir="auto">
-                  Destination: {destination.name} · {destination.phone} ·
-                  revision {destination.revision}
-                </p>
-                <p>
-                  {counts.data
-                    ? `${counts.data[0]} source appointments will move; ${counts.data[1]} destination appointments will remain.`
-                    : "Loading affected appointments…"}
-                </p>
-                {fields.map((field) => (
-                  <div className="form-field" key={field}>
-                    <label htmlFor={`retain-${field}`}>
-                      Retain{" "}
-                      {field === "name_ur"
-                        ? "Urdu name"
-                        : field === "dob"
-                          ? "date of birth"
-                          : field}
-                    </label>
-                    <select
-                      id={`retain-${field}`}
-                      value={choices[field] ?? ""}
-                      onChange={(e) =>
-                        setChoices({
-                          ...choices,
-                          [field]: e.target.value as
-                            "source" | "destination" | "clear",
-                        })
-                      }
-                    >
-                      <option value="">Choose retained value</option>
-                      <option value="source">
-                        Source: {source[field] ?? "Not recorded"}
-                      </option>
-                      <option value="destination">
-                        Destination: {destination[field] ?? "Not recorded"}
-                      </option>
-                      {(field === "name_ur" || field === "dob") && (
-                        <option value="clear">
-                          Clear value (not recorded)
-                        </option>
-                      )}
-                    </select>
-                  </div>
-                ))}
-              </>
-            )}
-            <button
-              className="button"
-              disabled={
-                !destination || !counts.data || !fields.every((f) => choices[f])
-              }
-              onClick={prepare}
-            >
-              Review merge
-            </button>
-          </fieldset>
-          {review && (
-            <section className="review-panel">
-              <h3>Confirm retained record</h3>
-              <p dir="auto">
-                Destination: {destination?.name} · {destination?.phone} ·
-                revision {review.body.destination_revision}
-              </p>
-              <p>
-                {counts.data?.[0]} source appointments move to the destination;{" "}
-                {counts.data?.[1]} destination appointments remain.
-              </p>
-              <dl>
-                {fields.map((f) => (
-                  <div key={f}>
-                    <dt>{labels[f]}</dt>
-                    <dd dir="auto">
-                      {review.body.fields[f] ?? "Not recorded"}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-              <p>
-                Both captured revisions will be checked by the server. A
-                conflict requires reviewing current records.
-              </p>
-              {uncertain && (
-                <p>Outcome uncertain. Retry this exact merge to resolve it.</p>
-              )}
-              <button
-                className="button danger"
-                disabled={busy}
-                onClick={() => void confirm()}
-              >
-                Confirm merge
-              </button>
+    <>
+      {navigation.guard}
+      <Dialog.Root
+        open
+        onOpenChange={(open) => {
+          if (!open && !busy && !uncertain) onClose();
+        }}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay className="dialog-overlay" />
+          <Dialog.Content
+            className="dialog-content merge-dialog"
+            onEscapeKeyDown={(e) => {
+              if (busy || uncertain) e.preventDefault();
+            }}
+            onPointerDownOutside={(e) => e.preventDefault()}
+          >
+            <Dialog.Title>Merge patient records</Dialog.Title>
+            <Dialog.Description>
+              Explicitly select the destination and every retained field. Shared
+              phones do not prove two records belong to one person. Appointments
+              move to the destination; the source remains a read-only link.
+            </Dialog.Description>
+            <ErrorSummary error={error ?? counts.error} />
+            {error instanceof DashboardError && error.status === 409 && (
               <button
                 className="button secondary"
-                disabled={busy || uncertain}
                 onClick={() => {
-                  setReview(null);
-                  setError(null);
+                  void refresh().then(onClose);
                 }}
               >
-                Back to retained fields
+                Reload current records before another merge
               </button>
-            </section>
-          )}
-          <button
-            className="button secondary"
-            disabled={busy || uncertain}
-            onClick={onClose}
-          >
-            Close merge
-          </button>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+            )}
+            <p dir="auto">
+              Source: {source.name} · {source.phone} · revision{" "}
+              {source.revision}
+            </p>
+            <fieldset disabled={busy || !!review} hidden={!!review}>
+              <PatientSearch
+                exclude={source.id}
+                onSelect={(p) => {
+                  setDestination(p);
+                  setChoices({});
+                }}
+              />
+              {destination && (
+                <>
+                  <p dir="auto">
+                    Destination: {destination.name} · {destination.phone} ·
+                    revision {destination.revision}
+                  </p>
+                  <p>
+                    {counts.data
+                      ? `${counts.data[0]} source appointments will move; ${counts.data[1]} destination appointments will remain.`
+                      : "Loading affected appointments…"}
+                  </p>
+                  {fields.map((field) => (
+                    <div className="form-field" key={field}>
+                      <label htmlFor={`retain-${field}`}>
+                        Retain{" "}
+                        {field === "name_ur"
+                          ? "Urdu name"
+                          : field === "dob"
+                            ? "date of birth"
+                            : field}
+                      </label>
+                      <select
+                        id={`retain-${field}`}
+                        value={choices[field] ?? ""}
+                        onChange={(e) =>
+                          setChoices({
+                            ...choices,
+                            [field]: e.target.value as
+                              "source" | "destination" | "clear",
+                          })
+                        }
+                      >
+                        <option value="">Choose retained value</option>
+                        <option value="source">
+                          Source: {source[field] ?? "Not recorded"}
+                        </option>
+                        <option value="destination">
+                          Destination: {destination[field] ?? "Not recorded"}
+                        </option>
+                        {(field === "name_ur" || field === "dob") && (
+                          <option value="clear">
+                            Clear value (not recorded)
+                          </option>
+                        )}
+                      </select>
+                    </div>
+                  ))}
+                </>
+              )}
+              <button
+                className="button"
+                disabled={
+                  !destination ||
+                  !counts.data ||
+                  !fields.every((f) => choices[f])
+                }
+                onClick={prepare}
+              >
+                Review merge
+              </button>
+            </fieldset>
+            {review && (
+              <section className="review-panel">
+                <h3>Confirm retained record</h3>
+                <p dir="auto">
+                  Destination: {destination?.name} · {destination?.phone} ·
+                  revision {review.body.destination_revision}
+                </p>
+                <p>
+                  {counts.data?.[0]} source appointments move to the
+                  destination; {counts.data?.[1]} destination appointments
+                  remain.
+                </p>
+                <dl>
+                  {fields.map((f) => (
+                    <div key={f}>
+                      <dt>{labels[f]}</dt>
+                      <dd dir="auto">
+                        {review.body.fields[f] ?? "Not recorded"}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+                <p>
+                  Both captured revisions will be checked by the server. A
+                  conflict requires reviewing current records.
+                </p>
+                {uncertain && (
+                  <p>
+                    Outcome uncertain. Retry this exact merge to resolve it.
+                  </p>
+                )}
+                <button
+                  className="button danger"
+                  disabled={busy}
+                  onClick={() => void confirm()}
+                >
+                  Confirm merge
+                </button>
+                <button
+                  className="button secondary"
+                  disabled={busy || uncertain}
+                  onClick={() => {
+                    setReview(null);
+                    setError(null);
+                  }}
+                >
+                  Back to retained fields
+                </button>
+              </section>
+            )}
+            <button
+              className="button secondary"
+              disabled={busy || uncertain}
+              onClick={onClose}
+            >
+              Close merge
+            </button>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </>
   );
 }

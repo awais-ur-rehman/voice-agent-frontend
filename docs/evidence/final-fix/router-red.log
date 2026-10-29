@@ -1,0 +1,65 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/scheduling/workflows.test.tsx -t blocks router Back
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+ ❯ src/features/scheduling/workflows.test.tsx (31 tests | 8 failed | 23 skipped) 2726ms
+   × blocks router Back and unload for pending and HTTP 503 book, preserving exact retry 1085ms
+   × blocks router Back and unload for pending and HTTP 408 book, preserving exact retry 273ms
+   × blocks router Back and unload for pending and HTTP 503 move, preserving exact retry 227ms
+   × blocks router Back and unload for pending and HTTP 408 move, preserving exact retry 227ms
+   × blocks router Back and unload for pending and HTTP 503 cancel, preserving exact retry 188ms
+   × blocks router Back and unload for pending and HTTP 408 cancel, preserving exact retry 221ms
+   × blocks router Back and unload for pending and HTTP 503 merge, preserving exact retry 257ms
+   × blocks router Back and unload for pending and HTTP 408 merge, preserving exact retry 246ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 503 book, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 408 book, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 503 move, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 408 move, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 503 cancel, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 408 cancel, preserving exact retry
+AssertionError: expected '/patients' to be '/schedule' // Object.is equality
+
+Expected: "/schedule"
+Received: "/patients"
+
+ ❯ blocked src/features/scheduling/workflows.test.tsx:1025:48
+    1023|       async function blocked() {
+    1024|         await router.navigate(-1);
+    1025|         expect(router.state.location.pathname).toBe(path);
+       |                                                ^
+    1026|         const event = new Event("beforeunload", { cancelable: true });
+    1027|         window.dispatchEvent(event);
+ ❯ src/features/scheduling/workflows.test.tsx:1031:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 503 merge, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 408 merge, preserving exact retry
+AssertionError: expected '/patients' to be '/patients/11111111-1111-4111-8111-111…' // Object.is equality
+
+Expected: "/patients/11111111-1111-4111-8111-111111111111"
+Received: "/patients"
+
+ ❯ blocked src/features/scheduling/workflows.test.tsx:1025:48
+    1023|       async function blocked() {
+    1024|         await router.navigate(-1);
+    1025|         expect(router.state.location.pathname).toBe(path);
+       |                                                ^
+    1026|         const event = new Event("beforeunload", { cancelable: true });
+    1027|         window.dispatchEvent(event);
+ ❯ src/features/scheduling/workflows.test.tsx:1031:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 23 skipped (31)
+   Start at  01:37:07
+   Duration  3.73s (tests 75%, environment 15%, import 5%, setup 3%, transform 2%)
+
