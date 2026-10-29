@@ -1,0 +1,42 @@
+
+> clinic-voice-console@0.1.0 test:browser
+> playwright test e2e/scheduling.spec.ts --workers=1
+
+[WebServer] (node:7816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:7817) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 9:45:26 PM [vite] (client) [Unhandled error] Error: ResizeObserver loop completed with undelivered notifications.
+[WebServer]  > ../../../../../../@vite/client:374:50
+[WebServer] 
+MOBILE_TARGETS toolbar [{"label":"Clinic date","width":130.6875,"height":44},{"label":"Previous","width":44,"height":44},{"label":"Today","width":49.953125,"height":44},{"label":"Next","width":44,"height":44},{"label":"Day","width":44,"height":44},{"label":"Week","width":46.796875,"height":44},{"label":"List","width":44,"height":44},{"label":"Provider filter","width":183.203125,"height":44}]
+MOBILE_GUTTERS toolbar {"left":16,"right":16}
+MOBILE_TARGETS details [{"label":"Close details","width":44,"height":44},{"label":"Reschedule","width":106.375,"height":44},{"label":"Confirm cancellation","width":166.96875,"height":44}]
+MOBILE_GUTTERS details {"left":16,"right":16}
+MOBILE_TARGETS booking review [{"label":"Close details","width":44,"height":44},{"label":"Confirm appointment","width":172.515625,"height":44},{"label":"Edit selection","width":120.125,"height":44},{"label":"Close appointment form","width":191.375,"height":44}]
+MOBILE_GUTTERS booking review {"left":16,"right":16}
+  ✘  1 e2e/scheduling.spec.ts:89:1 › compact real day/week calendar, night reachability, focused booking/details and protected cancellation (30.4s)
+
+
+  1) e2e/scheduling.spec.ts:89:1 › compact real day/week calendar, night reachability, focused booking/details and protected cancellation 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.evaluate: Target page, context or browser has been closed
+
+      450 |   await warning.dismiss();
+      451 |   await reload;
+    > 452 |   console.log("Post-unload dialog semantics", await page.getByRole("dialog").evaluate((el) => ({ labelledby: el.getAttribute("aria-labelledby"), title: el.querySelector("h2")?.outerHTML, markup: el.outerHTML.slice(0, 500) })));
+          |                                                                              ^
+      453 |   await expect(cancel).toBeVisible();
+      454 |   await cancel
+      455 |     .getByRole("button", { name: "Confirm cancellation", exact: true })
+        at /Users/awaisurrehman/Documents/experimental/voice-agent/frontend/e2e/scheduling.spec.ts:452:78
+
+    Error Context: test-results/scheduling-compact-real-da-607a1--and-protected-cancellation/error-context.md
+
+  1 failed
+    e2e/scheduling.spec.ts:89:1 › compact real day/week calendar, night reachability, focused booking/details and protected cancellation 

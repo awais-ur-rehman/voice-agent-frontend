@@ -1,0 +1,1337 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/agents/editor.test.tsx src/features/agents/isolated-test.test.ts
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+ ❯ src/features/agents/isolated-test.test.ts (20 tests | 2 failed) 19ms
+   × releases a definitively rejected allocation so a corrected draft revision can start 3ms
+   × explains a rejected draft revision without echoing arbitrary server details 1ms
+ ❯ src/features/agents/editor.test.tsx (11 tests | 3 failed) 3820ms
+   × waits for the actual active version before capturing publication changes 146ms
+   × failed history blocks publication while preserving edits and permits explicit history retry 1145ms
+   × a never-published agent can review its first publication without a fabricated prior version 221ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/agents/editor.test.tsx > waits for the actual active version before capturing publication changes
+Error: expect(element).toBeDisabled()
+
+Received element is not disabled:
+  <button
+  class="button"
+/>
+ ❯ src/features/agents/editor.test.tsx:365:81
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/features/agents/editor.test.tsx > failed history blocks publication while preserving edits and permits explicit history retry
+TestingLibraryElementError: Unable to find an element with the text: Version history unavailable. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"app-shell"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#workspace"[39m
+      [36m>[39m
+        [0mSkip to content[0m
+      [36m</a>[39m
+      [36m<button[39m
+        [33maria-controls[39m=[32m"main-navigation"[39m
+        [33maria-expanded[39m=[32m"false"[39m
+        [33maria-label[39m=[32m"Toggle navigation"[39m
+        [33mclass[39m=[32m"menu-toggle mobile-nav-trigger button secondary"[39m
+      [36m>[39m
+        [0mMenu[0m
+      [36m</button>[39m
+      [36m<aside[39m
+        [33mclass[39m=[32m"sidebar "[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"brand"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"brand-mark"[39m
+          [36m>[39m
+            [0mC[0m
+          [36m</span>[39m
+          [36m<span>[39m
+            [0mClinic workspace[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"nav-label"[39m
+        [36m>[39m
+          [0mWORKSPACE[0m
+        [36m</p>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mid[39m=[32m"main-navigation"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/schedule"[39m
+          [36m>[39m
+            [0mSchedule[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33maria-current[39m=[32m"page"[39m
+            [33mclass[39m=[32m"active"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/agents"[39m
+          [36m>[39m
+            [0mAgents[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/patients"[39m
+          [36m>[39m
+            [0mPatients[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/clinic"[39m
+          [36m>[39m
+            [0mClinic settings[0m
+          [36m</a>[39m
+          [36m<div[39m
+            [33maria-label[39m=[32m"Clinic settings pages"[39m
+            [33mclass[39m=[32m"settings-subnav"[39m
+            [33mrole[39m=[32m"group"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/setup"[39m
+            [36m>[39m
+              [0mSetup checklist[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/clinic"[39m
+            [36m>[39m
+              [0mClinic profile[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/providers"[39m
+            [36m>[39m
+              [0mProviders[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/services"[39m
+            [36m>[39m
+              [0mServices[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/hours"[39m
+            [36m>[39m
+              [0mHours & exceptions[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/staff"[39m
+            [36m>[39m
+              [0mTeam access[0m
+            [36m</a>[39m
+          [36m</div>[39m
+        [36m</nav>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"sidebar-footer"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"avatar"[39m
+          [36m>[39m
+            [0mO[0m
+          [36m</span>[39m
+          [36m<div>[39m
+            [36m<strong>[39m
+              [0mowner[0m
+            [36m</strong>[39m
+            [36m<small>[39m
+              [0mowner@example.test[0m
+            [36m</small>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</aside>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"shell-main"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"topbar"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mdir[39m=[32m"auto"[39m
+          [36m>[39m
+            [0mTest clinic[0m
+          [36m</strong>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"topbar-actions"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAsia/Karachi[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"button secondary"[39m
+            [36m>[39m
+              [0mSign out[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</header>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"workspace"[39m
+          [33mid[39m=[32m"workspace"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"page-header"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<h1>[39m
+                [0mReception[0m
+              [36m</h1>[39m
+              [36m<p>[39m
+                [0mDraft changes take effect only after publication.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"button secondary"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/agents"[39m
+            [36m>[39m
+              [0mAll agents[0m
+            [36m</a>[39m
+          [36m</header>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"agent-toolbar"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"status-badge"[39m
+            [36m>[39m
+              [0mEnabled[0m
+            [36m</span>[39m
+            [36m<span>[39m
+              [0mPublished v1[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mrole[39m=[32m"status"[39m
+            [36m>[39m
+              [0mSaved draft · revision 7[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"form-actions"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button secondary"[39m
+                [33mdisabled[39m=[32m""[39m
+              [36m>[39m
+                [0mSave draft[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button"[39m
+              [36m>[39m
+                [0mPublish[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"agent-layout"[39m
+          [36m>[39m
+            [36m<section[39m
+              [33mclass[39m=[32m"panel agent-editor"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33maria-label[39m=[32m"Agent sections"[39m
+                [33mclass[39m=[32m"agent-tabs"[39m
+                [33mrole[39m=[32m"group"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"true"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mGeneral[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mVoice[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mVersions[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mTest[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<fieldset[39m
+                [33mclass[39m=[32m"form-field"[39m
+              [36m>[39m
+                [36m<legend[39m
+                  [33mclass[39m=[32m"sr-only"[39m
+                [36m>[39m
+                  [0mGeneral agent settings[0m
+                [36m</legend>[39m
+                [36m<label[39m
+                  [33mfor[39m=[32m"agent-name"[39m
+                [36m>[39m
+                  [0mAgent name[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mdir[39m=[32m"auto"[39m
+                  [33mid[39m=[32m"agent-name"[39m
+                  [33mmaxlength[39m=[32m"100"[39m
+                  [33mvalue[39m=[32m"Reception"[39m
+                [36m/>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"form-grid"[39m
+                [36m>[39m
+                  [36m<div>[39m
+                    [36m<label[39m
+                      [33mfor[39m=[32m"language-mode"[39m
+                    [36m>[39m
+                      [0mLanguage[0m
+                    [36m</label>[39m
+                    [36m<select[39m
+                      [33mid[39m=[32m"language-mode"[39m
+                    [36m>[39m
+                      [36m<option[39m
+                        [33mvalue[39m=[32m"bilingual"[39m
+                      [36m>[39m
+                        [0mEnglish + Urdu[0m
+                      [36m</option>[39m
+                      [36m<option[39m
+                        [33mvalue[39m=[32m"en"[39m
+                      [36m>[39m
+                        [0mEnglish[0m
+                      [36m</option>[39m
+                      [36m<option[39m
+                        [33mvalue[39m=[32m"ur"[39m
+                      [36m>[39m
+                        [0mUrdu[0m
+                      [36m</option>[39m
+                    [36m</select>[39m
+                  [36m</div>[39m
+                  [36m<div>[39m
+                    [36m<label[39m
+                      [33mfor[39m=[32m"agent-tone"[39m
+                    [36m>[39m
+                      [0mTone[0m
+                    [36m</label>[39m
+                    [36m<select[39m
+                      [33mid[39m=[32m"agent-tone"[39m
+                    [36m>[39m
+                      [36m<option[39m
+                        [33mvalue[39m=[32m"friendly"[39m
+                      [36m>[39m
+                        [0mFriendly[0m
+                      [36m</option>[39m
+                      [36m<option[39m
+                        [33mvalue[39m=[32m"formal"[39m
+                      [36m>[39m
+                        [0mFormal[0m
+                      [36m</option>[39m
+                      [36m<option[39m
+                        [33mvalue[39m=[32m"concise"[39m
+                      [36m>[39m
+                        [0mConcise[0m
+                      [36m</option>[39m
+                    [36m</select>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+                [36m<label[39m
+                  [33mfor[39m=[32m"greeting-en"[39m
+                [36m>[39m
+                  [0mEnglish greeting[0m
+                [36m</label>[39m
+                [36m<textarea[39m
+                  [33mid[39m=[32m"greeting-en"[39m
+                  [33mmaxlength[39m=[32m"500"[39m
+                [36m>[39m
+                  [0mHello[0m
+                [36m</textarea>[39m
+                [36m<label[39m
+                  [33mfor[39m=[32m"greeting-ur"[39m
+                [36m>[39m
+                  [0mUrdu greeting[0m
+                [36m</label>[39m
+                [36m<textarea[39m
+                  [33mdir[39m=[32m"auto"[39m
+                  [33mid[39m=[32m"greeting-ur"[39m
+                  [33mlang[39m=[32m"ur"[39m
+                  [33mmaxlength[39m=[32m"500"[39m
+                [36m>[39m
+                  [0mالسلام علیکم[0m
+                [36m</textarea>[39m
+                [36m<label[39m
+                  [33mfor[39m=[32m"agent-instructions"[39m
+                [36m>[39m
+                  [0mAdditional instructions[0m
+                [36m</label>[39m
+                [36m<textarea[39m
+                  [33mdir[39m=[32m"auto"[39m
+                  [33mid[39m=[32m"agent-instructions"[39m
+                  [33mmaxlength[39m=[32m"2000"[39m
+                [36m>[39m
+                  [0mAsk one question.[0m
+                [36m</textarea>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"muted"[39m
+                [36m>[39m
+                  [0mAI disclosure and safety rules are always applied by the system.[0m
+                [36m</p>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"checkbox-label"[39m
+                [36m>[39m
+                  [36m<input[39m
+                    [33mtype[39m=[32m"checkbox"[39m
+                  [36m/>[39m
+                  [0mRead digits in English[0m
+                [36m</label>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"checkbox-label"[39m
+                [36m>[39m
+                  [36m<input[39m
+                    [33mtype[39m=[32m"checkbox"[39m
+                  [36m/>[39m
+                  [0mSet Friday prayer break[0m
+                [36m</label>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"muted"[39m
+                [36m>[39m
+                  [0mClinic-local times help interpret “after Friday prayers”. This does not replace provider availability.[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"muted"[39m
+                [36m>[39m
+                  [0mAddress and preparation instructions come from[0m
+                  [0m [0m
+                  [36m<a[39m
+                    [33mdata-discover[39m=[32m"true"[39m
+                    [33mhref[39m=[32m"/clinic"[39m
+                  [36m>[39m
+                    [0mClinic settings[0m
+                  [36m</a>[39m
+                  [0m. Publishing and testing capture those saved settings.[0m
+                [36m</p>[39m
+              [36m</fieldset>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"agent-danger"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"button secondary"[39m
+                [36m>[39m
+                  [0mDisable agent[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"button secondary"[39m
+                [36m>[39m
+                  [0mArchive agent[0m
+                [36m</button>[39m
+              [36m</div>[39m
+            [36m</section>[39m
+            [36m<aside[39m
+              [33maria-labelledby[39m=[32m"test-title"[39m
+              [33mclass[39m=[32m"panel agent-test"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"agent-test-heading"[39m
+              [36m>[39m
+                [36m<canvas[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Working…"[39m
+                  [33mheight[39m=[32m"32"[39m
+                  [33mrole[39m=[32m"img"[39m
+                  [33mstyle[39m=[32m"width: 32px; height: 32px; display: block;"[39m
+                  [33mwidth[39m=[32m"32"[39m
+                [36m/>[39m
+                [36m<div>[39m
+                  [36m<h2[39m
+                    [33mid[39m=[32m"test-title"[39m
+                  [36m>[39m
+                    [0mIsolated test clinic[0m
+                  [36m</h2>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"status-badge"[39m
+                  [36m>[39m
+                    [0mNot started[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<p>[39m
+                [0mChanges affect synthetic test records only. Real patients and bookings are never copied.[0m
+              [36m</p>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button"[39m
+              [36m>[39m
+                [0mStart isolated test[0m
+              [36m</button>[39m
+            [36m</aside>[39m
+          [36m</div>[39m
+        [36m</main>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"app-shell"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#workspace"[39m
+      [36m>[39m
+        [0mSkip to content[0m
+      [36m</a>[39m
+      [36m<button[39m
+        [33maria-controls[39m=[32m"main-navigation"[39m
+        [33maria-expanded[39m=[32m"false"[39m
+        [33maria-label[39m=[32m"Toggle navigation"[39m
+        [33mclass[39m=[32m"menu-toggle mobile-nav-trigger button secondary"[39m
+      [36m>[39m
+        [0mMenu[0m
+      [36m</button>[39m
+      [36m<aside[39m
+        [33mclass[39m=[32m"sidebar "[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"brand"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"brand-mark"[39m
+          [36m>[39m
+            [0mC[0m
+          [36m</span>[39m
+          [36m<span>[39m
+            [0mClinic workspace[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"nav-label"[39m
+        [36m>[39m
+          [0mWORKSPACE[0m
+        [36m</p>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Main navigation"[39m
+          [33mid[39m=[32m"main-navigation"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/schedule"[39m
+          [36m>[39m
+            [0mSchedule[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33maria-current[39m=[32m"page"[39m
+            [33mclass[39m=[32m"active"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/agents"[39m
+          [36m>[39m
+            [0mAgents[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/patients"[39m
+          [36m>[39m
+            [0mPatients[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m""[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/clinic"[39m
+          [36m>[39m
+            [0mClinic settings[0m
+          [36m</a>[39m
+          [36m<div[39m
+            [33maria-label[39m=[32m"Clinic settings pages"[39m
+            [33mclass[39m=[32m"settings-subnav"[39m
+            [33mrole[39m=[32m"group"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/setup"[39m
+            [36m>[39m
+              [0mSetup checklist[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/clinic"[39m
+            [36m>[39m
+              [0mClinic profile[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/providers"[39m
+            [36m>[39m
+              [0mProviders[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/services"[39m
+            [36m>[39m
+              [0mServices[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/hours"[39m
+            [36m>[39m
+              [0mHours & exceptions[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m""[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/staff"[39m
+            [36m>[39m
+              [0mTeam access[0m
+            [36m</a>[39m
+          [36m</div>[39m
+        [36m</nav>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"sidebar-footer"[39m
+        [36m>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"avatar"[39m
+          [36m>[39m
+            [0mO[0m
+          [36m</span>[39m
+          [36m<div>[39m
+            [36m<strong>[39m
+              [0mowner[0m
+            [36m</strong>[39m
+            [36m<small>[39m
+              [0mowner@example.test[0m
+            [36m</small>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</aside>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"shell-main"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"topbar"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mdir[39m=[32m"auto"[39m
+          [36m>[39m
+            [0mTest clinic[0m
+          [36m</strong>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"topbar-actions"[39m
+          [36m>[39m
+            [36m<span>[39m
+              [0mAsia/Karachi[0m
+            [36m</span>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"button secondary"[39m
+            [36m>[39m
+              [0mSign out[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</header>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"workspace"[39m
+          [33mid[39m=[32m"workspace"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"page-header"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<h1>[39m
+                [0mReception[0m
+              [36m</h1>[39m
+              [36m<p>[39m
+                [0mDraft changes take effect only after publication.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"button secondary"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/agents"[39m
+            [36m>[39m
+              [0mAll agents[0m
+            [36m</a>[39m
+          [36m</header>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"agent-toolbar"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"status-badge"[39m
+            [36m>[39m
+              [0mEnabled[0m
+            [36m</span>[39m
+            [36m<span>[39m
+              [0mPublished v1[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mrole[39m=[32m"status"[39m
+            [36m>[39m
+              [0mSaved draft · revision 7[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"form-actions"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button secondary"[39m
+                [33mdisabled[39m=[32m""[39m
+              [36m>[39m
+                [0mSave draft[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button"[39m
+              [36m>[39m
+                [0mPublish[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"agent-layout"[39m
+          [36m>[39m
+            [36m<section[39m
+              [33mclass[39m=[32m"panel agent-editor"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33maria-label[39m=[32m"Agent sections"[39m
+                [33mclass[39m=[32m"agent-tabs"[39m
+                [33mrole[39m=[32m"group"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"true"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mGeneral[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mVoice[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mVersions[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0mTest[0m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<fieldset[39m
+                [33mclass[39m=[32m"form-field"[39m
+              [36m>[39m
+                [36m<legend[39m
+                  [33mclass[39m=[32m"sr-only"[39m
+                [36m>[39m
+                  [0mGeneral agent settings[0m
+                [36m</legend>[39m
+                [36m<label[39m
+                  [33mfor[39m=[32m"agent-name"[39m
+                [36m>[39m
+                  [0mAgent name[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mdir[39m=[32m"auto"[39m
+                  [33mid[39m=[32m"agent-name"[39m
+                  [33mmaxlength[39m=[32m"100"[39m
+                  [33mvalue[39m=[32m"Reception"[39m
+                [36m/>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"form-grid"[39m
+                [36m>[39m
+                  [36m<div>[39m
+                    [36m<label[39m
+                      [33mfor[39m=[32m"language-mode"[39m
+                    [36m>[39m
+                      [0mLanguage[0m
+                    [36m</label>[39m
+                    [36m<select[39m
+                      [33mid[39m=[32m"language-mode"[39m
+                    [36m>[39m
+                      [36m<option[39m
+                        [33mvalue[39m=[32m"bilingual"[39m
+                      [36m>[39m
+                        [0mEnglish + Urdu[0m
+                      [36m</option>[39m
+                      [36m<option[39m
+                        [33mvalue[39m=[32m"en"[39m
+                      [36m>[39m
+                        [0mEnglish[0m
+                      [36m</option>[39m
+                      [36m<option[39m
+                        [33mvalue[39m=[32m"ur"[39m
+                      [36m>[39m
+                        [0mUrdu[0m
+                      [36m</option>[39m
+                    [36m</select>[39m
+                  [36m</div>[39m
+                  [36m<div>[39m
+                    [36m<label[39m
+                      [33mfor[39m=[32m"agent-tone"[39m
+                    [36m>[39m
+                      [0mTone[0m
+                    [36m</label>[39m
+                    [36m<select[39m
+                      [33mid[39m=[32m"agent-tone"[39m
+                    [36m>[39m
+                      [36m<option[39m
+                        [33mvalue[39m=[32m"friendly"[39m
+                      [36m>[39m
+                        [0mFriendly[0m
+                      [36m</option>[39m
+                      [36m<option[39m
+                        [33mvalue[39m=[32m"formal"[39m
+                      [36m>[39m
+                        [0mFormal[0m
+                      [36m</option>[39m
+                      [36m<option[39m
+                        [33mvalue[39m=[32m"concise"[39m
+                      [36m>[39m
+                        [0mConcise[0m
+                      [36m</option>[39m
+                    [36m</select>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+                [36m<label[39m
+                  [33mfor[39m=[32m"greeting-en"[39m
+                [36m>[39m
+                  [0mEnglish greeting[0m
+                [36m</label>[39m
+                [36m<textarea[39m
+                  [33mid[39m=[32m"greeting-en"[39m
+                  [33mmaxlength[39m=[32m"500"[39m
+                [36m>[39m
+                  [0mHello[0m
+                [36m</textarea>[39m
+                [36m<label[39m
+                  [33mfor[39m=[32m"greeting-ur"[39m
+                [36m>[39m
+                  [0mUrdu greeting[0m
+                [36m</label>[39m
+                [36m<textarea[39m
+                  [33mdir[39m=[32m"auto"[39m
+                  [33mid[39m=[32m"greeting-ur"[39m
+                  [33mlang[39m=[32m"ur"[39m
+                  [33mmaxlength[39m=[32m"500"[39m
+                [36m>[39m
+                  [0mالسلام علیکم[0m
+                [36m</textarea>[39m
+                [36m<label[39m
+                  [33mfor[39m=[32m"agent-instructions"[39m
+                [36m>[39m
+                  [0mAdditional instructions[0m
+                [36m</label>[39m
+                [36m<textarea[39m
+                  [33mdir[39m=[32m"auto"[39m
+                  [33mid[39m=[32m"agent-instructions"[39m
+                  [33mmaxlength[39m=[32m"2000"[39m
+                [36m>[39m
+                  [0mAsk one question.[0m
+                [36m</textarea>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"muted"[39m
+                [36m>[39m
+                  [0mAI disclosure and safety rules are always applied by the system.[0m
+                [36m</p>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"checkbox-label"[39m
+                [36m>[39m
+                  [36m<input[39m
+                    [33mtype[39m=[32m"checkbox"[39m
+                  [36m/>[39m
+                  [0mRead digits in English[0m
+                [36m</label>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"checkbox-label"[39m
+                [36m>[39m
+                  [36m<input[39m
+                    [33mtype[39m=[32m"checkbox"[39m
+                  [36m/>[39m
+                  [0mSet Friday prayer break[0m
+                [36m</label>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"muted"[39m
+                [36m>[39m
+                  [0mClinic-local times help interpret “after Friday prayers”. This does not replace provider availability.[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"muted"[39m
+                [36m>[39m
+                  [0mAddress and preparation instructions come from[0m
+                  [0m [0m
+                  [36m<a[39m
+                    [33mdata-discover[39m=[32m"true"[39m
+                    [33mhref[39m=[32m"/clinic"[39m
+                  [36m>[39m
+                    [0mClinic settings[0m
+                  [36m</a>[39m
+                  [0m. Publishing and testing capture those saved settings.[0m
+                [36m</p>[39m
+              [36m</fieldset>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"agent-danger"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"button secondary"[39m
+                [36m>[39m
+                  [0mDisable agent[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"button secondary"[39m
+                [36m>[39m
+                  [0mArchive agent[0m
+                [36m</button>[39m
+              [36m</div>[39m
+            [36m</section>[39m
+            [36m<aside[39m
+              [33maria-labelledby[39m=[32m"test-title"[39m
+              [33mclass[39m=[32m"panel agent-test"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"agent-test-heading"[39m
+              [36m>[39m
+                [36m<canvas[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33maria-label[39m=[32m"Working…"[39m
+                  [33mheight[39m=[32m"32"[39m
+                  [33mrole[39m=[32m"img"[39m
+                  [33mstyle[39m=[32m"width: 32px; height: 32px; display: block;"[39m
+                  [33mwidth[39m=[32m"32"[39m
+                [36m/>[39m
+                [36m<div>[39m
+                  [36m<h2[39m
+                    [33mid[39m=[32m"test-title"[39m
+                  [36m>[39m
+                    [0mIsolated test clinic[0m
+                  [36m</h2>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"status-badge"[39m
+                  [36m>[39m
+                    [0mNot started[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<p>[39m
+                [0mChanges affect synthetic test records only. Real patients and bookings are never copied.[0m
+              [36m</p>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"button"[39m
+              [36m>[39m
+                [0mStart isolated test[0m
+              [36m</button>[39m
+            [36m</aside>[39m
+          [36m</div>[39m
+        [36m</main>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/features/agents/editor.test.tsx:370:42
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/features/agents/editor.test.tsx > a never-published agent can review its first publication without a fabricated prior version
+TestingLibraryElementError: Unable to find an accessible element with the role "heading" and name "First publication"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "Review publication":
+  [36m<h2[39m
+    [33mid[39m=[32m"radix-_r_22_"[39m
+  [36m/>[39m
+
+  --------------------------------------------------paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mid[39m=[32m"radix-_r_23_"[39m
+  [36m/>[39m
+
+  --------------------------------------------------term:
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  Name "":
+  [36m<dt />[39m
+
+  --------------------------------------------------
+  definition:
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  Name "":
+  [36m<dd />[39m
+
+  --------------------------------------------------heading:
+
+  Name "Changes from published version":
+  [36m<h3 />[39m
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mdir[39m=[32m"auto"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mdir[39m=[32m"auto"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mdir[39m=[32m"auto"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mdir[39m=[32m"auto"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mdir[39m=[32m"auto"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mdir[39m=[32m"auto"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mdir[39m=[32m"auto"[39m
+  [36m/>[39m
+
+  --------------------------------------------------button:
+
+  Name "Back to editing":
+  [36m<button[39m
+    [33mclass[39m=[32m"button secondary"[39m
+  [36m/>[39m
+
+  Name "Confirm publish":
+  [36m<button[39m
+    [33mclass[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<div[39m
+  [33maria-describedby[39m=[32m"radix-_r_23_"[39m
+  [33maria-labelledby[39m=[32m"radix-_r_22_"[39m
+  [33mclass[39m=[32m"dialog-content"[39m
+  [33mdata-state[39m=[32m"open"[39m
+  [33mid[39m=[32m"radix-_r_21_"[39m
+  [33mrole[39m=[32m"dialog"[39m
+  [33mstyle[39m=[32m"pointer-events: auto;"[39m
+  [33mtabindex[39m=[32m"-1"[39m
+[36m>[39m
+  [36m<h2[39m
+    [33mid[39m=[32m"radix-_r_22_"[39m
+  [36m>[39m
+    [0mReview publication[0m
+  [36m</h2>[39m
+  [36m<p[39m
+    [33mid[39m=[32m"radix-_r_23_"[39m
+  [36m>[39m
+    [0mReception[0m
+    [0m · captured revision [0m
+    [0m7[0m
+    [0m.[0m
+    [0m [0m
+    [0mPublish the saved draft as a new immutable version. Provisional voice selections do not enable speech.[0m
+  [36m</p>[39m
+  [36m<dl>[39m
+    [36m<dt>[39m
+      [0mLanguage[0m
+    [36m</dt>[39m
+    [36m<dd>[39m
+      [0mbilingual[0m
+    [36m</dd>[39m
+    [36m<dt>[39m
+      [0mEnglish voice[0m
+    [36m</dt>[39m
+    [36m<dd>[39m
+      [0men-female[0m
+    [36m</dd>[39m
+    [36m<dt>[39m
+      [0mUrdu voice[0m
+    [36m</dt>[39m
+    [36m<dd>[39m
+      [0mur-female[0m
+    [36m</dd>[39m
+    [36m<dt>[39m
+      [0mDraft[0m
+    [36m</dt>[39m
+    [36m<dd>[39m
+      [0mRepublish the saved configuration[0m
+    [36m</dd>[39m
+  [36m</dl>[39m
+  [36m<div[39m
+    [33mclass[39m=[32m"publication-changes"[39m
+  [36m>[39m
+    [36m<h3>[39m
+      [0mChanges from published version[0m
+    [36m</h3>[39m
+    [36m<div>[39m
+      [36m<strong>[39m
+        [0mName[0m
+      [36m</strong>[39m
+      [36m<p[39m
+        [33mdir[39m=[32m"auto"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"muted"[39m
+        [36m>[39m
+          [0mNot configured[0m
+        [36m</span>[39m
+        [0m →[0m
+        [0m [0m
+        [0mReception[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div>[39m
+      [36m<strong>[39m
+        [0mEnglish greeting[0m
+      [36m</strong>[39m
+      [36m<p[39m
+        [33mdir[39m=[32m"auto"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"muted"[39m
+        [36m>[39m
+          [0mNot configured[0m
+        [36m</span>[39m
+        [0m →[0m
+        [0m [0m
+        [0mHello[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div>[39m
+      [36m<strong>[39m
+        [0mUrdu greeting[0m
+      [36m</strong>[39m
+      [36m<p[39m
+        [33mdir[39m=[32m"auto"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"muted"[39m
+        [36m>[39m
+          [0mNot configured[0m
+        [36m</span>[39m
+        [0m →[0m
+        [0m [0m
+        [0mالسلام علیکم[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div>[39m
+      [36m<strong>[39m
+        [0mTone[0m
+      [36m</strong>[39m
+      [36m<p[39m
+        [33mdir[39m=[32m"auto"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"muted"[39m
+        [36m>[39m
+          [0mNot configured[0m
+        [36m</span>[39m
+        [0m →[0m
+        [0m [0m
+        [0mfriendly[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div>[39m
+      [36m<strong>[39m
+        [0mAdditional instructions[0m
+      [36m</strong>[39m
+      [36m<p[39m
+        [33mdir[39m=[32m"auto"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"muted"[39m
+        [36m>[39m
+          [0mNot configured[0m
+        [36m</span>[39m
+        [0m →[0m
+        [0m [0m
+        [0mAsk one question.[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div>[39m
+      [36m<strong>[39m
+        [0mEnglish voice[0m
+      [36m</strong>[39m
+      [36m<p[39m
+        [33mdir[39m=[32m"auto"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"muted"[39m
+        [36m>[39m
+          [0mNot configured[0m
+        [36m</span>[39m
+        [0m →[0m
+        [0m [0m
+        [0men-female[0m
+      [36m</p>[39m
+    [36m</div>[39m
+    [36m<div>[39m
+      [36m<strong>[39m
+        [0mUrdu voice[0m
+      [36m</strong>[39m
+      [36m<p[39m
+        [33mdir[39m=[32m"auto"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"muted"[39m
+        [36m>[39m
+          [0mNot configured[0m
+        [36m</span>[39m
+        [0m →[0m
+        [0m [0m
+        [0mur-female[0m
+      [36m</p>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+  [36m<div[39m
+    [33mclass[39m=[32m"form-actions"[39m
+  [36m>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"button secondary"[39m
+    [36m>[39m
+      [0mBack to editing[0m
+    [36m</button>[39m
+    [36m<button[39m
+      [33mclass[39m=[32m"button"[39m
+    [36m>[39m
+      [0mConfirm publish[0m
+    [36m</button>[39m
+  [36m</div>[39m
+[36m</div>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/agents/editor.test.tsx:373:588
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/features/agents/isolated-test.test.ts > releases a definitively rejected allocation so a corrected draft revision can start
+AssertionError: expected undefined to be 8 // Object.is equality
+
+- Expected:
+8
+
++ Received:
+undefined
+
+ ❯ src/features/agents/isolated-test.test.ts:329:86
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/features/agents/isolated-test.test.ts > explains a rejected draft revision without echoing arbitrary server details
+AssertionError: expected 'Could not start the isolated test. Re…' to match /saved draft changed/i
+
+- Expected:
+/saved draft changed/i
+
++ Received:
+"Could not start the isolated test. Retry uses the same request."
+
+ ❯ src/features/agents/isolated-test.test.ts:336:428
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  5 failed | 26 passed (31)
+   Start at  01:11:17
+   Duration  5.01s (tests 64%, environment 24%, setup 6%, import 5%, transform 2%)
+

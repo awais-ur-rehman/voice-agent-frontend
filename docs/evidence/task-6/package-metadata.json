@@ -1,0 +1,14 @@
+{
+  "version": "0.3.2",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "repository": {
+    "url": "git+https://github.com/Jakubantalik/Libraries.dev.git",
+    "type": "git",
+    "directory": "packages/thinking-orbs"
+  },
+  "dist.tarball": "https://registry.npmjs.org/thinking-orbs/-/thinking-orbs-0.3.2.tgz",
+  "dist.integrity": "sha512-QZFeBaPEzqhjiZoXy961EvDgaXk2WgXacF3Rbz+Sj5IfzDzBvTC86vdREUHniBffYibJFKSwbfllxLUdI/Xv6g=="
+}

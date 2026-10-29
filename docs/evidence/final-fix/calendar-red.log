@@ -1,0 +1,130 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/scheduling/Calendar.test.tsx
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+ ❯ src/features/scheduling/Calendar.test.tsx (2 tests | 2 failed) 111ms
+   × labels overlapping compact booked/cancelled Urdu events in day view 92ms
+   × labels overlapping compact booked/cancelled Urdu events in week view 18ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/scheduling/Calendar.test.tsx > labels overlapping compact booked/cancelled Urdu events in day view
+ FAIL  src/features/scheduling/Calendar.test.tsx > labels overlapping compact booked/cancelled Urdu events in week view
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/Cancelled/`
+
+Here are the accessible roles:
+
+  button:
+
+  Name "Synthetic patient · مصنوعی مریض":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Synthetic patient · مصنوعی مریض"[39m
+  [36m/>[39m
+
+  Name "Synthetic patient · مصنوعی مریض":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Synthetic patient · مصنوعی مریض"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  [36m<strong[39m
+    [33mclass[39m=[32m"urdu"[39m
+    [33mdir[39m=[32m"auto"[39m
+    [33mlang[39m=[32m"ur"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<strong[39m
+    [33mclass[39m=[32m"urdu"[39m
+    [33mdir[39m=[32m"auto"[39m
+    [33mlang[39m=[32m"ur"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<button[39m
+      [33maria-label[39m=[32m"Synthetic patient · مصنوعی مریض"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"calendar-event-content compact-event"[39m
+        [33mtitle[39m=[32m"10:00 – 10:30 · Synthetic patient · مصنوعی مریض · Consultation · Dr Fixture"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"calendar-event-time"[39m
+          [33mdir[39m=[32m"ltr"[39m
+        [36m>[39m
+          [0m10:00[0m
+        [36m</span>[39m
+        [36m<strong[39m
+          [33mclass[39m=[32m"urdu"[39m
+          [33mdir[39m=[32m"auto"[39m
+          [33mlang[39m=[32m"ur"[39m
+        [36m>[39m
+          [0mمصنوعی مریض[0m
+        [36m</strong>[39m
+        [36m<small[39m
+          [33mclass[39m=[32m"sr-only"[39m
+          [33mdir[39m=[32m"auto"[39m
+        [36m>[39m
+          [0mConsultation[0m
+          [0m · [0m
+          [0mDr Fixture[0m
+        [36m</small>[39m
+      [36m</div>[39m
+    [36m</button>[39m
+    [36m<button[39m
+      [33maria-label[39m=[32m"Synthetic patient · مصنوعی مریض"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"calendar-event-content compact-event"[39m
+        [33mtitle[39m=[32m"10:00 – 10:30 · Synthetic patient · مصنوعی مریض · Consultation · Dr Fixture"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"calendar-event-time"[39m
+          [33mdir[39m=[32m"ltr"[39m
+        [36m>[39m
+          [0m10:00[0m
+        [36m</span>[39m
+        [36m<strong[39m
+          [33mclass[39m=[32m"urdu"[39m
+          [33mdir[39m=[32m"auto"[39m
+          [33mlang[39m=[32m"ur"[39m
+        [36m>[39m
+          [0mمصنوعی مریض[0m
+        [36m</strong>[39m
+        [36m<small[39m
+          [33mclass[39m=[32m"sr-only"[39m
+          [33mdir[39m=[32m"auto"[39m
+        [36m>[39m
+          [0mConsultation[0m
+          [0m · [0m
+          [0mDr Fixture[0m
+        [36m</small>[39m
+      [36m</div>[39m
+    [36m</button>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/scheduling/Calendar.test.tsx:11:19
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  01:37:25
+   Duration  979ms (environment 67%, tests 12%, setup 12%, import 4%, transform 4%)
+

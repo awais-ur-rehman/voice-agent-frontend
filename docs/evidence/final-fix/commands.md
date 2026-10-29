@@ -1,0 +1,17 @@
+Commands run from frontend (unless specified), using installed locked dependencies:
+
+- `npm test -- src/features/scheduling/workflows.test.tsx -t 'blocks router Back'`: navigation-red.log (unload assertions), router-red.log (actual router Back assertions), 8 failures each before product fix.
+- `npm test -- src/features/scheduling/Calendar.test.tsx`: calendar-red.log, 2 failures; calendar-history-red.log, 2 failures for valid completed/no_show history.
+- `npm test -- src/features/scheduling/workflows.test.tsx src/features/scheduling/Calendar.test.tsx`: navigation-calendar-green.log (33 pass), navigation-calendar-final.log (34 pass including auth reset).
+- `npm test -- src/features/scheduling/workflows.test.tsx -t 'dismisses the navigation warning'`: resolve-warning-red.log (1 fail), resolve-warning-green.log (1 pass).
+- `npm run check`: frontend-full.log (107 pass); frontend-final.log (4 timing failures while browser workload ran concurrently); frontend-complete.log (108 pass after warning completion fix); frontend-verified.log (108 pass, final product including all historical status labels).
+- `npm run lint` then `npm run typecheck`: frontend-final-static.log.
+- `PLAYWRIGHT_CHROMIUM_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' PLAYWRIGHT_BASE_URL=http://127.0.0.1:5175 npm run test:browser`: browser-fixtures.log (stale agent copy expectation), browser-final.log (3 pass during iterative layout check), browser-final-stable.log/browser-complete.log (timing failures), browser-verified.log (3 pass, final native dialog assertions, checked-in workers=1).
+- Same browser prefix with `-- e2e/scheduling.spec.ts`: calendar-layout-red.log (Urdu bounds fail before compact symbols).
+- Same browser prefix with `-- --workers=1`: browser-serial-final.log; with `-- e2e/scheduling.spec.ts --workers=1`: unload-diagnostic.log. Both stopped on the harness waiting for a load intentionally prevented by beforeunload dismissal. Fixed test triggers real location.reload without awaiting a cancelled load, retaining native-dialog/dismiss/intent assertions; no production fix inferred from these two harness failures.
+
+Test timing failures in frontend-final.log: `retains dirty values and captured revision through tabs, refresh and conflicting save`; `requires deliberate legacy upgrade and matching bilingual selections, removes frozen profiles on save`; `lands existing clinics on schedule, uses joined names and clinic week boundaries, and exposes keyboard list`; `books only after slot review; preserves selection on conflict and submits returned actual alternative`. Sequential final full run passes without changing test assertions/timeouts.
+
+Public evidence is synthetic. `live-calendar-{day-1440,week-1024}.png` preserve the initial full-word treatment; the latter shows the clipping that caused the correction. `live-pending-navigation-390.png` preserves the first unsuccessful pause probe (request completed before Back); only `live-pending-navigation-final-390.png` demonstrates a pending route guard. Final status screenshots use `*-final-*`. Fixture screenshot overwrites to Task6 were restored from HEAD; current isolated-text fixture image copied here.
+
+The last calendar map extends the same presentation to valid database completed/no_show statuses, with calendar-history-red.log before the fix and the final108-test full gate afterward. Production live-status-legend-verified-1024.png shows that final legend; the two-event overlap captures precede only that additive legend/map extension, not a geometry change.

@@ -1,0 +1,10 @@
+
+> clinic-voice-console@0.1.0 lint
+> eslint . && prettier --check src scripts vite.config.ts
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> clinic-voice-console@0.1.0 typecheck
+> tsc --noEmit
+

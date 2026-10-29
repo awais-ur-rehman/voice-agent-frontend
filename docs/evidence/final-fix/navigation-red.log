@@ -1,0 +1,52 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/scheduling/workflows.test.tsx -t blocks router Back
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+ ❯ src/features/scheduling/workflows.test.tsx (31 tests | 8 failed | 23 skipped) 2632ms
+   × blocks router Back and unload for pending and HTTP 503 book, preserving exact retry 1036ms
+   × blocks router Back and unload for pending and HTTP 408 book, preserving exact retry 272ms
+   × blocks router Back and unload for pending and HTTP 503 move, preserving exact retry 230ms
+   × blocks router Back and unload for pending and HTTP 408 move, preserving exact retry 222ms
+   × blocks router Back and unload for pending and HTTP 503 cancel, preserving exact retry 204ms
+   × blocks router Back and unload for pending and HTTP 408 cancel, preserving exact retry 180ms
+   × blocks router Back and unload for pending and HTTP 503 merge, preserving exact retry 242ms
+   × blocks router Back and unload for pending and HTTP 408 merge, preserving exact retry 244ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 503 book, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 408 book, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 503 move, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 408 move, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 503 cancel, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 408 cancel, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 503 merge, preserving exact retry
+ FAIL  src/features/scheduling/workflows.test.tsx > blocks router Back and unload for pending and HTTP 408 merge, preserving exact retry
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ blocked src/features/scheduling/workflows.test.tsx:1026:40
+    1024|         const event = new Event("beforeunload", { cancelable: true });
+    1025|         window.dispatchEvent(event);
+    1026|         expect(event.defaultPrevented).toBe(true);
+       |                                        ^
+    1027|         await router.navigate(-1);
+    1028|         expect(router.state.location.pathname).toBe(path);
+ ❯ src/features/scheduling/workflows.test.tsx:1031:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 23 skipped (31)
+   Start at  01:36:52
+   Duration  3.71s (tests 72%, environment 17%, import 6%, setup 3%, transform 2%)
+

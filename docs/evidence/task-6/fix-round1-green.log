@@ -1,0 +1,13 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/agents/editor.test.tsx src/features/agents/isolated-test.test.ts
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+
+ Test Files  2 passed (2)
+      Tests  31 passed (31)
+   Start at  01:12:33
+   Duration  4.68s (tests 56%, environment 33%, import 5%, setup 4%, transform 2%)
+

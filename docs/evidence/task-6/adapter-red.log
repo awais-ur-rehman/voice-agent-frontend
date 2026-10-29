@@ -1,0 +1,36 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/agents/isolated-test.test.ts
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+ ❯ src/features/agents/isolated-test.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/agents/isolated-test.test.ts [ src/features/agents/isolated-test.test.ts ]
+Error: Failed to resolve import "./isolated-test" from "src/features/agents/isolated-test.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/awaisurrehman/Documents/experimental/voice-agent/frontend/src/features/agents/isolated-test.test.ts:2:29
+  1  |  import { beforeEach, expect, it, vi } from "vitest";
+  2  |  import { IsolatedTest } from "./isolated-test";
+     |                                ^
+  3  |  import { Session } from "../../api/session";
+  4  |  import { testSnapshot, voiceSnapshot } from "./fixtures.test-support";
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/node.js:8803:39
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/node.js:8800:14
+ ❯ resolveId node_modules/vite/dist/node/chunks/node.js:26594:18
+ ❯ node_modules/vite/dist/node/chunks/node.js:26693:23
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:26666:4
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:8582:14
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/node.js:20155:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  00:45:55
+   Duration  849ms (environment 82%, setup 18%, transform 1%)
+

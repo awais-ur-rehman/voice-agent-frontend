@@ -1,0 +1,32 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/agents/isolated-test.test.ts
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+ ❯ src/features/agents/isolated-test.test.ts (15 tests | 1 failed) 21ms
+   × an uncertain end prevents replacement turns and voice until the same end is retried 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/agents/isolated-test.test.ts > an uncertain end prevents replacement turns and voice until the same end is retried
+AssertionError: expected [ '/auth/login', '/auth/me', …(3) ] to have a length of 3 but got 5
+
+- Expected
++ Received
+
+- 3
++ 5
+
+ ❯ src/features/agents/isolated-test.test.ts:300:471
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  01:02:25
+   Duration  1.21s (environment 70%, setup 12%, import 10%, transform 6%, tests 2%)
+

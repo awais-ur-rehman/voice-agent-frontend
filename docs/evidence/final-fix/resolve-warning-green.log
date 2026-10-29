@@ -1,0 +1,13 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/scheduling/workflows.test.tsx -t dismisses the navigation warning
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 32 skipped (33)
+   Start at  21:38:44
+   Duration  2.28s (tests 54%, environment 27%, import 10%, setup 5%, transform 4%)
+

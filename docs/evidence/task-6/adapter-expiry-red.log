@@ -1,0 +1,44 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/agents/isolated-test.test.ts
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+ ❯ src/features/agents/isolated-test.test.ts (14 tests | 2 failed) 17ms
+   × expired server scope closes local conversation and media 4ms
+   × unknown text outcome retries exact command and body rather than edited replacement text 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/agents/isolated-test.test.ts > expired server scope closes local conversation and media
+AssertionError: expected 'active' to be 'expired' // Object.is equality
+
+Expected: "expired"
+Received: "active"
+
+ ❯ src/features/agents/isolated-test.test.ts:240:433
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/features/agents/isolated-test.test.ts > unknown text outcome retries exact command and body rather than edited replacement text
+AssertionError: expected undefined to be true // Object.is equality
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ src/features/agents/isolated-test.test.ts:241:532
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 12 passed (14)
+   Start at  00:58:40
+   Duration  1.51s (environment 71%, setup 13%, import 10%, transform 4%, tests 1%)
+

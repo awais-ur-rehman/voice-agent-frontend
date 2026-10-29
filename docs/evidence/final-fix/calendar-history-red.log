@@ -1,0 +1,373 @@
+
+> clinic-voice-console@0.1.0 test
+> vitest run src/features/scheduling/Calendar.test.tsx
+
+
+ RUN  v5.0.5 /Users/awaisurrehman/Documents/experimental/voice-agent/frontend
+
+ ❯ src/features/scheduling/Calendar.test.tsx (2 tests | 2 failed) 112ms
+   × labels overlapping compact booked/cancelled Urdu events in day view 103ms
+   × labels overlapping compact booked/cancelled Urdu events in week view 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/scheduling/Calendar.test.tsx > labels overlapping compact booked/cancelled Urdu events in day view
+ FAIL  src/features/scheduling/Calendar.test.tsx > labels overlapping compact booked/cancelled Urdu events in week view
+TestingLibraryElementError: Found multiple elements with the role "button" and name `/Booked/`
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<button[39m
+  [33maria-label[39m=[32m"Booked · Synthetic patient · مصنوعی مریض"[39m
+[36m>[39m
+  [36m<div[39m
+    [33mclass[39m=[32m"calendar-event-content compact-event"[39m
+    [33mtitle[39m=[32m"Booked · 10:00 – 10:30 · Synthetic patient · مصنوعی مریض · Consultation · Dr Fixture"[39m
+  [36m>[39m
+    [36m<span[39m
+      [33mclass[39m=[32m"calendar-event-time"[39m
+      [33mdir[39m=[32m"ltr"[39m
+    [36m>[39m
+      [36m<b[39m
+        [33mclass[39m=[32m"calendar-event-status booked"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33maria-hidden[39m=[32m"true"[39m
+        [36m>[39m
+          [0m✓[0m
+        [36m</span>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"sr-only"[39m
+        [36m>[39m
+          [0mBooked[0m
+        [36m</span>[39m
+      [36m</b>[39m
+      [0m [0m
+      [0m10:00[0m
+    [36m</span>[39m
+    [36m<strong[39m
+      [33mclass[39m=[32m"urdu"[39m
+      [33mdir[39m=[32m"auto"[39m
+      [33mlang[39m=[32m"ur"[39m
+    [36m>[39m
+      [0mمصنوعی مریض[0m
+    [36m</strong>[39m
+    [36m<small[39m
+      [33mclass[39m=[32m"sr-only"[39m
+      [33mdir[39m=[32m"auto"[39m
+    [36m>[39m
+      [0mConsultation[0m
+      [0m · [0m
+      [0mDr Fixture[0m
+    [36m</small>[39m
+  [36m</div>[39m
+[36m</button>[39m
+
+Ignored nodes: comments, script, style
+[36m<button[39m
+  [33maria-label[39m=[32m"Booked · Synthetic patient · مصنوعی مریض"[39m
+[36m>[39m
+  [36m<div[39m
+    [33mclass[39m=[32m"calendar-event-content compact-event"[39m
+    [33mtitle[39m=[32m"Booked · 10:00 – 10:30 · Synthetic patient · مصنوعی مریض · Consultation · Dr Fixture"[39m
+  [36m>[39m
+    [36m<span[39m
+      [33mclass[39m=[32m"calendar-event-time"[39m
+      [33mdir[39m=[32m"ltr"[39m
+    [36m>[39m
+      [36m<b[39m
+        [33mclass[39m=[32m"calendar-event-status completed"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33maria-hidden[39m=[32m"true"[39m
+        [36m>[39m
+          [0m✓[0m
+        [36m</span>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"sr-only"[39m
+        [36m>[39m
+          [0mBooked[0m
+        [36m</span>[39m
+      [36m</b>[39m
+      [0m [0m
+      [0m10:00[0m
+    [36m</span>[39m
+    [36m<strong[39m
+      [33mclass[39m=[32m"urdu"[39m
+      [33mdir[39m=[32m"auto"[39m
+      [33mlang[39m=[32m"ur"[39m
+    [36m>[39m
+      [0mمصنوعی مریض[0m
+    [36m</strong>[39m
+    [36m<small[39m
+      [33mclass[39m=[32m"sr-only"[39m
+      [33mdir[39m=[32m"auto"[39m
+    [36m>[39m
+      [0mConsultation[0m
+      [0m · [0m
+      [0mDr Fixture[0m
+    [36m</small>[39m
+  [36m</div>[39m
+[36m</button>[39m
+
+Ignored nodes: comments, script, style
+[36m<button[39m
+  [33maria-label[39m=[32m"Booked · Synthetic patient · مصنوعی مریض"[39m
+[36m>[39m
+  [36m<div[39m
+    [33mclass[39m=[32m"calendar-event-content compact-event"[39m
+    [33mtitle[39m=[32m"Booked · 10:00 – 10:30 · Synthetic patient · مصنوعی مریض · Consultation · Dr Fixture"[39m
+  [36m>[39m
+    [36m<span[39m
+      [33mclass[39m=[32m"calendar-event-time"[39m
+      [33mdir[39m=[32m"ltr"[39m
+    [36m>[39m
+      [36m<b[39m
+        [33mclass[39m=[32m"calendar-event-status no_show"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33maria-hidden[39m=[32m"true"[39m
+        [36m>[39m
+          [0m✓[0m
+        [36m</span>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"sr-only"[39m
+        [36m>[39m
+          [0mBooked[0m
+        [36m</span>[39m
+      [36m</b>[39m
+      [0m [0m
+      [0m10:00[0m
+    [36m</span>[39m
+    [36m<strong[39m
+      [33mclass[39m=[32m"urdu"[39m
+      [33mdir[39m=[32m"auto"[39m
+      [33mlang[39m=[32m"ur"[39m
+    [36m>[39m
+      [0mمصنوعی مریض[0m
+    [36m</strong>[39m
+    [36m<small[39m
+      [33mclass[39m=[32m"sr-only"[39m
+      [33mdir[39m=[32m"auto"[39m
+    [36m>[39m
+      [0mConsultation[0m
+      [0m · [0m
+      [0mDr Fixture[0m
+    [36m</small>[39m
+  [36m</div>[39m
+[36m</button>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<p[39m
+      [33mclass[39m=[32m"calendar-status-legend"[39m
+    [36m>[39m
+      [0m✓ Booked · × Cancelled · Select an event for details[0m
+    [36m</p>[39m
+    [36m<button[39m
+      [33maria-label[39m=[32m"Booked · Synthetic patient · مصنوعی مریض"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"calendar-event-content compact-event"[39m
+        [33mtitle[39m=[32m"Booked · 10:00 – 10:30 · Synthetic patient · مصنوعی مریض · Consultation · Dr Fixture"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"calendar-event-time"[39m
+          [33mdir[39m=[32m"ltr"[39m
+        [36m>[39m
+          [36m<b[39m
+            [33mclass[39m=[32m"calendar-event-status booked"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33maria-hidden[39m=[32m"true"[39m
+            [36m>[39m
+              [0m✓[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"sr-only"[39m
+            [36m>[39m
+              [0mBooked[0m
+            [36m</span>[39m
+          [36m</b>[39m
+          [0m [0m
+          [0m10:00[0m
+        [36m</span>[39m
+        [36m<strong[39m
+          [33mclass[39m=[32m"urdu"[39m
+          [33mdir[39m=[32m"auto"[39m
+          [33mlang[39m=[32m"ur"[39m
+        [36m>[39m
+          [0mمصنوعی مریض[0m
+        [36m</strong>[39m
+        [36m<small[39m
+          [33mclass[39m=[32m"sr-only"[39m
+          [33mdir[39m=[32m"auto"[39m
+        [36m>[39m
+          [0mConsultation[0m
+          [0m · [0m
+          [0mDr Fixture[0m
+        [36m</small>[39m
+      [36m</div>[39m
+    [36m</button>[39m
+    [36m<button[39m
+      [33maria-label[39m=[32m"Cancelled · Synthetic patient · مصنوعی مریض"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"calendar-event-content compact-event"[39m
+        [33mtitle[39m=[32m"Cancelled · 10:00 – 10:30 · Synthetic patient · مصنوعی مریض · Consultation · Dr Fixture"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"calendar-event-time"[39m
+          [33mdir[39m=[32m"ltr"[39m
+        [36m>[39m
+          [36m<b[39m
+            [33mclass[39m=[32m"calendar-event-status cancelled"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33maria-hidden[39m=[32m"true"[39m
+            [36m>[39m
+              [0m×[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"sr-only"[39m
+            [36m>[39m
+              [0mCancelled[0m
+            [36m</span>[39m
+          [36m</b>[39m
+          [0m [0m
+          [0m10:00[0m
+        [36m</span>[39m
+        [36m<strong[39m
+          [33mclass[39m=[32m"urdu"[39m
+          [33mdir[39m=[32m"auto"[39m
+          [33mlang[39m=[32m"ur"[39m
+        [36m>[39m
+          [0mمصنوعی مریض[0m
+        [36m</strong>[39m
+        [36m<small[39m
+          [33mclass[39m=[32m"sr-only"[39m
+          [33mdir[39m=[32m"auto"[39m
+        [36m>[39m
+          [0mConsultation[0m
+          [0m · [0m
+          [0mDr Fixture[0m
+        [36m</small>[39m
+      [36m</div>[39m
+    [36m</button>[39m
+    [36m<button[39m
+      [33maria-label[39m=[32m"Booked · Synthetic patient · مصنوعی مریض"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"calendar-event-content compact-event"[39m
+        [33mtitle[39m=[32m"Booked · 10:00 – 10:30 · Synthetic patient · مصنوعی مریض · Consultation · Dr Fixture"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"calendar-event-time"[39m
+          [33mdir[39m=[32m"ltr"[39m
+        [36m>[39m
+          [36m<b[39m
+            [33mclass[39m=[32m"calendar-event-status completed"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33maria-hidden[39m=[32m"true"[39m
+            [36m>[39m
+              [0m✓[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"sr-only"[39m
+            [36m>[39m
+              [0mBooked[0m
+            [36m</span>[39m
+          [36m</b>[39m
+          [0m [0m
+          [0m10:00[0m
+        [36m</span>[39m
+        [36m<strong[39m
+          [33mclass[39m=[32m"urdu"[39m
+          [33mdir[39m=[32m"auto"[39m
+          [33mlang[39m=[32m"ur"[39m
+        [36m>[39m
+          [0mمصنوعی مریض[0m
+        [36m</strong>[39m
+        [36m<small[39m
+          [33mclass[39m=[32m"sr-only"[39m
+          [33mdir[39m=[32m"auto"[39m
+        [36m>[39m
+          [0mConsultation[0m
+          [0m · [0m
+          [0mDr Fixture[0m
+        [36m</small>[39m
+      [36m</div>[39m
+    [36m</button>[39m
+    [36m<button[39m
+      [33maria-label[39m=[32m"Booked · Synthetic patient · مصنوعی مریض"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"calendar-event-content compact-event"[39m
+        [33mtitle[39m=[32m"Booked · 10:00 – 10:30 · Synthetic patient · مصنوعی مریض · Consultation · Dr Fixture"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mclass[39m=[32m"calendar-event-time"[39m
+          [33mdir[39m=[32m"ltr"[39m
+        [36m>[39m
+          [36m<b[39m
+            [33mclass[39m=[32m"calendar-event-status no_show"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33maria-hidden[39m=[32m"true"[39m
+            [36m>[39m
+              [0m✓[0m
+            [36m</span>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"sr-only"[39m
+            [36m>[39m
+              [0mBooked[0m
+            [36m</span>[39m
+          [36m</b>[39m
+          [0m [0m
+          [0m10:00[0m
+        [36m</span>[39m
+        [36m<strong[39m
+          [33mclass[39m=[32m"urdu"[39m
+          [33mdir[39m=[32m"auto"[39m
+          [33mlang[39m=[32m"ur"[39m
+        [36m>[39m
+          [0mمصنوعی مریض[0m
+        [36m</strong>[39m
+        [36m<small[39m
+          [33mclass[39m=[32m"sr-only"[39m
+          [33mdir[39m=[32m"auto"[39m
+        [36m>[39m
+          [0mConsultation[0m
+          [0m · [0m
+          [0mDr Fixture[0m
+        [36m</small>[39m
+      [36m</div>[39m
+    [36m</button>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/scheduling/Calendar.test.tsx:51:19
+     49|       "Cancelled",
+     50|     );
+     51|     expect(screen.getByRole("button", { name: /Booked/ })).toHaveTextC…
+       |                   ^
+     52|       "Booked",
+     53|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  21:47:22
+   Duration  988ms (environment 64%, setup 13%, tests 12%, import 6%, transform 4%)
+
