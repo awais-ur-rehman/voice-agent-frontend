@@ -32,22 +32,24 @@ const type = (value) =>
     ? "undefined"
     : value.$ref
       ? `DashboardSchemas[${JSON.stringify(value.$ref.split("/").at(-1))}]`
-      : value.type === "array"
-        ? `Array<${type(value.items)}>`
-        : value.type === "string"
-          ? "string"
-          : value.type === "boolean"
-            ? "boolean"
-            : ["integer", "number"].includes(value.type)
-              ? "number"
-              : "unknown";
+      : value.oneOf || value.anyOf
+        ? (value.oneOf ?? value.anyOf).map(type).join(" | ")
+        : value.type === "array"
+          ? `Array<${type(value.items)}>`
+          : value.type === "string"
+            ? "string"
+            : value.type === "boolean"
+              ? "boolean"
+              : ["integer", "number"].includes(value.type)
+                ? "number"
+                : "unknown";
 output += "\nexport interface DashboardOperations {\n";
 for (const [path, methods] of Object.entries(document.paths))
   for (const [method, op] of Object.entries(methods)) {
     const response = Object.entries(op.responses).find(([code]) =>
       code.startsWith("2"),
     )?.[1];
-    output += `${JSON.stringify(method.toUpperCase() + " " + path)}: { body: ${type(op.requestBody?.content?.["application/json"]?.schema)}; response: ${type(response?.content?.["application/json"]?.schema)} };\n`;
+    output += `${JSON.stringify(method.toUpperCase() + " " + path)}: { body: ${op.requestBody?.content?.["application/octet-stream"] ? "Blob" : type(op.requestBody?.content?.["application/json"]?.schema)}; response: ${type(response?.content?.["application/json"]?.schema)} };\n`;
   }
 output += "}\n";
 // Match the repository formatter so generation and formatting commute.

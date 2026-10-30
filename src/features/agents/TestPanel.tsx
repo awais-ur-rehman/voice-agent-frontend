@@ -2,6 +2,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { ThinkingOrb } from "thinking-orbs";
 import { useAuth } from "../../app/auth";
 import { ErrorSummary, StatusBadge } from "../../components/ui/patterns";
+import { KnowledgeCitations } from "../knowledge/KnowledgeCitations";
 import { IsolatedTest } from "./isolated-test";
 function Activity({ busy, listening }: { busy: boolean; listening: boolean }) {
   const [reduced, setReduced] = useState(() =>
@@ -184,6 +185,7 @@ export function TestPanel({
               </button>
             </div>
           </form>
+          <KnowledgeCitations trace={state.knowledge} />
           {state.trace.length > 0 && (
             <details>
               <summary>Redacted tool decisions</summary>

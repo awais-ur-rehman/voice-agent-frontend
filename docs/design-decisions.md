@@ -12,3 +12,9 @@ References inspected on 2026-10-28:
 - [shadcn/ui button](https://ui.shadcn.com/docs/components/radix/button): MIT source pattern with Radix Slot, cva and standard semantic HTML. A single reusable button foundation, native inputs and native select form one coherent accessible control system.
 
 No fabricated metrics, decorative waveforms, fake speech or persistent credential/caption storage. The media connection is distinct from inference readiness. Worker state/captions require a validated current worker message. CPU timing data is shown only when actually measured.
+
+## Phase 5 knowledge extension
+
+The Knowledge section keeps the approved operations layout and the existing isolated test panel. Source names, availability and actions share one compact table; the action grid remains aligned at desktop widths and stacks with each source on mobile. Processing health, the availability of an earlier processed version and query-service health are separate facts. No progress percentage or readiness is invented.
+
+Processed knowledge is independent of Publish draft. A persistent agent editor owns navigation so source work cannot discard General/Voice edits. Escaped direction-aware previews and citations show human-readable source names and quotes. Native inputs and the existing Radix dialogs provide keyboard interaction; knowledge actions retain 44px targets and mobile workspace gutters remain 16px. See `phase-5-knowledge.md` for contracts, lifecycle rules and fixture limits.

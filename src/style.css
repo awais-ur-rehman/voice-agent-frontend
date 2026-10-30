@@ -1588,3 +1588,164 @@ fieldset {
   flex-shrink: 0;
   text-decoration: none;
 }
+
+/* Knowledge extends the compact operations workspace and shared dialog rhythm. */
+.knowledge-heading,
+.knowledge-refresh {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.knowledge-heading h2 {
+  margin: 0;
+}
+.knowledge-heading > div {
+  flex: 1;
+  min-width: 180px;
+}
+.knowledge-capabilities {
+  border-left: 3px solid var(--border);
+  padding-left: 12px;
+  margin: 16px 0;
+  font-size: 13px;
+}
+.knowledge-capabilities p {
+  margin: 8px 0;
+}
+.knowledge-refresh {
+  margin-bottom: 12px;
+}
+.knowledge-table-wrap {
+  width: 100%;
+}
+.knowledge-table {
+  width: 100%;
+  table-layout: fixed;
+}
+.knowledge-table th,
+.knowledge-table td {
+  padding: 12px 8px;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.knowledge-table th:first-child,
+.knowledge-table td:first-child {
+  padding-left: 0;
+}
+.knowledge-table th:last-child,
+.knowledge-table td:last-child {
+  padding-right: 0;
+}
+.knowledge-table td > .muted {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+}
+.knowledge-table td:first-child strong {
+  display: block;
+  line-height: 1.9;
+}
+.knowledge-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.knowledge-actions .button {
+  font-size: 12px;
+  padding: 8px 10px;
+  min-height: 44px;
+}
+.knowledge-search {
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+  padding-top: 16px;
+}
+.knowledge-search h3 {
+  margin-top: 0;
+}
+.knowledge-excerpt {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 2.2;
+  margin: 12px 0;
+  padding: 12px;
+  border-inline-start: 3px solid var(--border);
+  background: #f9fafc;
+}
+.knowledge-match {
+  margin-top: 16px;
+}
+.knowledge-dialog {
+  max-width: 640px;
+}
+.knowledge-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.knowledge-form fieldset input,
+.knowledge-form fieldset select {
+  min-height: 44px;
+}
+.knowledge-form fieldset textarea {
+  min-height: 130px;
+  line-height: 2;
+}
+.knowledge-form fieldset label:not(:first-child) {
+  margin-top: 8px;
+}
+.knowledge-form input[type="file"] {
+  max-width: 100%;
+  padding: 8px;
+}
+.knowledge-form input[type="file"]::file-selector-button {
+  min-height: 44px;
+  margin-right: 8px;
+}
+@media (max-width: 600px) {
+  .knowledge-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .knowledge-table,
+  .knowledge-table tbody,
+  .knowledge-table tr,
+  .knowledge-table td {
+    display: block;
+    width: 100%;
+  }
+  .knowledge-table tr {
+    border-top: 1px solid var(--border);
+    padding: 12px 0;
+  }
+  .knowledge-table td,
+  .knowledge-table td:first-child,
+  .knowledge-table td:last-child {
+    padding: 4px 0;
+    border: 0;
+  }
+  .knowledge-actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: 8px;
+  }
+  .knowledge-actions .button {
+    flex: 1;
+  }
+}
+.knowledge-workspace .button,
+.knowledge-dialog .button {
+  min-height: 44px;
+}
+
+.knowledge-table th:last-child {
+  text-align: left;
+}

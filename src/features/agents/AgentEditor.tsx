@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useBlocker, useParams } from "react-router";
+import {
+  Link,
+  useBlocker,
+  useParams,
+  useLocation,
+  useNavigate,
+} from "react-router";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useAuth } from "../../app/auth";
 import { DashboardError } from "../../api/dashboard";
@@ -20,6 +26,7 @@ import {
   ErrorSummary,
   StatusBadge,
 } from "../../components/ui/patterns";
+import { KnowledgeDashboard } from "../knowledge/KnowledgeDashboard";
 import { TestPanel } from "./TestPanel";
 type Intent = {
   kind: "publish" | "rollback" | "archive" | "enabled" | "save";
@@ -149,10 +156,29 @@ function Editor({
     [testActive, setTestActive] = useState(false),
     [notice, setNotice] = useState("");
   const lock = useRef(false);
+  const authorized = useRef(true);
+  const location = useLocation(),
+    navigate = useNavigate();
+  const knowledgePath = `/agents/${encodeURIComponent(agent.id)}/knowledge`;
+  const inKnowledge = location.pathname === knowledgePath;
+  const [knowledgeVisited, setKnowledgeVisited] = useState(inKnowledge);
+  const [knowledgeUnresolved, setKnowledgeUnresolved] = useState(false);
+  if (inKnowledge && !knowledgeVisited) setKnowledgeVisited(true);
+  const currentTab = inKnowledge ? "Knowledge" : tab;
+  useEffect(
+    () =>
+      auth.registerCleanup(() => {
+        authorized.current = false;
+        lock.current = false;
+        setKnowledgeUnresolved(false);
+        setIntent(null);
+      }),
+    [auth.registerCleanup],
+  );
   const dirty =
     JSON.stringify(values) !== JSON.stringify(editable(baseline.config));
   const remote = saved.revision > baseline.revision;
-  const frozen = !!intent || busy || !!agent.archived_at;
+  const frozen = !!intent || busy || knowledgeUnresolved || !!agent.archived_at;
   const publishedVersion = versions.find(
     (version) => version.id === agent.active_version_id,
   );
@@ -162,17 +188,28 @@ function Editor({
     setBaseline(saved);
     setValues(editable(saved.config));
   }
-  const blocker = useBlocker(dirty || !!intent);
+  const blocker = useBlocker(({ nextLocation }) => {
+    if (!authorized.current) return false;
+    if (knowledgeUnresolved || lock.current) return true;
+    const sameEditor = [
+      knowledgePath,
+      `/agents/${encodeURIComponent(agent.id)}`,
+    ].includes(nextLocation.pathname);
+    return dirty && !sameEditor;
+  });
   useEffect(() => {
     const listener = (e: BeforeUnloadEvent) => {
-      if (dirty || lock.current) {
+      if (
+        authorized.current &&
+        (dirty || lock.current || knowledgeUnresolved)
+      ) {
         e.preventDefault();
         e.returnValue = "";
       }
     };
     window.addEventListener("beforeunload", listener);
     return () => window.removeEventListener("beforeunload", listener);
-  }, [dirty]);
+  }, [dirty, knowledgeUnresolved]);
   function change<K extends keyof AgentConfig>(key: K, value: AgentConfig[K]) {
     setValues((old) => ({ ...old, [key]: value }));
     setError(undefined);
@@ -370,7 +407,7 @@ function Editor({
     <>
       <PageHeader
         title={agent.name}
-        description="Draft changes take effect only after publication."
+        description="Agent draft changes take effect after publication. Processed knowledge updates apply immediately."
         actions={
           <Link to="/agents" className="button secondary">
             All agents
@@ -447,18 +484,37 @@ function Editor({
       <div className="agent-layout">
         <section className="panel agent-editor">
           <div className="agent-tabs" role="group" aria-label="Agent sections">
-            {["General", "Voice", "Versions", "Test"].map((item) => (
-              <button
-                key={item}
-                type="button"
-                aria-pressed={tab === item}
-                disabled={!!intent}
-                onClick={() => setTab(item)}
-              >
-                {item}
-              </button>
-            ))}
+            {["General", "Voice", "Knowledge", "Versions", "Test"].map(
+              (item) => (
+                <button
+                  key={item}
+                  type="button"
+                  aria-pressed={currentTab === item}
+                  disabled={!!intent || knowledgeUnresolved}
+                  onClick={() => {
+                    if (item === "Knowledge") void navigate(knowledgePath);
+                    else {
+                      setTab(item);
+                      if (inKnowledge)
+                        void navigate(
+                          `/agents/${encodeURIComponent(agent.id)}`,
+                        );
+                    }
+                  }}
+                >
+                  {item}
+                </button>
+              ),
+            )}
           </div>
+          {knowledgeVisited && (
+            <KnowledgeDashboard
+              agentId={agent.id}
+              active={inKnowledge}
+              disabled={!!intent || !!agent.archived_at}
+              onUnresolved={setKnowledgeUnresolved}
+            />
+          )}
           {remote && dirty && (
             <div className="notice">
               The saved draft changed. Your edits still use revision{" "}
@@ -501,7 +557,7 @@ function Editor({
               </button>
             </div>
           )}
-          {tab === "General" && (
+          {currentTab === "General" && (
             <fieldset className="form-field" disabled={frozen}>
               <legend className="sr-only">General agent settings</legend>
               <label htmlFor="agent-name">Agent name</label>
@@ -633,7 +689,7 @@ function Editor({
               </p>
             </fieldset>
           )}
-          {tab === "Voice" && (
+          {currentTab === "Voice" && (
             <fieldset
               className="form-field"
               disabled={frozen || values.schema_version !== 2}
@@ -699,7 +755,7 @@ function Editor({
               ))}
             </fieldset>
           )}
-          {tab === "Versions" && (
+          {currentTab === "Versions" && (
             <>
               <h2>Published history</h2>
               <ErrorSummary error={publicationBlocked ? null : versionsError} />
@@ -743,7 +799,7 @@ function Editor({
               </p>
             </>
           )}
-          {tab === "Test" && (
+          {currentTab === "Test" && (
             <>
               <h2>Test the saved draft</h2>
               <p>
@@ -918,10 +974,14 @@ function Editor({
             }}
           >
             <Dialog.Title>
-              {intent ? "Operation in progress" : "Leave unsaved edits?"}
+              {knowledgeUnresolved
+                ? "Resolve this operation before leaving"
+                : intent
+                  ? "Operation in progress"
+                  : "Leave unsaved edits?"}
             </Dialog.Title>
             <Dialog.Description>
-              {intent
+              {intent || knowledgeUnresolved
                 ? "Resolve the reviewed operation before leaving."
                 : "Your unsaved changes will be discarded."}
             </Dialog.Description>
@@ -932,7 +992,7 @@ function Editor({
               >
                 Stay
               </button>
-              {!intent && (
+              {!intent && !knowledgeUnresolved && (
                 <button className="button" onClick={() => blocker.proceed?.()}>
                   Discard and leave
                 </button>

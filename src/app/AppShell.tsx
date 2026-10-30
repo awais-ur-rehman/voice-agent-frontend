@@ -25,7 +25,10 @@ export function AppShell() {
     queryFn: ({ signal }) => auth.request("GET /dashboard/setup", { signal }),
     enabled: !!auth.me,
   });
-  if (!auth.me) return <Navigate to="/login" replace />;
+  if (!auth.me)
+    return (
+      <Navigate to="/login" replace state={{ returnTo: location.pathname }} />
+    );
   return (
     <div className="app-shell">
       <a className="skip-link" href="#workspace">

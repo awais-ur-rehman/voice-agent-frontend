@@ -1,6 +1,7 @@
 import type { Session } from "../../api/session";
 import { DashboardError } from "../../api/dashboard";
 import type {
+  KnowledgeTrace,
   TestSnapshot,
   TestTurn,
   ToolTrace,
@@ -25,6 +26,7 @@ type State = {
   muted: boolean;
   showCaptions: boolean;
   trace: ToolTrace[];
+  knowledge: KnowledgeTrace | null;
 };
 const initial = (): State => ({
   snapshot: null,
@@ -38,6 +40,7 @@ const initial = (): State => ({
   muted: false,
   showCaptions: false,
   trace: [],
+  knowledge: null,
 });
 /** Owns one staff-authenticated isolated scope. Never substitutes its ID for a media session ID. */
 export class IsolatedTest {
@@ -116,7 +119,7 @@ export class IsolatedTest {
     this.disconnect();
     this.allocation ??= { agent, revision, key: crypto.randomUUID() };
     const intent = this.allocation;
-    this.update({ busy: true, error: "", trace: [] });
+    this.update({ busy: true, error: "", trace: [], knowledge: null });
     try {
       const snapshot = await this.request(
         "POST /dashboard/agents/{agent_id}/tests",
@@ -204,6 +207,7 @@ export class IsolatedTest {
           },
         },
         trace: result.tool_trace,
+        knowledge: result.knowledge ?? null,
       });
       if (result.status !== "active") this.disconnect();
     } catch (error) {
@@ -395,6 +399,7 @@ export class IsolatedTest {
       pendingEnd: false,
       error: "This isolated test has expired. Start a new test.",
       trace: [],
+      knowledge: null,
     });
   }
   dispose() {

@@ -10,6 +10,7 @@ export type RequestOptions<K extends Operation> = {
   query?: Record<string, string | number | boolean | undefined>;
   signal?: AbortSignal;
   idempotencyKey?: string;
+  checksum?: string;
 };
 function record(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -101,6 +102,9 @@ export async function http<K extends Operation>(
   const query = new URLSearchParams();
   for (const [key, value] of Object.entries(options.query ?? {}))
     if (value !== undefined) query.set(key, String(value));
+  const binary = options.body instanceof Blob;
+  if (binary && !/^[a-f0-9]{64}$/i.test(options.checksum ?? ""))
+    throw Error("A SHA256 checksum is required for a binary upload.");
   const response = await fetch(
     `${API_URL}${path}${query.size ? "?" + query : ""}`,
     {
@@ -109,14 +113,23 @@ export async function http<K extends Operation>(
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(options.body === undefined
           ? {}
-          : { "Content-Type": "application/json" }),
+          : {
+              "Content-Type": binary
+                ? "application/octet-stream"
+                : "application/json",
+            }),
+        ...(binary ? { "X-Content-SHA256": options.checksum! } : {}),
         ...(options.idempotencyKey
           ? { "Idempotency-Key": options.idempotencyKey }
           : {}),
       },
       ...(options.body === undefined
         ? {}
-        : { body: JSON.stringify(options.body) }),
+        : {
+            body: binary
+              ? (options.body as Blob)
+              : JSON.stringify(options.body),
+          }),
       ...(options.signal ? { signal: options.signal } : {}),
       cache: "no-store",
       credentials: "omit",
