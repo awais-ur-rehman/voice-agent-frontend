@@ -20,6 +20,8 @@ The existing AgentEditor blocker is the single router authority. Dirty agent dra
 
 `KnowledgeWrite` captures the exact operation, parameters, input, revision and key. For a file, the immutable File and SHA256 digest stay in that in-memory intent. Network/5xx/408 uncertainty freezes editing and retries the same request. Definite rejection releases the intent but preserves form input. A 409 requires explicit revision reload and renewed submission with a new key; reloading never overwrites typed content. Auth cleanup clears the captured command, releases the guard and permanently revokes that controller's ability to submit under a new account. Neither file bytes, content, tokens nor operation keys are written to browser storage.
 
+Each edit opening initializes from a fresh protected detail request scoped to that dialog opening. The detail cache is discarded on close; background refreshes within the open form do not overwrite typed input or its reviewed revision. Initial detail-loading and error states expose Cancel, and failed reads expose Retry outside the shared query-content boundary.
+
 File sources have no metadata-only write endpoint: editing a file name requires replacement content. Canceling the native picker retains the previously selected File and displays its name/size. The client enforces a nonempty file and the advertised limit capped at 10 MiB; format/content parsing remains server authority.
 
 ## Layout and accessibility

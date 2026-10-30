@@ -30,8 +30,11 @@ export function SourceDialog(props: Props) {
   const auth = useAuth();
   const state = useSyncExternalStore(writer.subscribe, writer.getSnapshot);
   const params = { agent_id: agentId, source_id: action.source?.id ?? "" };
+  // Each opening must initialize from its own protected read, never a prior
+  // form's cached revision. Later refetches leave this opening's input intact.
+  const [detailRead] = useState(() => crypto.randomUUID());
   const detail = useQuery({
-    queryKey: useSessionKey("knowledge-detail", params),
+    queryKey: useSessionKey("knowledge-detail", params, detailRead),
     queryFn: ({ signal }) =>
       auth.request(
         "GET /dashboard/agents/{agent_id}/knowledge/sources/{source_id}",
@@ -39,6 +42,7 @@ export function SourceDialog(props: Props) {
       ),
     enabled: !!action.source && action.kind === "edit",
     staleTime: 0,
+    gcTime: 0,
   });
   const preview = useQuery({
     queryKey: useSessionKey("knowledge-preview", params),
@@ -115,17 +119,29 @@ export function SourceDialog(props: Props) {
               </button>
             </>
           ) : action.kind === "edit" ? (
-            <QueryState query={detail}>
-              {detail.data && <SourceForm {...props} detail={detail.data} />}
-              {detail.error && (
-                <button
-                  className="button secondary"
-                  onClick={() => void detail.refetch()}
-                >
-                  Retry source detail
-                </button>
+            <>
+              <QueryState query={detail}>
+                {detail.data && <SourceForm {...props} detail={detail.data} />}
+              </QueryState>
+              {(!detail.data || detail.error) && (
+                <div className="form-actions">
+                  {!detail.data && (
+                    <button className="button secondary" onClick={onClose}>
+                      Cancel
+                    </button>
+                  )}
+                  {detail.error && (
+                    <button
+                      className="button secondary"
+                      disabled={detail.isFetching}
+                      onClick={() => void detail.refetch()}
+                    >
+                      Retry source detail
+                    </button>
+                  )}
+                </div>
               )}
-            </QueryState>
+            </>
           ) : action.kind === "add" ? (
             <SourceForm {...props} />
           ) : (

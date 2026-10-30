@@ -309,3 +309,87 @@ it("does not claim search availability from a ready source when query service is
     screen.getByRole("button", { name: "Search knowledge" }),
   ).toBeDisabled();
 });
+
+it("reopens saved source with fresh protected content and revision while later refetch preserves dirty input", async () => {
+  const { user, client } = await setup();
+  await knowledge(user);
+  await user.click(screen.getByRole("button", { name: "Edit" }));
+  await screen.findByLabelText("Source text");
+  await user.clear(screen.getByLabelText("Source text"));
+  await user.type(
+    screen.getByLabelText("Source text"),
+    "Saved replacement content",
+  );
+  await user.clear(screen.getByLabelText("Source name"));
+  await user.type(
+    screen.getByLabelText("Source name"),
+    "Saved replacement name",
+  );
+  await user.click(screen.getByRole("button", { name: "Save source" }));
+  await waitFor(() =>
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+  );
+  const readsBeforeOpen = fixture.state.detailReads;
+  await user.click(screen.getByRole("button", { name: "Edit" }));
+  await waitFor(() =>
+    expect(fixture.state.detailReads).toBeGreaterThan(readsBeforeOpen),
+  );
+  await waitFor(() =>
+    expect(screen.getByLabelText("Source text")).toHaveValue(
+      "Saved replacement content",
+    ),
+  );
+  expect(screen.getByLabelText("Source name")).toHaveValue(
+    "Saved replacement name",
+  );
+  expect(screen.getByText(/Reviewed revision 4/)).toBeInTheDocument();
+  await user.clear(screen.getByLabelText("Source text"));
+  await user.type(screen.getByLabelText("Source text"), "Genuine dirty input");
+  fixture.state.sources[0] = {
+    ...fixture.state.sources[0]!,
+    revision: 8,
+    name: "Remote replacement",
+    input: { kind: "text", format: "txt", text: "Remote content" },
+  };
+  const readsBeforeRefresh = fixture.state.detailReads;
+  await act(() =>
+    client.invalidateQueries({
+      predicate: (query) => query.queryKey.includes("knowledge-detail"),
+    }),
+  );
+  expect(fixture.state.detailReads).toBeGreaterThan(readsBeforeRefresh);
+  expect(screen.getByLabelText("Source text")).toHaveValue(
+    "Genuine dirty input",
+  );
+  expect(screen.getByLabelText("Source name")).toHaveValue(
+    "Saved replacement name",
+  );
+  expect(screen.getByText(/Reviewed revision 4/)).toBeInTheDocument();
+});
+it("shows Retry and Cancel for initial protected-detail errors, restores focus on Cancel and recovers on Retry", async () => {
+  const { user } = await setup();
+  await knowledge(user);
+  fixture.state.detailFailure = 503;
+  const edit = screen.getByRole("button", { name: "Edit" });
+  await user.click(edit);
+  await screen.findByText("Source detail unavailable");
+  const dialog = screen.getByRole("dialog");
+  expect(
+    within(dialog).getByRole("button", { name: "Retry source detail" }),
+  ).toBeVisible();
+  await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+  await waitFor(() =>
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+  );
+  expect(edit).toHaveFocus();
+  await user.click(edit);
+  await screen.findByText("Source detail unavailable");
+  fixture.state.detailFailure = 0;
+  await user.click(screen.getByRole("button", { name: "Retry source detail" }));
+  expect(await screen.findByLabelText("Source text")).toHaveValue(
+    source.input.kind === "text" ? source.input.text : "",
+  );
+  expect(
+    screen.queryByText("Source detail unavailable"),
+  ).not.toBeInTheDocument();
+});

@@ -55,6 +55,7 @@ export function knowledgeFixture() {
     searchFailure: false,
     searches: [] as unknown[],
     detailReads: 0,
+    detailFailure: 0,
     listReads: 0,
   };
   function handle(
@@ -180,6 +181,16 @@ export function knowledgeFixture() {
           excerpts: [source.input.kind === "text" ? source.input.text : ""],
         });
       state.detailReads++;
+      if (state.detailFailure)
+        return {
+          status: state.detailFailure,
+          body: {
+            error: {
+              code: "unavailable",
+              message: "Source detail unavailable",
+            },
+          },
+        };
       return ok(state.sources.find((s) => path.endsWith(s.id)) ?? source);
     }
     state.writes.push({

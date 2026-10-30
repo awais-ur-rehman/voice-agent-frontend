@@ -142,13 +142,11 @@ test("binary bytes, canceled picker, exact retry, Back and native unload, auth r
   await fileRow.getByRole("button", { name: "Edit", exact: true }).click();
   await page.getByLabel("Source name", { exact: true }).fill("Replaced bytes");
   const replacement = Buffer.from([255, 0, 42]);
-  await page
-    .getByLabel("Replacement file", { exact: true })
-    .setInputFiles({
-      name: "replacement.pdf",
-      mimeType: "application/pdf",
-      buffer: replacement,
-    });
+  await page.getByLabel("Replacement file", { exact: true }).setInputFiles({
+    name: "replacement.pdf",
+    mimeType: "application/pdf",
+    buffer: replacement,
+  });
   await page.getByRole("button", { name: "Save source", exact: true }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   expect(fixture.uploads[2]!.bytes.equals(replacement)).toBe(true);
@@ -348,6 +346,61 @@ test("protected edit conflict and deletion preserve parent drafts; direct knowle
     page.getByRole("heading", { name: "Knowledge sources", exact: true }),
   ).toBeVisible();
   await expect(page).toHaveURL(/\/agents\/agent-one\/knowledge$/);
+  expect(fixture.errors).toEqual([]);
+  expect(
+    fixture.consoleProblems.filter(
+      (message) => !message.includes("Failed to load resource"),
+    ),
+  ).toEqual([]);
+});
+test("source edit opening loads fresh content and initial detail errors offer visible recovery", async ({
+  page,
+}) => {
+  const fixture = await install(page);
+  await openKnowledge(page);
+  fixture.state.detailFailure = 503;
+  const edit = page.getByRole("button", { name: "Edit", exact: true });
+  await edit.click();
+  await expect(
+    page.getByText("Source detail unavailable", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Retry source detail", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(edit).toBeFocused();
+  await edit.click();
+  await expect(
+    page.getByText("Source detail unavailable", { exact: true }),
+  ).toBeVisible();
+  fixture.state.detailFailure = 0;
+  await page
+    .getByRole("button", { name: "Retry source detail", exact: true })
+    .click();
+  await expect(page.getByLabel("Source text", { exact: true })).toContainText(
+    "محفوظ مصنوعی رہنما",
+  );
+  await page
+    .getByLabel("Source text", { exact: true })
+    .fill("Saved current content");
+  await page
+    .getByLabel("Source name", { exact: true })
+    .fill("Saved current name");
+  await page.getByRole("button", { name: "Save source", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  const readsBeforeOpen = fixture.state.detailReads;
+  await edit.click();
+  await expect(page.getByLabel("Source text", { exact: true })).toHaveValue(
+    "Saved current content",
+  );
+  await expect(page.getByLabel("Source name", { exact: true })).toHaveValue(
+    "Saved current name",
+  );
+  await expect(page.getByText(/Reviewed revision 4/)).toBeVisible();
+  expect(fixture.state.detailReads).toBeGreaterThan(readsBeforeOpen);
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(edit).toBeFocused();
   expect(fixture.errors).toEqual([]);
   expect(
     fixture.consoleProblems.filter(
