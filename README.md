@@ -30,3 +30,5 @@ npm run test:browser
 Public schema snapshots are `contracts/voice.v1.json` and `contracts/dashboard.v1.json`; types and runtime validation derive from it. After an intentional backend contract change, copy the exported schema and run `npm run contracts:generate`. `contracts:check` compares generated output and, when the sibling backend checkout exists, the upstream schema bytes. In standalone CI it verifies the pinned snapshot/type pairing; backend CI owns export freshness. Browser type generation explicitly allowlists public models and excludes WorkerGrant.
 
 See [testing evidence and owner steps](docs/phase-4-testing.md), [dependency/license pins](docs/dependencies.md), and [design decisions](docs/design-decisions.md).
+
+Phase 5 local checkpoint: [testing instructions](docs/phase-5-testing.md) and [measured results / acceptance limits](docs/phase-5-results.md). Real embedding qualification remains explicitly deferred; source management and hosted adapter probes do not establish end-to-end RAG acceptance.

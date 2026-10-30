@@ -7,3 +7,5 @@ Before adoption, record the exact artifact identifier, version/revision, upstrea
 Scheduling dependencies verified 2026-10-29: `@fullcalendar/react@7.1.3` and `temporal-polyfill@1.0.6`, both MIT. Preserve installed LICENSE notices when distributing. Exact artifacts and upstream links are in [dependencies](dependencies.md). Only free time-grid/classic-theme exports are used; no premium plugin is installed.
 
 Thinking Orbs 0.3.2: MIT, copyright 2026 Jakub Antalik. Installed package LICENSE and React >=18 peer were rechecked during Task 7. Preserve its copyright and permission notice when distributing.
+
+Phase 5 checkpoint adds no new third-party packages, models, fonts, or assets. The qualification corpus and QA screenshots are project-authored synthetic material. Existing locked package/model notices and redistribution limits above continue to apply; real model acceptance is not a license claim.
