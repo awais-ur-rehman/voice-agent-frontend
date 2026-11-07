@@ -393,3 +393,33 @@ it("shows Retry and Cancel for initial protected-detail errors, restores focus o
     screen.queryByText("Source detail unavailable"),
   ).not.toBeInTheDocument();
 });
+it("shows a failed-only library as unavailable without claiming work is ongoing", async () => {
+  Object.assign(fixture.state.sources[0]!, {
+    available: false,
+    active_generation_id: null,
+    chunk_count: 0,
+  });
+  fixture.state.capabilities.query_available = false;
+  fixture.state.capabilities.query_unavailable_reason = "processing_pending";
+  const { user } = await setup();
+  await knowledge(user);
+  expect(screen.getByText("Failed", { exact: true })).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      "No processed knowledge is available. Check source status.",
+    ),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByText(
+      /Knowledge is still processing|Checking processing status/,
+    ),
+  ).not.toBeInTheDocument();
+});
+it("shows the source absolute update time with its timezone", async () => {
+  const { user } = await setup();
+  await knowledge(user);
+  const time = screen.getByText("29 Oct 2026, 10:00 UTC");
+  expect(time.tagName).toBe("TIME");
+  expect(time).toHaveAttribute("datetime", "2026-10-29T10:00:00Z");
+  expect(time.parentElement).toHaveTextContent("Updated");
+});

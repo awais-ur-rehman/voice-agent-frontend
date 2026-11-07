@@ -56,3 +56,10 @@ it("bounds returned citations and escapes quotes while showing non-ready decisio
     ).toBeTruthy();
   }
 });
+it("does not describe an unavailable corpus as ongoing processing in the trace", () => {
+  render(<KnowledgeCitations trace={{ status: "processing_pending" }} />);
+  expect(screen.getByRole("region")).toHaveTextContent(
+    "No processed knowledge is available. Check source status.",
+  );
+  expect(screen.getByRole("region")).not.toHaveTextContent("still processing");
+});

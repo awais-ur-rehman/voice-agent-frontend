@@ -205,6 +205,11 @@ test("compact responsive source table, keyboard preview, Urdu provenance and cit
     page.getByText("Previous version available", { exact: true }),
   ).toBeVisible();
   for (const width of [1440, 1024, 390]) {
+    await expect(page.locator("time")).toHaveText("29 Oct 2026, 10:00 UTC");
+    await expect(page.locator("time")).toHaveAttribute(
+      "datetime",
+      source.updated_at,
+    );
     await page.setViewportSize({ width, height: 1000 });
     await page.evaluate(async () => {
       scrollTo(0, 0);
@@ -407,4 +412,37 @@ test("source edit opening loads fresh content and initial detail errors offer vi
       (message) => !message.includes("Failed to load resource"),
     ),
   ).toEqual([]);
+});
+
+test("failed-only sources show neutral availability and update time on narrow screens", async ({
+  page,
+}) => {
+  const fixture = await install(page);
+  Object.assign(fixture.state.sources[0]!, {
+    available: false,
+    active_generation_id: null,
+    chunk_count: 0,
+  });
+  fixture.state.capabilities.query_available = false;
+  fixture.state.capabilities.query_unavailable_reason = "processing_pending";
+  await openKnowledge(page);
+  await page.setViewportSize({ width: 390, height: 1000 });
+  await expect(page.getByText("Failed", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("No processed knowledge is available. Check source status."),
+  ).toBeVisible();
+  await expect(page.locator("time")).toHaveText("29 Oct 2026, 10:00 UTC");
+  await expect(
+    page.getByText(/Knowledge is still processing|Checking processing status/),
+  ).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: "docs/evidence/phase-5-knowledge/failed-only-390.png",
+    fullPage: true,
+  });
+  expect(fixture.errors).toEqual([]);
 });

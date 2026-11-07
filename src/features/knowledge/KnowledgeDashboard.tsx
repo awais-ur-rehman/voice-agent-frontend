@@ -218,6 +218,20 @@ export function KnowledgeDashboard({
                         <span className="muted">
                           {source.kind} · revision {source.revision}
                         </span>
+                        <span className="muted">
+                          Updated{" "}
+                          <time dateTime={source.updated_at}>
+                            {new Intl.DateTimeFormat("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              timeZone: "UTC",
+                              timeZoneName: "short",
+                            }).format(new Date(source.updated_at))}
+                          </time>
+                        </span>
                       </td>
                       <td>
                         <StatusBadge>{statusText(source)}</StatusBadge>

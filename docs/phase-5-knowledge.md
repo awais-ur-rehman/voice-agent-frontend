@@ -1,6 +1,6 @@
 # Phase 5 knowledge workspace
 
-Task 6 extends the approved compact operations design. This is frontend fixture acceptance only. The owner API remains on Phase 4 until Task 7; real embedding qualification and live knowledge rollout remain deferred.
+The knowledge workspace extends the approved compact operations design. The local API is refreshed at migration `0009`, and source management has been exercised against it. Real embedding/tokenizer qualification, a ready knowledge corpus, end-to-end RAG and native voice acceptance remain deferred; embedding, worker and voice execution remain disabled. See the [current checkpoint](phase-5-testing.md) and [results](phase-5-results.md). Task 6 fixture evidence below records historical UI acceptance and does not establish model readiness.
 
 ## Public contracts
 
@@ -26,7 +26,7 @@ File sources have no metadata-only write endpoint: editing a file name requires 
 
 ## Layout and accessibility
 
-The existing fonts, colors, panels, status badge, QueryState, ErrorSummary, native form controls and Radix dialogs are reused. Desktop retains the 232px sidebar, 64px topbar and 24px workspace gutters; mobile retains 16px gutters. Knowledge actions are at least 44px. The source table uses aligned action columns and becomes stacked source rows on narrow screens. No dependency, global restyle or new menu was added.
+The existing fonts, colors, panels, status badge, QueryState, ErrorSummary, native form controls and Radix dialogs are reused. Desktop retains the 232px sidebar, 64px topbar and 24px workspace gutters; mobile retains 16px gutters. Knowledge actions are at least 44px. The source table uses aligned action columns and becomes stacked source rows on narrow screens. Each source shows its absolute update time in UTC. The coarse `processing_pending` query reason means no processed knowledge is available; it does not assert that work is currently running. No dependency, global restyle or new menu was added.
 
 Preview and citations use escaped text, `dir="auto"`, bounded excerpts and source provenance. Urdu uses the bundled font and generous line height. Dialogs retain keyboard focus and restore focus to their initiating control. Unknown writes cannot be dismissed by Escape or outside interaction. The UI distinguishes immediate processed-knowledge changes from Publish draft.
 
