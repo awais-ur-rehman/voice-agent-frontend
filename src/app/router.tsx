@@ -96,7 +96,7 @@ export const routes = [
         ),
       },
       {
-        path: "/agents/:identity",
+        path: "/agents/:identity/*",
         element: (
           <Suspense fallback={<p role="status">Loading agent…</p>}>
             <AgentEditor />

@@ -1,9 +1,17 @@
-import { Link, Navigate } from "react-router";
+import { Link, Navigate, useLocation } from "react-router";
 import { useAuth } from "../../app/auth";
 import { ContractForm } from "../../components/ui/contract-form";
 export function AuthPage({ signup = false }: { signup?: boolean }) {
   const auth = useAuth();
-  if (auth.me) return <Navigate to="/" replace />;
+  const location = useLocation();
+  const candidate: unknown = location.state?.returnTo;
+  const returnTo =
+    typeof candidate === "string" &&
+    candidate.startsWith("/") &&
+    !candidate.startsWith("//")
+      ? candidate
+      : "/";
+  if (auth.me) return <Navigate to={returnTo} replace />;
   return (
     <main className="auth-page">
       <div className="auth-brand">
