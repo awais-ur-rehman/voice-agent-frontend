@@ -32,3 +32,5 @@ Public schema snapshots are `contracts/voice.v1.json` and `contracts/dashboard.v
 See [testing evidence and owner steps](docs/phase-4-testing.md), [dependency/license pins](docs/dependencies.md), and [design decisions](docs/design-decisions.md).
 
 Phase 5 local checkpoint: [testing instructions](docs/phase-5-testing.md) and [measured results / acceptance limits](docs/phase-5-results.md). Real embedding qualification remains explicitly deferred; source management and hosted adapter probes do not establish end-to-end RAG acceptance.
+
+Phase 6 analytics checkpoint: [owner testing](docs/phase-6-testing.md) and [observations and limits](docs/phase-6-results.md). Text analytics and offline controls do not qualify native speech, embeddings, billing, or load.

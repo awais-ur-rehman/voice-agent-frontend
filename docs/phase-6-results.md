@@ -1,0 +1,40 @@
+# Phase 6 actual local analytics results
+
+Local CPU/UI implementation is ready for independent root review; publication, hosted CI and owner acceptance are pending. Phases 4/5/6 stay unmerged and Phase 7 has not started.
+
+On 2026-11-08 the maintained opt-in test logged into the real loopback API as fictional Pearl Dental Studio — Demo, selected the same-day cohort through UI filters, and displayed 5 Text/0 Voice,5 ended,0 appointment operations, booking0/5, handoff1/5 and abandonment1/5. Provider estimate stayed Unknown. STT showed 0/0 eligible sessions and unknown timing. Calls & sessions linked to real information-only session204b85e9-3441-4e31-b80c-bf153a77976d; protected transcript reported capture OFF and retained no text. Current capture remained OFF. All console error/warning arrays and local/session storage keys were empty; there were no unexpected post-login mutations. The test verifies the actual served API loopback origin before entering credentials, the authenticated fixed synthetic tenant, and uses no route mocks/intercepts. Private files are read only after explicit opt-in; ordinary CI explicitly skips this case.
+
+The backend source events, rollups and APIs reconcile these actual observations:3 info-only,1 knowledge-unavailable abandoned,1 handoff;45 safe events;10 receipts;0 provider invocations/transcripts/appointment operations. One real synthetic handoff Callback has NULL phone and sends no external message.24 dental sources remain queued with 0 vectors. A controlled Urdu-script input retained its observed English classification. These are actual deterministic Text flows, not native/Urdu speech or retrieval quality qualification.
+
+| Gate | Result |
+| --- | --- |
+| npm run check | Contracts/lint/types pass;167 unit tests pass; production build passes |
+| Full maintained serial Playwright |16 pass,1 explicit local-demo skip,43.4s |
+| Final opt-in actual normal-API test |1 pass,5.6s; actual console/storage/privacy assertions pass |
+| Affected final e2e ESLint | Pass |
+
+Actual screenshots: [analytics](evidence/actual-dental-analytics.png), [real call detail and capture-off](evidence/actual-dental-call-detail.png), [captured console arrays](evidence/actual-console.json). They contain only the fictional clinic and are separate from fixture screenshots. The information-command exact replay was verified through normal APIs and left only two receipts per session. Local durations measure code commands, not voice latency; provider usage and prices remain unknown.
+
+Initial real login failed when the existing private CORS override was omitted from the API refresh; restoring it fixed the integration. Two actual favicon.ico404 console errors were resolved by the explicit empty favicon link, with no console filtering. Failed-run logs remain retained privately. Fixture503 scenarios, existing calendar ResizeObserver, terminal NO_COLOR/FORCE_COLOR and production bundle-size advisory remain visible in their gates. The latest real analytics console is clean. The full npm check covered final product code; later test-only API/cohort/console guard strengthening was checked by affected ESLint and actual Playwright. No product/UI/API contracts changed between those Task 6 gates and their recorded freeze; the final corrections below supersede that product freeze.
+
+Reviewed input frontend head 3c27d6d4bc02a2febb5fcfe7b283bd7d01b68ab5. Task 6 non-document file-hash-map SHA256 (canonical sorted JSON) is f3987357c70bee89dcbca5a3ac69ce1e282195d9a4711fc60584196e3b67717d. Backend source and actual image proof, private backup/migration/role preservation and full 1306-pass gate belong to its [results](../../backend/docs/phase-6-results.md). The sibling link is for this two-checkout workspace; the backend repository owns its published document.
+
+Real embedding/RAG, native microphone/ASR/TTS, canonical first-token/first-byte/published audio, load, external exporter, known billing coverage and backup restore remain pending. See [owner testing](phase-6-testing.md).
+
+
+## Final review corrections (2026-11-09)
+
+The single final correction wave addresses I1–I3. Native caller-end, hard-deadline and terminal-response cleanup now freeze accepted diagnostics before local fencing, cancel ASR/TTS/audio promptly, and drain only that frozen work within the existing 1.2-second bound before the owned end mutation. Hung submission and late-offer regressions cover those paths plus both disconnect callbacks. Packet and server authority checks remain unchanged; real late measurements after core termination remain unavailable.
+
+Analytics and Calls now permit the backend date envelope, UTC today−365 through UTC today+1 with at most 31 inclusive dates. Default dates use the selected or clinic timezone; absent clinic defaults show loading before any cohort request. Explicit URL dates and unsaved fields survive asynchronous clinic/name updates. Controlled agent selection survives the historical fallback becoming an active option, so Apply keeps the selected ID. Deterministic Karachi/Los Angeles boundary and delayed-response tests cover both pages.
+
+Final correction checks: **67 native controls pass**, with the retained audioop warning and native Ruff/check+format passing; **184 frontend unit tests pass** with contracts/lint/types/build. The affected analytics browser suite passes **16 cases**, including eight new date/agent cases. The full maintained browser suite passes **24 cases with one explicit actual-demo skip**; the separate opt-in actual-API case passes **1 case** with empty console error/warning/mutation arrays and empty browser storage. It verifies the existing five Text/zero Voice cohort and capture-off detail; it creates no session. Earlier failures remain in local evidence: native sandbox process-inspection denial, an unsupported unit-query option, and two tests reading loading-state elements before stable rendering; the corrected tests preserve their behavioral assertions.
+
+Only native-runtime and frontend product/test bytes changed. The earlier **1306-pass/4-hosted-skip** backend core gate remains evidence for unchanged core bytes; it was not rerun. Hash verification confirms the running API's **118** and analytics worker's **121** source files match the prior verified maps and current checkout. Native runtime code is not copied into those images, so these fixes required no image build, migration or API/worker source refresh. Root restored the stopped Docker daemon and existing containers during this resumed checkpoint; this resets process-only telemetry, without creating a session or changing durable data. The existing five Text/zero Voice admissions, one NULL-phone callback, 24 queued dental sources and zero vectors remain the recorded actual baseline. No inference or demo mutation was performed by the correction wave.
+
+New non-document map SHA256 (canonical sorted JSON): backend `001627eedb448646d53e54a6e386ec74bd87cb27ea7003005d8bca348cea0d53`; frontend `6229f4d32d30f6abb9a9fa18ef2495c6f22f3297f89802fbb3371f0b0493264e`. Root scoped review, publication/hosted CI and owner acceptance remain separate. All earlier native/embedding/device/load/export/restore qualifications still apply.
+
+
+## Controller review checkpoint
+
+The whole-branch review and single consolidated correction/re-review are complete. Native terminal cleanup, timezone-aware date defaults/validation and asynchronous agent selection findings are addressed; the scoped review found no new defects. Reviewed product heads: backend `6a0f33ab206c334672dd50d20a8c24283b0f054b`, frontend `96d4132638b10057f9abbf87a2ebe3868195e4c5`. Subsequent controller bookkeeping changes only documentation. Draft publication and exact-head hosted CI are tracked separately; owner acceptance and merging remain pending.
