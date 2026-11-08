@@ -35,6 +35,21 @@ const AgentEditor = lazy(() =>
     default: m.AgentEditor,
   })),
 );
+const AnalyticsPage = lazy(() =>
+  import("../features/analytics/AnalyticsPage").then((m) => ({
+    default: m.AnalyticsPage,
+  })),
+);
+const CallReviewPage = lazy(() =>
+  import("../features/analytics/CallReviewPage").then((m) => ({
+    default: m.CallReviewPage,
+  })),
+);
+const CallDetail = lazy(() =>
+  import("../features/analytics/CallDetail").then((m) => ({
+    default: m.CallDetail,
+  })),
+);
 function Landing() {
   const query = useDashboardQuery("GET /dashboard/setup");
   return (
@@ -63,6 +78,31 @@ export const routes = [
     element: <AppShell />,
     children: [
       { index: true, element: <Landing /> },
+      {
+        path: "/analytics",
+        element: (
+          <Suspense fallback={<p role="status">Loading…</p>}>
+            <AnalyticsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/calls",
+        element: (
+          <Suspense fallback={<p role="status">Loading…</p>}>
+            <CallReviewPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/calls/:identity",
+        element: (
+          <Suspense fallback={<p role="status">Loading…</p>}>
+            <CallDetail />
+          </Suspense>
+        ),
+      },
+
       {
         path: "/schedule",
         element: (
