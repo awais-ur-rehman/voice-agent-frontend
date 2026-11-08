@@ -123,3 +123,10 @@ it("does not turn expiry or browser time into an ended duration", () => {
   expect(sessionDuration({ ...base, status: "expired" })).toBe("Unavailable");
   expect(sessionDuration({ ...base, status: "failed" })).toBe("Unavailable");
 });
+
+it("matches the server local-date envelope through UTC tomorrow", () => {
+  expect(rangeError("2026-11-09", "2026-11-09", "2026-11-08")).toBe("");
+  expect(rangeError("2026-11-10", "2026-11-10", "2026-11-08")).not.toBe("");
+  expect(rangeError("2025-11-08", "2025-11-08", "2026-11-08")).toBe("");
+  expect(rangeError("2025-11-07", "2025-11-07", "2026-11-08")).toContain("365");
+});

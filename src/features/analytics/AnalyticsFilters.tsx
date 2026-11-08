@@ -1,23 +1,82 @@
-import { useState } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router";
 import { useDashboardQuery } from "../clinic/ClinicPages";
 import { rangeError, label } from "./presentation";
-export function useAnalyticsFilters() {
-  const [params] = useSearchParams();
-  const today = new Date().toISOString().slice(0, 10);
-  const start =
-    params.get("start") ??
-    new Date(Date.parse(today) - 6 * 86400000).toISOString().slice(0, 10);
-  const end = params.get("end") ?? today;
-  const channel = params.get("channel") ?? "all";
-  const agent_id = params.get("agent_id") ?? undefined;
+import { ReadState } from "./charts";
+import { AnalyticsScope } from "./shared";
+function initialFilters(params: URLSearchParams, clinicTimezone: string) {
   const timezone = params.get("timezone") ?? undefined;
-  return { start, end, channel, agent_id, timezone };
+  let today: string;
+  try {
+    const parts = new Intl.DateTimeFormat("en", {
+      timeZone: timezone || clinicTimezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(new Date());
+    const part = (type: string) => parts.find((p) => p.type === type)!.value;
+    today = `${part("year")}-${part("month")}-${part("day")}`;
+  } catch {
+    // Invalid URL timezone remains in the request for normal API validation.
+    today = new Date().toISOString().slice(0, 10);
+  }
+  return {
+    start:
+      params.get("start") ??
+      new Date(Date.parse(today) - 6 * 86400000).toISOString().slice(0, 10),
+    end: params.get("end") ?? today,
+    channel: params.get("channel") ?? "all",
+    agent_id: params.get("agent_id") ?? undefined,
+    timezone,
+  };
+}
+const FilterContext = createContext<ReturnType<typeof initialFilters> | null>(
+  null,
+);
+export function useAnalyticsFilters() {
+  const filters = useContext(FilterContext);
+  if (!filters) throw new Error("Analytics filters require their scope");
+  return filters;
+}
+export function AnalyticsFilterScope({ children }: { children: ReactNode }) {
+  const [params] = useSearchParams();
+  const clinic = useDashboardQuery("GET /dashboard/clinic");
+  const needsClinic =
+    (!params.has("start") || !params.has("end")) && !params.get("timezone");
+  if (needsClinic && !clinic.data)
+    return (
+      <div className="analytics-workspace">
+        <AnalyticsScope />
+        <ReadState query={clinic}>{null}</ReadState>
+      </div>
+    );
+  return (
+    <ResolvedFilters
+      key={params.toString()}
+      clinicTimezone={clinic.data?.timezone ?? "UTC"}
+    >
+      {children}
+    </ResolvedFilters>
+  );
+}
+function ResolvedFilters({
+  clinicTimezone,
+  children,
+}: {
+  clinicTimezone: string;
+  children: ReactNode;
+}) {
+  const [params] = useSearchParams();
+  // One admission cohort per URL: profile/name refreshes cannot change a visible
+  // default, the requested dates, or an unsaved form. Navigation remounts it.
+  const [filters] = useState(() => initialFilters(params, clinicTimezone));
+  return <FilterContext value={filters}>{children}</FilterContext>;
 }
 export function AnalyticsFilters({ calls = false }: { calls?: boolean }) {
   const filters = useAnalyticsFilters();
   const [params, setParams] = useSearchParams();
   const [error, setError] = useState("");
+  const [agentId, setAgentId] = useState(filters.agent_id ?? "");
   const agents = useDashboardQuery("GET /dashboard/agents");
   return (
     <form
@@ -73,7 +132,8 @@ export function AnalyticsFilters({ calls = false }: { calls?: boolean }) {
         <select
           id="analytics-agent"
           name="agent_id"
-          defaultValue={filters.agent_id ?? ""}
+          value={agentId}
+          onChange={(e) => setAgentId(e.target.value)}
         >
           <option value="">All agents</option>
           {agents.data
@@ -83,11 +143,9 @@ export function AnalyticsFilters({ calls = false }: { calls?: boolean }) {
                 {a.name}
               </option>
             ))}
-          {filters.agent_id &&
-          !agents.data?.some((a) => a.id === filters.agent_id) ? (
-            <option value={filters.agent_id}>
-              Historical agent · {filters.agent_id}
-            </option>
+          {agentId &&
+          !agents.data?.some((a) => a.id === agentId && !a.archived_at) ? (
+            <option value={agentId}>Historical agent · {agentId}</option>
           ) : null}
         </select>
         {agents.error ? <small>Agent names unavailable.</small> : null}

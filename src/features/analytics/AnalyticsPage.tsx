@@ -3,7 +3,11 @@ import { useLocation } from "react-router";
 import { PageHeader } from "../../components/ui/patterns";
 import { useAuth } from "../../app/auth";
 import { useDashboardQuery } from "../clinic/ClinicPages";
-import { AnalyticsFilters, useAnalyticsFilters } from "./AnalyticsFilters";
+import {
+  AnalyticsFilterScope,
+  AnalyticsFilters,
+  useAnalyticsFilters,
+} from "./AnalyticsFilters";
 import { AnalyticsScope } from "./shared";
 import { AnalyticsSettings } from "./AnalyticsSettings";
 import { Bars, Freshness, ReadState, Usage, SeekPage } from "./charts";
@@ -18,7 +22,11 @@ import {
 } from "./presentation";
 export function AnalyticsPage() {
   const auth = useAuth();
-  return <AnalyticsWorkspace key={auth.sessionId} />;
+  return (
+    <AnalyticsFilterScope key={auth.sessionId}>
+      <AnalyticsWorkspace />
+    </AnalyticsFilterScope>
+  );
 }
 function AnalyticsWorkspace() {
   const auth = useAuth();

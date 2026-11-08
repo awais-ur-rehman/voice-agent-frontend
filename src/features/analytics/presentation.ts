@@ -88,7 +88,8 @@ export function rangeError(
   if (a > b) return "End date must be on or after start date.";
   if ((b - a) / 86400000 >= 31) return "Choose at most 31 inclusive dates.";
   if (a < now - 365 * 86400000) return "Choose dates within the last 365 days.";
-  if (b > now) return "End date cannot be in the future.";
+  if (b > now + 86400000)
+    return "End date must be no later than tomorrow in UTC.";
   return "";
 }
 export const privacyCopy: Record<Reason, string> = {

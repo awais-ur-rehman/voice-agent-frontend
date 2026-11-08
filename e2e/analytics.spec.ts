@@ -18,7 +18,15 @@ async function install(
     if (m.type() === "error" || m.type() === "warning")
       consoleProblems.push(m.text());
   });
-  const pending = { blockText: false, release: () => {} };
+  const pending = {
+    blockText: false,
+    release: () => {},
+    blockClinic: false,
+    releaseClinic: () => {},
+    blockAgents: false,
+    releaseAgents: () => {},
+    clinicTimezone: "Asia/Karachi",
+  };
   await page.route("http://localhost:8000/**", async (route) => {
     const r = route.request();
     const response = fixture.handle(
@@ -27,7 +35,22 @@ async function install(
       r.postData() ? r.postDataJSON() : undefined,
       new Headers(r.headers()),
     );
-    if (pending.blockText && new URL(r.url()).pathname.endsWith("/transcript"))
+    const pathname = new URL(r.url()).pathname;
+    if (pathname === "/dashboard/clinic" && response.status === 200) {
+      response.body = {
+        ...(response.body as object),
+        timezone: pending.clinicTimezone,
+      };
+      if (pending.blockClinic)
+        await new Promise<void>((resolve) => {
+          pending.releaseClinic = resolve;
+        });
+    }
+    if (pending.blockAgents && pathname === "/dashboard/agents")
+      await new Promise<void>((resolve) => {
+        pending.releaseAgents = resolve;
+      });
+    if (pending.blockText && pathname.endsWith("/transcript"))
       await new Promise<void>((resolve) => {
         pending.release = resolve;
       });
@@ -397,3 +420,134 @@ test("raw sample overflow stays unavailable for a nonempty measured cohort", asy
   expect(f.errors).toEqual([]);
   expect(f.consoleProblems).toEqual([]);
 });
+
+// Navigate inside the authenticated SPA, preserving in-memory auth. Login itself
+// deliberately restores pathname only; that separate behavior is outside these filters.
+async function navigateCohort(page: Page, path: string) {
+  await page.evaluate((target) => {
+    history.pushState(null, "", target);
+    dispatchEvent(new PopStateEvent("popstate"));
+  }, path);
+}
+for (const path of ["/analytics", "/calls"]) {
+  for (const [instant, clinicZone, search, start, end] of [
+    ["2026-11-08T21:00:00Z", "Asia/Karachi", "", "2026-11-03", "2026-11-09"],
+    [
+      "2026-11-08T02:00:00Z",
+      "America/Los_Angeles",
+      "",
+      "2026-11-01",
+      "2026-11-07",
+    ],
+    [
+      "2026-11-08T02:00:00Z",
+      "Asia/Karachi",
+      "?timezone=America%2FLos_Angeles",
+      "2026-11-01",
+      "2026-11-07",
+    ],
+  ]) {
+    test(`local admission defaults ${path} ${clinicZone} ${search}`, async ({
+      page,
+    }) => {
+      await page.clock.setFixedTime(new Date(instant));
+      const f = await install(page);
+      f.pending.clinicTimezone = clinicZone;
+      f.pending.blockClinic = !search;
+      await open(page, "/clinic");
+      await expect(
+        page.getByRole("link", { name: "Analytics", exact: true }),
+      ).toBeVisible();
+      f.state.requests.length = 0;
+      await navigateCohort(page, path + search);
+      const requests = () =>
+        f.state.requests.filter(
+          (r) =>
+            r.path === "/dashboard/calls" ||
+            r.path.startsWith("/dashboard/analytics/"),
+        );
+      if (!search) {
+        await expect(
+          page.getByText("Production sessions · draft tests excluded"),
+        ).toBeVisible();
+        await expect(page.getByLabel("Through", { exact: true })).toHaveCount(
+          0,
+        );
+        expect(requests()).toHaveLength(0);
+        f.pending.releaseClinic();
+      }
+      await expect(page.getByLabel("From", { exact: true })).toHaveValue(
+        start!,
+      );
+      await expect(page.getByLabel("Through", { exact: true })).toHaveValue(
+        end!,
+      );
+      await expect.poll(() => requests().length).toBeGreaterThan(0);
+      expect(
+        requests().every((r) => {
+          const q = new URLSearchParams(r.query);
+          return q.get("start") === start && q.get("end") === end;
+        }),
+      ).toBe(true);
+      expect(f.errors).toEqual([]);
+      expect(f.consoleProblems).toEqual([]);
+    });
+  }
+  test(`delayed active names preserve selected agent and drafts ${path}`, async ({
+    page,
+  }, info) => {
+    await page.clock.setFixedTime(new Date("2026-11-08T21:00:00Z"));
+    const f = await install(page);
+    f.pending.blockClinic = true;
+    f.pending.blockAgents = true;
+    await open(page, "/clinic");
+    await expect(
+      page.getByRole("link", { name: "Analytics", exact: true }),
+    ).toBeVisible();
+    f.state.requests.length = 0;
+    await navigateCohort(
+      page,
+      path + "?start=2026-11-09&end=2026-11-09&agent_id=agent-one",
+    );
+    const agent = page.getByLabel("Agent", { exact: true });
+    await expect(agent).toHaveValue("agent-one");
+    await expect(agent.locator("option:checked")).toHaveText(
+      "Historical agent · agent-one",
+    );
+    await page.getByLabel("From", { exact: true }).fill("2026-11-08");
+    f.pending.releaseClinic();
+    f.pending.releaseAgents();
+    await expect(agent.locator("option:checked")).toHaveText("Reception");
+    await expect(agent).toHaveValue("agent-one");
+    await expect(page.getByLabel("From", { exact: true })).toHaveValue(
+      "2026-11-08",
+    );
+    const requests = () =>
+      f.state.requests.filter(
+        (r) =>
+          r.path === "/dashboard/calls" ||
+          r.path.startsWith("/dashboard/analytics/"),
+      );
+    await expect.poll(() => requests().length).toBeGreaterThan(0);
+    expect(
+      requests().every((r) => {
+        const q = new URLSearchParams(r.query);
+        return (
+          q.get("start") === "2026-11-09" && q.get("agent_id") === "agent-one"
+        );
+      }),
+    ).toBe(true);
+    await page
+      .getByRole("button", { name: "Apply filters", exact: true })
+      .click();
+    await expect(page).toHaveURL(/agent_id=agent-one/);
+    await expect(page).toHaveURL(/start=2026-11-08/);
+    await expect
+      .poll(() => new URLSearchParams(requests().at(-1)?.query).get("start"))
+      .toBe("2026-11-08");
+    await expect(agent).toHaveValue("agent-one");
+    await capture(page, info, "local-date-selected-agent", 1440);
+    expect(f.errors).toEqual([]);
+    expect(f.consoleProblems).toEqual([]);
+  });
+}

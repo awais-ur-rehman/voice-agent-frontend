@@ -3,13 +3,21 @@ import { Link, useLocation, useSearchParams } from "react-router";
 import { useAuth } from "../../app/auth";
 import { PageHeader, StatusBadge } from "../../components/ui/patterns";
 import { useDashboardQuery } from "../clinic/ClinicPages";
-import { AnalyticsFilters, useAnalyticsFilters } from "./AnalyticsFilters";
+import {
+  AnalyticsFilterScope,
+  AnalyticsFilters,
+  useAnalyticsFilters,
+} from "./AnalyticsFilters";
 import { ReadState, SeekPage } from "./charts";
 import { AnalyticsScope } from "./shared";
 import { label, rangeError, utc, sessionDuration } from "./presentation";
 export function CallReviewPage() {
   const auth = useAuth();
-  return <CallReviewWorkspace key={auth.sessionId} />;
+  return (
+    <AnalyticsFilterScope key={auth.sessionId}>
+      <CallReviewWorkspace />
+    </AnalyticsFilterScope>
+  );
 }
 function CallReviewWorkspace() {
   const filters = useAnalyticsFilters();

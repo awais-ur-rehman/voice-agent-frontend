@@ -1,9 +1,16 @@
 import { StrictMode } from "react";
-import { act, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createMemoryRouter, RouterProvider } from "react-router";
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { AuthProvider } from "../../app/auth";
 import { routes } from "../../app/router";
 import { privacyCopy } from "./presentation";
@@ -14,10 +21,12 @@ import {
   transcript,
 } from "./fixtures.test-support";
 let fixture: ReturnType<typeof analyticsFixture>;
+let clinicTimezone = "Asia/Karachi";
 let hold: ((url: string) => Promise<void>) | undefined;
 beforeEach(() => {
   fixture = analyticsFixture();
   hold = undefined;
+  clinicTimezone = "Asia/Karachi";
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init: RequestInit = {}) => {
@@ -27,6 +36,14 @@ beforeEach(() => {
         typeof init.body === "string" ? JSON.parse(init.body) : undefined,
         new Headers(init.headers),
       );
+      if (
+        new URL(url).pathname === "/dashboard/clinic" &&
+        response.status === 200
+      )
+        response.body = {
+          ...(response.body as object),
+          timezone: clinicTimezone,
+        };
       if (hold) await hold(url);
       return response.status === 204
         ? new Response(null, { status: 204 })
@@ -34,6 +51,7 @@ beforeEach(() => {
     }),
   );
 });
+afterEach(() => vi.useRealTimers());
 async function setup(path = "/analytics?start=2026-11-02&end=2026-11-08") {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   const client = new QueryClient({
@@ -370,7 +388,7 @@ it("shows raw-retention unavailability for a historical date selection", async (
   fixture.state.gaps.unavailable_reason = "raw_retention";
   fixture.state.alerts.items = [];
   fixture.state.alerts.total = 0;
-  await user.clear(screen.getByLabelText("From"));
+  await user.clear(await screen.findByLabelText("From"));
   await user.type(screen.getByLabelText("From"), "2026-07-25");
   await user.clear(screen.getByLabelText("Through"));
   await user.type(screen.getByLabelText("Through"), "2026-07-31");
@@ -661,9 +679,11 @@ it.each(["/analytics", "/calls"])(
   "keeps production scope visible outside closed help on %s",
   async (path) => {
     await setup(path);
-    expect(
-      await screen.findByText("Production sessions · draft tests excluded"),
-    ).toBeVisible();
+    await waitFor(() =>
+      expect(
+        screen.getByText("Production sessions · draft tests excluded"),
+      ).toBeVisible(),
+    );
     expect(document.querySelector(".analytics-help[open]")).toBeNull();
   },
 );
@@ -692,3 +712,194 @@ it("returns close focus to the newly mounted transcript opener and reopens with 
   await user.keyboard("{Enter}");
   expect(await screen.findByText(/مصنوعی ملاقات چاہیے/)).toBeVisible();
 });
+
+async function setupCohort(path: string) {
+  // Authenticate first, then navigate: the existing login redirect restores only pathname.
+  const result = await setup("/clinic");
+  await screen.findByRole("link", { name: "Analytics" });
+  fixture.state.requests.length = 0;
+  await act(async () => {
+    await result.router.navigate(path);
+  });
+  return result;
+}
+const cohortRequests = () =>
+  fixture.state.requests.filter(
+    (r) =>
+      r.path === "/dashboard/calls" ||
+      r.path.startsWith("/dashboard/analytics/"),
+  );
+for (const path of ["/analytics", "/calls"]) {
+  it.each([
+    ["2026-11-08T21:00:00Z", "Asia/Karachi", "", "2026-11-03", "2026-11-09"],
+    [
+      "2026-11-08T02:00:00Z",
+      "America/Los_Angeles",
+      "",
+      "2026-11-01",
+      "2026-11-07",
+    ],
+    [
+      "2026-11-08T02:00:00Z",
+      "Asia/Karachi",
+      "?timezone=America%2FLos_Angeles",
+      "2026-11-01",
+      "2026-11-07",
+    ],
+  ])(
+    `uses the local admission day for ${path} at %s in %s`,
+    async (now, zone, search, start, end) => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date(now));
+      clinicTimezone = zone;
+      await setupCohort(path + search);
+      expect(await screen.findByLabelText("Through")).toHaveValue(end);
+      expect(screen.getByLabelText("From")).toHaveValue(start);
+      await waitFor(() => expect(cohortRequests().length).toBeGreaterThan(0));
+      expect(
+        cohortRequests().every((r) => {
+          const q = new URLSearchParams(r.query);
+          return q.get("start") === start && q.get("end") === end;
+        }),
+      ).toBe(true);
+    },
+  );
+  it(`waits for clinic defaults before displaying or requesting a cohort on ${path}`, async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-08T21:00:00Z"));
+    let release!: () => void;
+    const pending = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    hold = async (url) => {
+      if (new URL(url).pathname === "/dashboard/clinic") await pending;
+    };
+    await setupCohort(path);
+    await screen.findByText("Production sessions · draft tests excluded");
+    expect(screen.queryByLabelText("Through")).toBeNull();
+    expect(cohortRequests()).toHaveLength(0);
+    await act(async () => release());
+    expect(await screen.findByLabelText("Through")).toHaveValue("2026-11-09");
+    await waitFor(() => expect(cohortRequests().length).toBeGreaterThan(0));
+    expect(
+      cohortRequests().every(
+        (r) => new URLSearchParams(r.query).get("end") === "2026-11-09",
+      ),
+    ).toBe(true);
+  });
+  it(`admits an explicit current Karachi date on ${path} and preserves drafts when clinic resolves`, async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-08T21:00:00Z"));
+    let release!: () => void;
+    const pending = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    hold = async (url) => {
+      if (new URL(url).pathname === "/dashboard/clinic") await pending;
+    };
+    const { user, router } = await setupCohort(
+      path + "?start=2026-11-09&end=2026-11-09",
+    );
+    await waitFor(() => expect(cohortRequests().length).toBeGreaterThan(0));
+    expect(screen.getByLabelText("Through")).toHaveValue("2026-11-09");
+    fireEvent.change(screen.getByLabelText("From"), {
+      target: { value: "2026-11-08" },
+    });
+    await act(async () => release());
+    expect(screen.getByLabelText("From")).toHaveValue("2026-11-08");
+    expect(
+      cohortRequests().every(
+        (r) => new URLSearchParams(r.query).get("start") === "2026-11-09",
+      ),
+    ).toBe(true);
+    await user.click(screen.getByRole("button", { name: "Apply filters" }));
+    expect(router.state.location.search).toContain("start=2026-11-08");
+    expect(router.state.location.search).toContain("end=2026-11-09");
+  });
+  it(`retains the URL agent through delayed active names and Apply on ${path}`, async () => {
+    let release!: () => void;
+    const pending = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    hold = async (url) => {
+      if (new URL(url).pathname === "/dashboard/agents") await pending;
+    };
+    const original = "?start=2026-11-02&end=2026-11-08&agent_id=agent-one";
+    const { user, router } = await setupCohort(path + original);
+    const select = await screen.findByLabelText("Agent");
+    expect(select).toHaveValue("agent-one");
+    expect(
+      within(select).getByRole("option", {
+        name: "Historical agent · agent-one",
+      }),
+    ).toBeVisible();
+    await act(async () => release());
+    await waitFor(() =>
+      expect(
+        within(select).queryByRole("option", {
+          name: "Historical agent · agent-one",
+        }),
+      ).toBeNull(),
+    );
+    expect(select).toHaveValue("agent-one");
+    await user.click(screen.getByRole("button", { name: "Apply filters" }));
+    expect(
+      new URLSearchParams(router.state.location.search).get("agent_id"),
+    ).toBe("agent-one");
+    await user.selectOptions(screen.getByLabelText("Agent"), "");
+    await user.click(screen.getByRole("button", { name: "Apply filters" }));
+    expect(
+      new URLSearchParams(router.state.location.search).has("agent_id"),
+    ).toBe(false);
+    await act(async () => {
+      await router.navigate(-1);
+    });
+    expect(await screen.findByLabelText("Agent")).toHaveValue("agent-one");
+    await waitFor(() =>
+      expect(
+        new URLSearchParams(cohortRequests().at(-1)!.query).get("agent_id"),
+      ).toBe("agent-one"),
+    );
+  });
+  it(`preserves an unsaved agent choice and dates across names refresh on ${path}`, async () => {
+    const { user, client, router } = await setupCohort(
+      path + "?start=2026-11-02&end=2026-11-08&agent_id=historical-id",
+    );
+    await screen.findByRole("option", { name: "Reception" });
+    await user.selectOptions(screen.getByLabelText("Agent"), "agent-one");
+    fireEvent.change(screen.getByLabelText("From"), {
+      target: { value: "2026-11-03" },
+    });
+    await act(async () => {
+      await client.invalidateQueries();
+    });
+    expect(screen.getByLabelText("Agent")).toHaveValue("agent-one");
+    expect(screen.getByLabelText("From")).toHaveValue("2026-11-03");
+    expect(router.state.location.search).toContain("agent_id=historical-id");
+    await user.click(screen.getByRole("button", { name: "Apply filters" }));
+    expect(router.state.location.search).toContain("agent_id=agent-one");
+    expect(router.state.location.search).toContain("start=2026-11-03");
+  });
+  it(`keeps resolved clinic defaults and unsaved fields on profile refresh ${path}`, async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-08T21:00:00Z"));
+    const { client, router } = await setupCohort(path);
+    expect(await screen.findByLabelText("Through")).toHaveValue("2026-11-09");
+    fireEvent.change(screen.getByLabelText("From"), {
+      target: { value: "2026-11-08" },
+    });
+    clinicTimezone = "America/Los_Angeles";
+    await act(async () => {
+      await client.invalidateQueries();
+    });
+    expect(screen.getByLabelText("Through")).toHaveValue("2026-11-09");
+    expect(screen.getByLabelText("From")).toHaveValue("2026-11-08");
+    expect(router.state.location.search).toBe("");
+    expect(
+      cohortRequests().every((r) => {
+        const q = new URLSearchParams(r.query);
+        return q.get("start") === "2026-11-03" && q.get("end") === "2026-11-09";
+      }),
+    ).toBe(true);
+  });
+}
