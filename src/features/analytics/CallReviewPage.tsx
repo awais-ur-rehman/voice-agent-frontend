@@ -5,7 +5,8 @@ import { PageHeader, StatusBadge } from "../../components/ui/patterns";
 import { useDashboardQuery } from "../clinic/ClinicPages";
 import { AnalyticsFilters, useAnalyticsFilters } from "./AnalyticsFilters";
 import { ReadState, SeekPage } from "./charts";
-import { label, rangeError, utc } from "./presentation";
+import { AnalyticsScope } from "./shared";
+import { label, rangeError, utc, sessionDuration } from "./presentation";
 export function CallReviewPage() {
   const auth = useAuth();
   return <CallReviewWorkspace key={auth.sessionId} />;
@@ -20,6 +21,7 @@ function CallReviewWorkspace() {
         title="Calls & sessions"
         description="Review session outcomes and flagged conversations."
       />
+      <AnalyticsScope />
       <AnalyticsFilters calls key={location.search} />
       {invalid ? <p role="alert">{invalid}</p> : <CallRows />}
     </div>
@@ -87,6 +89,7 @@ function CallRows() {
                     <tr key={call.session_id}>
                       <td>
                         {utc(call.started_at)}
+                        <small>Duration: {sessionDuration(call)}</small>
                         <small>
                           {call.timezone} · {label(call.language)}
                         </small>

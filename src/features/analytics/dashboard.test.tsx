@@ -327,6 +327,7 @@ it("clears protected text on route close and account switch and rejects a late o
       /Transcript access is limited to owners and admins/,
     ),
   ).toBeVisible();
+  expect(screen.getByRole("heading", { name: "Session review" })).toHaveFocus();
   expect(screen.queryByText(/مصنوعی ملاقات چاہیے/)).toBeNull();
   expect(
     JSON.stringify(
@@ -596,4 +597,98 @@ it("keeps a genuinely empty cohort unknown and separates configured zero-price u
   expect(screen.queryByText(/group limit/)).toBeNull();
   expect(fixture.state.overview.usage.invocations).toBe(0);
   expect(fixture.state.quality.task_completion.denominator).toBe(0);
+});
+it.each([
+  {
+    name: "ended",
+    ended_at: "2026-11-08T10:00:12Z",
+    status: "ended",
+    pending_expiry: false,
+    expected: "12s",
+  },
+  {
+    name: "real zero",
+    ended_at: "2026-11-08T10:00:00Z",
+    status: "ended",
+    pending_expiry: false,
+    expected: "0s",
+  },
+  {
+    name: "active",
+    ended_at: null,
+    status: "active",
+    pending_expiry: false,
+    expected: "Ongoing",
+  },
+  {
+    name: "disconnected",
+    ended_at: null,
+    status: "disconnected",
+    pending_expiry: false,
+    expected: "Ongoing",
+  },
+  {
+    name: "awaiting expiry",
+    ended_at: null,
+    status: "active",
+    pending_expiry: true,
+    expected: "End pending",
+  },
+  {
+    name: "failed without end timestamp",
+    ended_at: null,
+    status: "failed",
+    pending_expiry: false,
+    expected: "Unavailable",
+  },
+] as const)(
+  "shows the actual $name session duration state in its call row",
+  async ({ ended_at, status, pending_expiry, expected }) => {
+    Object.assign(fixture.state.call.call, {
+      ended_at,
+      status,
+      pending_expiry,
+    });
+    await setup("/calls");
+    const review = await screen.findByRole("link", {
+      name: `Review session ${id}`,
+    });
+    const row = review.closest("tr")!;
+    expect(within(row).getByText(`Duration: ${expected}`)).toBeVisible();
+  },
+);
+it.each(["/analytics", "/calls"])(
+  "keeps production scope visible outside closed help on %s",
+  async (path) => {
+    await setup(path);
+    expect(
+      await screen.findByText("Production sessions · draft tests excluded"),
+    ).toBeVisible();
+    expect(document.querySelector(".analytics-help[open]")).toBeNull();
+  },
+);
+it("returns close focus to the newly mounted transcript opener and reopens with the keyboard", async () => {
+  fixture.state.transcript = structuredClone(transcript);
+  fixture.state.settings.capture_enabled = true;
+  fixture.state.call.privacy.reason = "captured";
+  const { user } = await setup(`/calls/${id}`);
+  const heading = await screen.findByRole("heading", {
+    name: "Session review",
+  });
+  expect(heading).toHaveFocus();
+  const original = await screen.findByRole("button", {
+    name: "Check protected transcript",
+  });
+  await user.click(original);
+  await screen.findByText(/مصنوعی ملاقات چاہیے/);
+  await user.click(
+    screen.getByRole("button", { name: "Close protected transcript" }),
+  );
+  const remounted = screen.getByRole("button", {
+    name: "Check protected transcript",
+  });
+  expect(remounted).not.toBe(original);
+  expect(remounted).toHaveFocus();
+  await user.keyboard("{Enter}");
+  expect(await screen.findByText(/مصنوعی ملاقات چاہیے/)).toBeVisible();
 });

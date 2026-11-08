@@ -9,6 +9,7 @@ import {
   label,
   offsetLabel,
   alertEvidence,
+  sessionDuration,
 } from "./presentation";
 it("preserves unknown, real zero, tiny covered USD estimates and ratio denominators", () => {
   expect(money(null)).toBe("Unknown");
@@ -81,4 +82,44 @@ it("keeps alert units and unknown values distinct without turning event counts i
       denominator: 9,
     }),
   ).toBe("2 failed / 9 provider invocations · 15 min window");
+});
+
+it("derives completed duration from actual timestamps, preserving zero and fractional seconds", () => {
+  const base = {
+    started_at: "2026-11-08T10:00:00Z",
+    ended_at: "2026-11-08T10:00:12Z",
+    status: "ended" as const,
+    pending_expiry: false,
+  };
+  expect(sessionDuration(base)).toBe("12s");
+  expect(sessionDuration({ ...base, ended_at: base.started_at })).toBe("0s");
+  expect(
+    sessionDuration({ ...base, ended_at: "2026-11-08T10:00:00.050Z" }),
+  ).toBe("< 0.1s");
+  expect(
+    sessionDuration({ ...base, ended_at: "2026-11-08T16:01:02+05:00" }),
+  ).toBe("1h 1m 2s");
+  expect(sessionDuration({ ...base, ended_at: "2026-11-08T09:59:59Z" })).toBe(
+    "Unavailable",
+  );
+  expect(sessionDuration({ ...base, started_at: "invalid" })).toBe(
+    "Unavailable",
+  );
+});
+it("does not turn expiry or browser time into an ended duration", () => {
+  const base = {
+    started_at: "2026-11-08T10:00:00Z",
+    ended_at: null,
+    status: "active" as const,
+    pending_expiry: false,
+    expires_at: "2020-01-01T00:00:00Z",
+  };
+  expect(sessionDuration(base)).toBe("Ongoing");
+  expect(sessionDuration({ ...base, status: "disconnected" })).toBe("Ongoing");
+  expect(sessionDuration({ ...base, pending_expiry: true })).toBe(
+    "End pending",
+  );
+  expect(sessionDuration({ ...base, status: "ended" })).toBe("Unavailable");
+  expect(sessionDuration({ ...base, status: "expired" })).toBe("Unavailable");
+  expect(sessionDuration({ ...base, status: "failed" })).toBe("Unavailable");
 });

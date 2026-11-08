@@ -21,6 +21,8 @@ function DetailWorkspace({ identity }: { identity: string }) {
   const auth = useAuth();
   const location = useLocation();
   const heading = useRef<HTMLHeadingElement>(null);
+  const transcriptTrigger = useRef<HTMLButtonElement>(null);
+  const returnTranscriptFocus = useRef(false);
   const [after, setAfter] = useState<number | undefined>(),
     [measurementAfter, setMeasurementAfter] = useState<string | undefined>(),
     [showText, setShowText] = useState(false);
@@ -31,6 +33,12 @@ function DetailWorkspace({ identity }: { identity: string }) {
   useEffect(() => {
     heading.current?.focus();
   }, []);
+  useEffect(() => {
+    if (!showText && returnTranscriptFocus.current) {
+      returnTranscriptFocus.current = false;
+      transcriptTrigger.current?.focus();
+    }
+  }, [showText]);
   const back =
     typeof location.state?.back === "string" &&
     /^\/calls(?:\?|$)/.test(location.state.back)
@@ -255,6 +263,7 @@ function DetailWorkspace({ identity }: { identity: string }) {
                   {!showText ? (
                     <button
                       className="button secondary"
+                      ref={transcriptTrigger}
                       onClick={() => setShowText(true)}
                     >
                       Check protected transcript
@@ -262,7 +271,10 @@ function DetailWorkspace({ identity }: { identity: string }) {
                   ) : (
                     <Transcript
                       identity={identity}
-                      onClose={() => setShowText(false)}
+                      onClose={() => {
+                        returnTranscriptFocus.current = true;
+                        setShowText(false);
+                      }}
                     />
                   )}
                 </>

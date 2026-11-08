@@ -86,6 +86,11 @@ test("compact analytic figures, exact coverage and UTC hour alternatives at 1440
 }, info) => {
   const f = await install(page);
   await open(page, "/analytics?start=2026-11-02&end=2026-11-08");
+  await expect(
+    page.getByText("Production sessions · draft tests excluded", {
+      exact: true,
+    }),
+  ).toBeVisible();
   await expect(page.getByText("1 voice · 2 text")).toBeVisible();
   await expect(page.getByText("< USD 0.000001", { exact: true })).toBeVisible();
   await expect(page.getByText("0% · 0 / 2", { exact: true })).toBeVisible();
@@ -116,8 +121,18 @@ test("call seek, call-only filters, routed detail and Back retain focus/context"
   await page.setViewportSize({ width: 1440, height: 1000 });
   await open(page, "/calls?start=2026-11-02&end=2026-11-08");
   await expect(page.getByText("1 on this page · 2 matching")).toBeVisible();
-  for (const width of [1440, 1024, 390])
+  await expect(
+    page.getByText("Production sessions · draft tests excluded", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.getByText("Duration: 12s", { exact: true })).toBeVisible();
+  for (const width of [1440, 1024, 390]) {
+    await expect(
+      page.getByText("Duration: 12s", { exact: true }),
+    ).toBeVisible();
     await capture(page, info, "calls", width);
+  }
   await expect(
     page.getByRole("link", { name: `Review session ${id}`, exact: true }),
   ).toBeInViewport();
@@ -227,10 +242,18 @@ test("manager protected bilingual text, bounded pages, keyboard deletion and no 
   ).toHaveCount(0);
   await page
     .getByRole("button", { name: "Close protected transcript", exact: true })
-    .click();
-  await page
-    .getByRole("button", { name: "Check protected transcript", exact: true })
-    .click();
+    .focus();
+  await page.keyboard.press("Enter");
+  const reopenedTrigger = page.getByRole("button", {
+    name: "Check protected transcript",
+    exact: true,
+  });
+  await expect(reopenedTrigger).toBeFocused();
+  await page.screenshot({
+    path: info.outputPath("closed-transcript-focus-390.png"),
+    fullPage: false,
+  });
+  await page.keyboard.press("Enter");
   await expect(page.locator(".protected-transcript")).toContainText(
     "This transcript was deleted.",
   );

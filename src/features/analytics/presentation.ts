@@ -1,4 +1,9 @@
-import type { HourCount, Ratio, Reason } from "../../api/dashboard.generated";
+import type {
+  HourCount,
+  Ratio,
+  Reason,
+  CallView,
+} from "../../api/dashboard.generated";
 const labels: Record<string, string> = {
   raw_retention: "Outside the 90-day measurement window",
   sample_limit: "More than 100,000 samples",
@@ -129,4 +134,32 @@ export function alertEvidence(
     case "ended_error":
       return `${count(a.numerator, "error")} / ${a.denominator} ended sessions · ${window} min window`;
   }
+}
+
+export function sessionDuration(
+  call: Pick<CallView, "started_at" | "ended_at" | "status" | "pending_expiry">,
+) {
+  if (call.ended_at === null) {
+    if (call.pending_expiry) return "End pending";
+    return call.status === "active" || call.status === "disconnected"
+      ? "Ongoing"
+      : "Unavailable";
+  }
+  const elapsed = Date.parse(call.ended_at) - Date.parse(call.started_at);
+  if (!Number.isFinite(elapsed) || elapsed < 0) return "Unavailable";
+  if (elapsed === 0) return "0s";
+  const hours = Math.floor(elapsed / 3600000),
+    minutes = Math.floor((elapsed % 3600000) / 60000),
+    seconds = (elapsed % 60000) / 1000;
+  return [
+    hours ? `${hours}h` : null,
+    minutes ? `${minutes}m` : null,
+    seconds > 0
+      ? seconds < 0.1
+        ? "< 0.1s"
+        : `${seconds.toLocaleString("en-US", { maximumFractionDigits: 3 })}s`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
 }
