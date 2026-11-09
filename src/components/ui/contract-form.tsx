@@ -203,8 +203,11 @@ export function ContractForm<N extends Name>({
         } catch (error) {
           setFailure(error);
           if (error instanceof DashboardError)
-            for (const [name, message] of Object.entries(error.fields))
-              setError(name.replace(/^body\./, ""), { message });
+            for (const [path, message] of Object.entries(error.fields)) {
+              const name = path.replace(/^body\./, "");
+              if (Object.hasOwn(definition.properties, name))
+                setError(name, { message });
+            }
         }
       })}
       noValidate

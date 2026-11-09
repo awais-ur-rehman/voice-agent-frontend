@@ -103,7 +103,7 @@ it("validates inclusive ranges and retries a failed initial query", async () => 
   fixture.state.failure = "overview";
   const { user } = await setup();
   expect(
-    await screen.findByText("Analytics temporarily unavailable"),
+    await screen.findByText("The service is temporarily unavailable."),
   ).toBeVisible();
   fixture.state.failure = "";
   await user.click(screen.getByRole("button", { name: "Retry" }));

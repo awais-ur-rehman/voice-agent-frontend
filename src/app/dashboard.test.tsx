@@ -248,7 +248,7 @@ it("reviews availability and retries the exact payload and idempotency key", asy
   await user.click(
     screen.getByRole("button", { name: "Apply reviewed changes" }),
   );
-  await screen.findByText("Please retry.");
+  await screen.findByText("The service is temporarily unavailable.");
   await user.click(
     screen.getByRole("button", { name: "Apply reviewed changes" }),
   );
@@ -441,7 +441,9 @@ it("keeps dirty profile values and captured revision across background refresh a
   );
   expect(input).toHaveValue("My draft");
   await user.click(screen.getByRole("button", { name: "Save changes" }));
-  await screen.findByText("Review updated clinic.");
+  await screen.findByText(
+    "The saved record changed. Reload it before trying again.",
+  );
   expect(bodies[0]).toMatchObject({ revision: 1, name: "My draft" });
   await client.refetchQueries();
   expect(input).toHaveValue("My draft");
@@ -482,7 +484,9 @@ it("keeps dirty template hours and captured snapshot revision on refresh", async
   await screen.findByText(/Saved configuration changed/);
   expect(input).toHaveValue("13:00");
   await user.click(screen.getByRole("button", { name: "Preview changes" }));
-  await screen.findByText("Review updated hours.");
+  await screen.findByText(
+    "The saved record changed. Reload it before trying again.",
+  );
   expect(bodies[0]).toMatchObject({
     revision: "a".repeat(64),
     break_start: "13:00",
@@ -569,7 +573,7 @@ it("locks template/provider intent during deferred preview and uncertain apply, 
       { status: 503 },
     ),
   );
-  await screen.findByText("Outcome uncertain. Retry.");
+  await screen.findByText("The service is temporarily unavailable.");
   expect(screen.getByRole("button", { name: "Edit proposal" })).toBeDisabled();
   expect(screen.getByRole("button", { name: "Ramadan hours" })).toBeDisabled();
   expect(screen.getByLabelText("Provider")).toBeDisabled();
@@ -626,7 +630,9 @@ it("returns from a rejected template apply to the same edited hours and original
   await user.click(
     screen.getByRole("button", { name: "Apply reviewed changes" }),
   );
-  await screen.findByText("Hours changed.");
+  await screen.findByText(
+    "The saved record changed. Reload it before trying again.",
+  );
   await user.click(screen.getByRole("button", { name: "Edit proposal" }));
   expect(screen.getByLabelText("Prayer break starts")).toHaveValue("13:00");
   await screen.findByText(/Saved configuration changed/);
@@ -764,7 +770,7 @@ it("retains dirty form and original revision when a cached background refetch fa
   await user.type(input, "Retained unsaved clinic");
   failing = true;
   await client.refetchQueries();
-  await screen.findByText("Profile refresh failed.");
+  await screen.findByText("The service is temporarily unavailable.");
   expect(screen.getByLabelText("Name")).toBe(input);
   expect(input).toHaveValue("Retained unsaved clinic");
   failing = false;

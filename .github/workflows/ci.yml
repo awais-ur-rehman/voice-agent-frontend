@@ -2,7 +2,7 @@ name: Frontend checks
 on:
   push:
   pull_request:
-    branches: [main, develop, 'feat/phase-4-dashboard', 'feat/phase-5-knowledge']
+    branches: [main, develop, 'feat/phase-4-dashboard', 'feat/phase-5-knowledge', 'feat/phase-6-analytics']
 permissions:
   contents: read
 jobs:

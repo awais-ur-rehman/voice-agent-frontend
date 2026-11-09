@@ -116,7 +116,9 @@ it("loads protected editable input, preserves edits on 409 and reloads revision 
   await user.type(text, "Retained replacement");
   fixture.state.writeFailure = 409;
   await user.click(screen.getByRole("button", { name: "Save source" }));
-  await screen.findByText("Source changed. Reload its revision.");
+  await screen.findByText(
+    "The saved record changed. Reload it before trying again.",
+  );
   expect(text).toHaveValue("Retained replacement");
   fixture.state.sources[0]!.revision = 9;
   await user.click(
@@ -164,7 +166,7 @@ it("creates paste, FAQ and public HTTPS sources; rejects blank and invalid URLs;
       );
       fixture.state.writeFailure = 422;
       await user.click(screen.getByRole("button", { name: "Save source" }));
-      await screen.findByText("Check this source name.");
+      await screen.findByText("Check this value.");
       fixture.state.writeFailure = 0;
     }
     await user.click(screen.getByRole("button", { name: "Save source" }));
@@ -219,7 +221,7 @@ it("retains visible sources on refresh error, retries and polls only queued/proc
   await knowledge(user);
   fixture.state.readFailure = 503;
   await act(() => client.invalidateQueries());
-  await screen.findByText("Sources could not refresh");
+  await screen.findByText("The service is temporarily unavailable.");
   expect(screen.getByText(source.name)).toBeInTheDocument();
   fixture.state.readFailure = 0;
   fixture.state.sources[0]!.status = "processing";
@@ -239,7 +241,7 @@ it("keeps exact search query identity across unknown response and shows bounded 
   await user.selectOptions(screen.getByLabelText("Question language"), "ur");
   fixture.state.searchFailure = true;
   await user.click(screen.getByRole("button", { name: "Search knowledge" }));
-  await screen.findByText("Search unavailable");
+  await screen.findByText("The service is temporarily unavailable.");
   fixture.state.searchFailure = false;
   await user.click(screen.getByRole("button", { name: "Retry same search" }));
   await screen.findByText("اپنی ملاقات سے دس منٹ پہلے آئیں۔");
@@ -372,7 +374,7 @@ it("shows Retry and Cancel for initial protected-detail errors, restores focus o
   fixture.state.detailFailure = 503;
   const edit = screen.getByRole("button", { name: "Edit" });
   await user.click(edit);
-  await screen.findByText("Source detail unavailable");
+  await screen.findByText("The service is temporarily unavailable.");
   const dialog = screen.getByRole("dialog");
   expect(
     within(dialog).getByRole("button", { name: "Retry source detail" }),
@@ -383,14 +385,14 @@ it("shows Retry and Cancel for initial protected-detail errors, restores focus o
   );
   expect(edit).toHaveFocus();
   await user.click(edit);
-  await screen.findByText("Source detail unavailable");
+  await screen.findByText("The service is temporarily unavailable.");
   fixture.state.detailFailure = 0;
   await user.click(screen.getByRole("button", { name: "Retry source detail" }));
   expect(await screen.findByLabelText("Source text")).toHaveValue(
     source.input.kind === "text" ? source.input.text : "",
   );
   expect(
-    screen.queryByText("Source detail unavailable"),
+    screen.queryByText("The service is temporarily unavailable."),
   ).not.toBeInTheDocument();
 });
 it("shows a failed-only library as unavailable without claiming work is ongoing", async () => {

@@ -425,7 +425,7 @@ test("compact real day/week calendar, night reachability, focused booking/detail
     .getByRole("button", { name: "Confirm cancellation", exact: true })
     .click();
   await expect(cancel).toContainText(
-    "Cancellation outcome unknown. Retry the same request.",
+    "Outcome uncertain. Retry this same cancellation to resolve it.",
   );
   await page.keyboard.press("Escape");
   await expect(cancel).toBeVisible();

@@ -6,7 +6,11 @@ import {
   type Result,
 } from "./dashboard";
 import type { Login, Register, Tokens, Me } from "./dashboard.generated";
-export type SessionSnapshot = { me: Me | null; sessionId: string };
+export type SessionSnapshot = {
+  me: Me | null;
+  sessionId: string;
+  signInNotice: string | null;
+};
 const aborted = () =>
   new DOMException("This session is no longer active.", "AbortError");
 export class Session {
@@ -16,7 +20,11 @@ export class Session {
   private refreshPromise: Promise<void> | null = null;
   private listeners = new Set<() => void>();
   private cleanups = new Set<() => void | Promise<void>>();
-  snapshot: SessionSnapshot = { me: null, sessionId: crypto.randomUUID() };
+  snapshot: SessionSnapshot = {
+    me: null,
+    sessionId: crypto.randomUUID(),
+    signInNotice: null,
+  };
   constructor(private clearCache: () => void) {}
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
@@ -34,7 +42,7 @@ export class Session {
   private emit() {
     for (const listener of this.listeners) listener();
   }
-  private reset() {
+  private reset(signInNotice: string | null = null) {
     this.generation++;
     this.controller.abort();
     this.controller = new AbortController();
@@ -49,7 +57,7 @@ export class Session {
       }
     }
     this.cleanups.clear();
-    this.snapshot = { me: null, sessionId: crypto.randomUUID() };
+    this.snapshot = { me: null, sessionId: crypto.randomUUID(), signInNotice };
     this.emit();
   }
   login = (body: Login) => this.authenticate("POST /auth/login", body);
@@ -67,7 +75,7 @@ export class Session {
     try {
       const me = await this.request("GET /auth/me");
       if (generation !== this.generation) throw aborted();
-      this.snapshot = { me, sessionId: this.snapshot.sessionId };
+      this.snapshot = { ...this.snapshot, me };
       this.emit();
     } catch (error) {
       if (generation === this.generation) this.reset();
@@ -87,7 +95,13 @@ export class Session {
           if (generation !== this.generation) throw aborted();
           this.tokens = tokens;
         } catch (error) {
-          if (generation === this.generation) this.reset();
+          if (generation === this.generation)
+            this.reset(
+              error instanceof DashboardError &&
+                (error.status === 429 || error.status === 503)
+                ? error.message
+                : null,
+            );
           throw error;
         } finally {
           if (generation === this.generation) this.refreshPromise = null;
@@ -121,16 +135,21 @@ export class Session {
       )
         throw error;
       // A second request can return 401 after the shared refresh already finished.
-      if (access === this.tokens.access_token) await this.refresh(generation);
-      if (generation !== this.generation) throw aborted();
+      if (access === this.tokens.access_token) {
+        try {
+          await this.refresh(generation);
+        } catch (refreshError) {
+          // A failed refresh resets the session and aborts the shared signal.
+          if (options.signal?.aborted) throw aborted();
+          throw refreshError;
+        }
+      }
+      if (generation !== this.generation || signal.aborted) throw aborted();
       try {
         return await execute(this.tokens?.access_token);
       } catch (retryError) {
-        if (
-          retryError instanceof DashboardError &&
-          retryError.status === 401 &&
-          generation === this.generation
-        )
+        if (generation !== this.generation || signal.aborted) throw aborted();
+        if (retryError instanceof DashboardError && retryError.status === 401)
           this.reset();
         throw retryError;
       }

@@ -1439,6 +1439,9 @@ fieldset {
 .agent-test-heading h2 {
   margin: 0 0 8px;
 }
+.agent-test > .error-summary {
+  margin-block-start: 12px;
+}
 .agent-test p,
 .agent-editor .muted {
   font-size: 13px;

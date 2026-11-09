@@ -109,8 +109,18 @@ export class IsolatedTest {
   private failure(error: unknown, kind: string) {
     if (error instanceof DOMException && error.name === "NotAllowedError")
       return "Microphone access was denied. Allow microphone access, then start voice again.";
-    if (error instanceof DashboardError && [404, 410].includes(error.status))
-      return "This isolated test has expired or is no longer available. Start a new test.";
+    if (error instanceof DashboardError) {
+      if ([404, 410].includes(error.status))
+        return "This isolated test has expired or is no longer available. Start a new test.";
+      if (
+        error.retryAfterSeconds !== undefined ||
+        error.status === 429 ||
+        error.code === "service_draining" ||
+        error.code === "admission_unavailable" ||
+        error.code === "voice_urdu_unavailable"
+      )
+        return error.message;
+    }
     return kind;
   }
   async start(agent: string, revision: number) {
@@ -158,7 +168,7 @@ export class IsolatedTest {
                 : "The isolated test request was rejected. Review the saved draft and your access before starting a new test.";
         this.update({
           error: rejected
-            ? rejectionReason
+            ? this.failure(error, rejectionReason)
             : this.failure(
                 error,
                 "Could not start the isolated test. Retry uses the same request.",
@@ -310,7 +320,7 @@ export class IsolatedTest {
             ? "The media grant is stale or does not match its runtime session."
             : this.failure(
                 error,
-                "Speech is unavailable. Native ASR and Urdu readiness must be confirmed before a voice test.",
+                "Speech is currently unavailable. Try again later.",
               );
         this.update({ error: message, mediaState: "error" });
         if (next) {
