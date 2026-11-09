@@ -135,7 +135,15 @@ export class Session {
       )
         throw error;
       // A second request can return 401 after the shared refresh already finished.
-      if (access === this.tokens.access_token) await this.refresh(generation);
+      if (access === this.tokens.access_token) {
+        try {
+          await this.refresh(generation);
+        } catch (refreshError) {
+          // A failed refresh resets the session and aborts the shared signal.
+          if (options.signal?.aborted) throw aborted();
+          throw refreshError;
+        }
+      }
       if (generation !== this.generation || signal.aborted) throw aborted();
       try {
         return await execute(this.tokens?.access_token);

@@ -239,6 +239,66 @@ it("does not send a mutation replay if the caller aborts during a shared refresh
   expect(session.snapshot.me).toEqual(me);
 });
 
+it("keeps caller cancellation separate from a rejected shared refresh", async () => {
+  let finishRefresh!: (value: Response) => void;
+  let markRefreshing!: () => void;
+  const refreshing = new Promise<void>((resolve) => (markRefreshing = resolve));
+  const calls = vi.fn(async (url: string) => {
+    if (url.endsWith("/auth/login")) return json(tokens);
+    if (url.endsWith("/auth/me")) return json(me);
+    if (url.endsWith("/auth/refresh")) {
+      markRefreshing();
+      return new Promise<Response>((resolve) => (finishRefresh = resolve));
+    }
+    return json({ error: { code: "unauthorized" } }, 401);
+  });
+  vi.stubGlobal("fetch", calls);
+  const clearCache = vi.fn();
+  const session = new Session(clearCache);
+  await session.login({ email: me.email, password: "password" });
+
+  const controller = new AbortController();
+  const query = session.request("GET /dashboard/setup", {
+    signal: controller.signal,
+  });
+  await refreshing;
+  const mutation = session.request("POST /appointments", {
+    signal: new AbortController().signal,
+  });
+  const outcomes = Promise.allSettled([query, mutation]);
+  // Let the in-memory mutation 401 reach the already pending refresh.
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+  controller.abort();
+  finishRefresh(
+    Response.json(
+      { error: { code: "rate_limited", message: "synthetic private details" } },
+      { status: 429, headers: { "Retry-After": "15" } },
+    ),
+  );
+  const [canceled, live] = await outcomes;
+  expect(calls.mock.calls.map(([url]) => new URL(url).pathname)).toEqual([
+    "/auth/login",
+    "/auth/me",
+    "/dashboard/setup",
+    "/auth/refresh",
+    "/appointments",
+  ]);
+  expect(live).toMatchObject({
+    status: "rejected",
+    reason: { status: 429, code: "rate_limited", retryAfterSeconds: 15 },
+  });
+  expect(session.snapshot).toMatchObject({
+    me: null,
+    signInNotice: "Too many requests. Wait 15 seconds before trying again.",
+  });
+  expect(clearCache).toHaveBeenCalledTimes(2);
+  expect(canceled).toMatchObject({
+    status: "rejected",
+    reason: { name: "AbortError" },
+  });
+});
+
 it.each([
   [429, "rate_limited", "15"],
   [503, "service_draining", "3"],
