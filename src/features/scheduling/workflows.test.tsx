@@ -268,7 +268,9 @@ it("books only after slot review; preserves selection on conflict and submits re
   await selectBooking(user);
   expect(writes.filter((w) => w.path === "/appointments")).toHaveLength(0);
   await user.click(screen.getByRole("button", { name: "Confirm appointment" }));
-  await screen.findByText("Slot changed. Choose an alternative.");
+  await screen.findByText(
+    "That appointment time is no longer available. Choose another time.",
+  );
   expect(screen.getByText(/Selected patient:/)).toHaveTextContent(source.name);
   expect(screen.getByLabelText("Provider")).toHaveValue(id);
   await user.click(
@@ -294,7 +296,7 @@ it("retains exact booking payload/key during uncertain retry and locks inputs", 
   const { user } = await setup();
   await selectBooking(user);
   await user.click(screen.getByRole("button", { name: "Confirm appointment" }));
-  await screen.findByText("Try again.");
+  await screen.findByText("The service is temporarily unavailable.");
   expect(screen.getByLabelText("Provider")).toBeDisabled();
   expect(screen.getByRole("button", { name: "Edit selection" })).toBeDisabled();
   await user.click(screen.getByRole("button", { name: "Confirm appointment" }));
@@ -459,7 +461,9 @@ it("retains explicit merge fields on revision conflict and offers current-record
   await user.click(
     within(dialog).getByRole("button", { name: "Confirm merge" }),
   );
-  await screen.findByText("Records changed. Review current records.");
+  await screen.findByText(
+    "The saved record changed. Reload it before trying again.",
+  );
   expect(within(dialog).getByLabelText("Retain name")).toHaveValue("source");
   expect(
     within(dialog).getByRole("button", {
@@ -656,7 +660,9 @@ for (const failure of ["conflict", "retry"])
       screen.getByRole("button", { name: "Confirm appointment" }),
     );
     if (failure === "conflict") {
-      await screen.findByText("Slot changed. Choose an alternative.");
+      await screen.findByText(
+        "That appointment time is no longer available. Choose another time.",
+      );
       expect(screen.getByLabelText("Provider")).toHaveValue(id);
       await user.click(
         within(
@@ -667,7 +673,7 @@ for (const failure of ["conflict", "retry"])
         screen.getByRole("button", { name: "Review appointment" }),
       );
     } else {
-      await screen.findByText("Try again.");
+      await screen.findByText("The service is temporarily unavailable.");
       expect(
         screen.getByRole("button", { name: "Close appointment form" }),
       ).toBeDisabled();
@@ -727,7 +733,7 @@ it("announces uncertain cancellation inside its confirmation dialog and retries 
   await user.click(
     within(dialog).getByRole("button", { name: "Confirm cancellation" }),
   );
-  await within(dialog).findByText("Cancellation outcome uncertain.");
+  await within(dialog).findByText("The service is temporarily unavailable.");
   await user.click(
     within(dialog).getByRole("button", { name: "Confirm cancellation" }),
   );
@@ -819,7 +825,7 @@ for (const phase of ["pending", "503"] as const)
           { status: 503 },
         ),
       );
-      await screen.findByText("Reschedule outcome uncertain.");
+      await screen.findByText("The service is temporarily unavailable.");
     }
     calendarDriver.select?.(second);
     fireEvent.click(otherRow);
@@ -841,7 +847,7 @@ for (const phase of ["pending", "503"] as const)
           { status: 503 },
         ),
       );
-      await screen.findByText("Reschedule outcome uncertain.");
+      await screen.findByText("The service is temporarily unavailable.");
     }
     await user.click(
       screen.getByRole("button", { name: "Confirm appointment" }),
@@ -899,7 +905,11 @@ for (const status of [503, 408])
     await user.click(
       within(dialog).getByRole("button", { name: "Confirm cancellation" }),
     );
-    await within(dialog).findByText("Cancellation remains uncertain.");
+    await within(dialog).findByText(
+      status === 503
+        ? "The service is temporarily unavailable."
+        : "The request could not be completed. Try again.",
+    );
     await user.keyboard("{Escape}");
     expect(screen.getByRole("dialog")).toBe(dialog);
     expect(
@@ -1069,7 +1079,11 @@ for (const operation of ["book", "move", "cancel", "merge"] as const)
           { status },
         ),
       );
-      await screen.findByText("Outcome unknown.");
+      await screen.findByText(
+        status === 503
+          ? "The service is temporarily unavailable."
+          : "The request could not be completed. Try again.",
+      );
       await blocked();
       await user.click(screen.getByRole("button", { name: confirm }));
       await waitFor(() => expect(requests).toHaveLength(2));
@@ -1094,7 +1108,7 @@ it("allows deliberate auth-reset cleanup while a booking outcome is unknown", as
   const signOut = screen.getByRole("button", { name: "Sign out" });
   await selectBooking(user);
   await user.click(screen.getByRole("button", { name: "Confirm appointment" }));
-  await screen.findByText("Try again.");
+  await screen.findByText("The service is temporarily unavailable.");
   fireEvent.click(signOut);
   await screen.findByRole("button", { name: "Sign in" });
   expect(router.state.location.pathname).toBe("/login");

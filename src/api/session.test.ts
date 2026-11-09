@@ -80,7 +80,7 @@ it("logout aborts requests, clears cache/media and fences late results", async (
   expect(media).toHaveBeenCalled();
   expect(session.snapshot.me).toBeNull();
 });
-it("safely exposes field errors without losing the server conflict meaning", async () => {
+it("preserves revision conflict and known fields without using server copy", async () => {
   vi.stubGlobal(
     "fetch",
     vi.fn(async () =>
@@ -102,7 +102,8 @@ it("safely exposes field errors without losing the server conflict meaning", asy
   ).rejects.toMatchObject({
     status: 409,
     code: "revision_conflict",
-    fields: { name: "Name is required" },
+    fields: { name: "Check this value." },
+    message: "The saved record changed. Reload it before trying again.",
   });
 });
 
@@ -199,4 +200,186 @@ it("does not rotate again when a late401 arrives after a completed shared refres
   lateResolve(json({ error: { code: "expired", message: "Expired" } }, 401));
   await expect(late).resolves.toMatchObject({ profile: true });
   expect(refreshes).toBe(1);
+});
+
+it("does not send a mutation replay if the caller aborts during a shared refresh", async () => {
+  let finishRefresh!: (value: Response) => void;
+  let markRefreshing!: () => void;
+  const refreshing = new Promise<void>((resolve) => (markRefreshing = resolve));
+  const calls = vi.fn(async (url: string, init: RequestInit) => {
+    if (url.endsWith("/auth/login")) return json(tokens);
+    if (url.endsWith("/auth/me")) return json(me);
+    if (url.endsWith("/auth/refresh")) {
+      markRefreshing();
+      return new Promise<Response>((resolve) => (finishRefresh = resolve));
+    }
+    if (new Headers(init.headers).get("Authorization") === "Bearer access")
+      return json({ error: { code: "unauthorized" } }, 401);
+    return json({});
+  });
+  vi.stubGlobal("fetch", calls);
+  const session = new Session(() => {});
+  await session.login({ email: me.email, password: "password" });
+  const controller = new AbortController();
+  const pending = session.request("POST /appointments", {
+    idempotencyKey: "synthetic-request",
+    signal: controller.signal,
+  });
+  const result = expect(pending).rejects.toMatchObject({ name: "AbortError" });
+  await refreshing;
+  controller.abort();
+  finishRefresh(json({ ...tokens, access_token: "fresh" }));
+  await result;
+  expect(
+    calls.mock.calls.filter(([url]) => url.endsWith("/appointments")),
+  ).toHaveLength(1);
+  expect(
+    calls.mock.calls.filter(([url]) => url.endsWith("/auth/refresh")),
+  ).toHaveLength(1);
+  expect(session.snapshot.me).toEqual(me);
+});
+
+it.each([
+  [429, "rate_limited", "15"],
+  [503, "service_draining", "3"],
+] as const)(
+  "surfaces %i without replaying credentials or a mutation",
+  async (status, code, wait) => {
+    const calls = vi.fn(async (url: string) => {
+      if (url.endsWith("/auth/login")) return json(tokens);
+      if (url.endsWith("/auth/me")) return json(me);
+      return Response.json(
+        { error: { code } },
+        { status, headers: { "Retry-After": wait } },
+      );
+    });
+    vi.stubGlobal("fetch", calls);
+    const session = new Session(() => {});
+    await session.login({ email: me.email, password: "password" });
+    await expect(session.request("POST /appointments")).rejects.toMatchObject({
+      code,
+      status,
+      retryAfterSeconds: Number(wait),
+    });
+    expect(calls.mock.calls.map(([url]) => new URL(url).pathname)).toEqual([
+      "/auth/login",
+      "/auth/me",
+      "/appointments",
+    ]);
+    expect(session.snapshot.me).toEqual(me);
+  },
+);
+
+it("ignores a late 401 from before logout and never attempts refresh or replay", async () => {
+  let complete!: (response: Response) => void;
+  const calls = vi.fn(async (url: string) => {
+    if (url.endsWith("/auth/login")) return json(tokens);
+    if (url.endsWith("/auth/me")) return json(me);
+    if (url.endsWith("/auth/logout")) return json({});
+    return new Promise<Response>((resolve) => (complete = resolve));
+  });
+  vi.stubGlobal("fetch", calls);
+  const session = new Session(() => {});
+  await session.login({ email: me.email, password: "password" });
+  const pending = session.request("POST /appointments");
+  const rejected = expect(pending).rejects.toMatchObject({
+    name: "AbortError",
+  });
+  await session.logout();
+  complete(json({ error: { code: "unauthorized" } }, 401));
+  await rejected;
+  expect(calls.mock.calls.map(([url]) => new URL(url).pathname)).toEqual([
+    "/auth/login",
+    "/auth/me",
+    "/appointments",
+    "/auth/logout",
+  ]);
+  expect(session.snapshot.me).toBeNull();
+});
+
+it("clears identity on rate-limited refresh and keeps only safe sign-in copy", async () => {
+  const calls = vi.fn(async (url: string) => {
+    if (url.endsWith("/auth/login")) return json(tokens);
+    if (url.endsWith("/auth/me")) return json(me);
+    if (url.endsWith("/auth/refresh"))
+      return Response.json(
+        {
+          error: { code: "rate_limited", message: "raw synthetic credential" },
+        },
+        { status: 429, headers: { "Retry-After": "15" } },
+      );
+    return json({ error: { code: "unauthorized" } }, 401);
+  });
+  vi.stubGlobal("fetch", calls);
+  const clearCache = vi.fn();
+  const session = new Session(clearCache);
+  await session.login({ email: me.email, password: "password" });
+  const sessionId = session.snapshot.sessionId;
+  await expect(session.request("POST /appointments")).rejects.toMatchObject({
+    status: 429,
+  });
+  expect(calls.mock.calls.map(([url]) => new URL(url).pathname)).toEqual([
+    "/auth/login",
+    "/auth/me",
+    "/appointments",
+    "/auth/refresh",
+  ]);
+  expect(clearCache).toHaveBeenCalledTimes(2);
+  expect(session.snapshot).toEqual({
+    sessionId: expect.any(String),
+    me: null,
+    signInNotice: "Too many requests. Wait 15 seconds before trying again.",
+  });
+  expect(session.snapshot.sessionId).not.toBe(sessionId);
+  await session.login({ email: me.email, password: "password" });
+  expect(session.snapshot.me).toEqual(me);
+  expect(session.snapshot.signInNotice).toBeNull();
+});
+
+it("cannot carry a late refresh failure into a newer identity", async () => {
+  let finishRefresh!: (value: Response) => void;
+  let markRefreshing!: () => void;
+  const refreshing = new Promise<void>((resolve) => (markRefreshing = resolve));
+  let loginCount = 0;
+  const calls = vi.fn(async (url: string) => {
+    if (url.endsWith("/auth/login")) {
+      loginCount++;
+      return json({ ...tokens, access_token: `account-${loginCount}` });
+    }
+    if (url.endsWith("/auth/me"))
+      return json({ ...me, id: `user-${loginCount}` });
+    if (url.endsWith("/auth/logout")) return json({});
+    if (url.endsWith("/auth/refresh")) {
+      markRefreshing();
+      return new Promise<Response>((resolve) => (finishRefresh = resolve));
+    }
+    return json({ error: { code: "unauthorized" } }, 401);
+  });
+  vi.stubGlobal("fetch", calls);
+  const session = new Session(() => {});
+  await session.login({ email: me.email, password: "password" });
+  const pending = session.request("POST /appointments");
+  const rejected = expect(pending).rejects.toMatchObject({
+    name: "AbortError",
+  });
+  await refreshing;
+  await session.logout();
+  await session.login({ email: "second@example.test", password: "password" });
+  const active = session.snapshot;
+  finishRefresh(
+    Response.json(
+      { error: { code: "admission_unavailable" } },
+      { status: 503, headers: { "Retry-After": "1" } },
+    ),
+  );
+  await rejected;
+  expect(session.snapshot).toBe(active);
+  expect(active.me?.id).toBe("user-2");
+  expect(active.signInNotice).toBeNull();
+  expect(
+    calls.mock.calls.filter(([url]) => url.endsWith("/appointments")),
+  ).toHaveLength(1);
+  expect(
+    calls.mock.calls.filter(([url]) => url.endsWith("/auth/refresh")),
+  ).toHaveLength(1);
 });

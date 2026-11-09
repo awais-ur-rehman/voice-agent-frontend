@@ -146,7 +146,9 @@ test("agent editor responsive layouts, guarded publication, isolated text and un
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.getByRole("link", { name: "Agents", exact: true }).click();
   await page.getByRole("link", { name: "Reception", exact: true }).click();
-  await expect(page.getByText("Version history unavailable")).toBeVisible();
+  await expect(
+    page.getByText("The service is temporarily unavailable."),
+  ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Publish", exact: true }),
   ).toBeDisabled();
@@ -159,7 +161,9 @@ test("agent editor responsive layouts, guarded publication, isolated text and un
   await expect(
     page.getByRole("button", { name: "Publish", exact: true }),
   ).toBeEnabled();
-  await expect(page.getByText("Version history unavailable")).toHaveCount(0);
+  await expect(
+    page.getByText("The service is temporarily unavailable."),
+  ).toHaveCount(0);
   await page
     .getByLabel("Agent name")
     .fill("Synthetic receptionist · مصنوعی معاون");
@@ -236,7 +240,9 @@ test("agent editor responsive layouts, guarded publication, isolated text and un
     page.getByRole("button", { name: "Start voice", exact: true }),
   ).toBeDisabled();
   await expect(
-    page.getByText("Speech is unavailable. You can continue testing with text."),
+    page.getByText(
+      "Speech is unavailable. You can continue testing with text.",
+    ),
   ).toBeVisible();
   await page.getByLabel("Test message").fill("Show synthetic availability");
   await page.getByRole("button", { name: "Send test message" }).click();

@@ -1,6 +1,7 @@
 import { Link, Navigate, useLocation } from "react-router";
 import { useAuth } from "../../app/auth";
 import { ContractForm } from "../../components/ui/contract-form";
+import { ErrorSummary } from "../../components/ui/patterns";
 export function AuthPage({ signup = false }: { signup?: boolean }) {
   const auth = useAuth();
   const location = useLocation();
@@ -25,6 +26,7 @@ export function AuthPage({ signup = false }: { signup?: boolean }) {
             ? "Set up a workspace for your clinic and team."
             : "Manage your clinic’s daily operations."}
         </p>
+        {!signup && <ErrorSummary error={auth.signInNotice} />}
         {signup ? (
           <ContractForm
             schema="Register"

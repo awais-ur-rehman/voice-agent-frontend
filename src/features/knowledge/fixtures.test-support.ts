@@ -207,7 +207,11 @@ export function knowledgeFixture() {
         body: {
           error: {
             code:
-              state.writeFailure === 409 ? "revision_conflict" : "unavailable",
+              state.writeFailure === 409
+                ? "revision_conflict"
+                : state.writeFailure === 422
+                  ? "validation_error"
+                  : "unavailable",
             message:
               state.writeFailure === 409
                 ? "Source changed. Reload its revision."

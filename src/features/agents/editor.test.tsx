@@ -156,7 +156,9 @@ it("retains dirty values and captured revision through tabs, refresh and conflic
   expect(screen.getByLabelText("Agent name")).toHaveValue("Edited");
   failSave = 409;
   await user.click(screen.getByRole("button", { name: "Save draft" }));
-  await screen.findByText("Draft changed. Review saved values.");
+  await screen.findByText(
+    "The saved record changed. Reload it before trying again.",
+  );
   expect(writes.find((w) => w.path.endsWith("/draft"))?.body).toMatchObject({
     revision: 7,
     config: { name: "Edited" },
@@ -356,7 +358,7 @@ it("denied staff credentials stay signed out without an isolated allocation", as
   await user.type(screen.getByLabelText("Email *"), "wrong@example.test");
   await user.type(screen.getByLabelText("Password *"), "wrong-password");
   await user.click(screen.getByRole("button", { name: "Sign in" }));
-  await screen.findByText("Invalid credentials");
+  await screen.findByText("Sign-in expired or credentials were rejected.");
   expect(screen.getByRole("heading", { name: "Sign in" })).toBeInTheDocument();
   expect(writes.some((w) => w.path.endsWith("/tests"))).toBe(false);
 });
@@ -413,7 +415,7 @@ it("failed history blocks publication while preserving edits and permits explici
     ),
   );
   const { user } = await setup();
-  await screen.findByText("Version history unavailable");
+  await screen.findByText("The service is temporarily unavailable.");
   expect(screen.getByRole("button", { name: "Publish" })).toBeDisabled();
   await user.clear(screen.getByLabelText("Agent name"));
   await user.type(screen.getByLabelText("Agent name"), "Retained edit");
@@ -423,7 +425,7 @@ it("failed history blocks publication while preserving edits and permits explici
   );
   await waitFor(() =>
     expect(
-      screen.queryByText("Version history unavailable"),
+      screen.queryByText("The service is temporarily unavailable."),
     ).not.toBeInTheDocument(),
   );
   expect(screen.getByLabelText("Agent name")).toHaveValue("Retained edit");

@@ -311,7 +311,7 @@ test("protected edit conflict and deletion preserve parent drafts; direct knowle
   fixture.state.writeFailure = 409;
   await page.getByRole("button", { name: "Save source", exact: true }).click();
   await expect(
-    page.getByText("Source changed. Reload its revision."),
+    page.getByText("The saved record changed. Reload it before trying again."),
   ).toBeVisible();
   fixture.state.sources[0]!.revision = 8;
   await page
@@ -367,7 +367,7 @@ test("source edit opening loads fresh content and initial detail errors offer vi
   const edit = page.getByRole("button", { name: "Edit", exact: true });
   await edit.click();
   await expect(
-    page.getByText("Source detail unavailable", { exact: true }),
+    page.getByText("The service is temporarily unavailable.", { exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Retry source detail", exact: true }),
@@ -377,7 +377,7 @@ test("source edit opening loads fresh content and initial detail errors offer vi
   await expect(edit).toBeFocused();
   await edit.click();
   await expect(
-    page.getByText("Source detail unavailable", { exact: true }),
+    page.getByText("The service is temporarily unavailable.", { exact: true }),
   ).toBeVisible();
   fixture.state.detailFailure = 0;
   await page
