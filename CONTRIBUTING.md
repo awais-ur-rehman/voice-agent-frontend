@@ -1,7 +1,7 @@
 # Contribution workflow
 
 - `main` is the release branch. `develop` integrates the current phase.
-- Branch from `develop`: `feat/phase-0-<topic>`, `feat/phase-1-<topic>`, `feat/phase-4-<topic>`, `feat/phase-5-<topic>`, `feat/phase-6-<topic>`, `fix/<topic>`, or `docs/<topic>`.
+- Branch from `develop`: `feat/phase-0-<topic>`, `feat/phase-1-<topic>`, `feat/phase-4-<topic>`, `feat/phase-5-<topic>`, `feat/phase-6-<topic>`, `feat/phase-7-<topic>`, `fix/<topic>`, or `docs/<topic>`.
 - Keep commits focused, with plain descriptions (`feat:`, `fix:`, `docs:`, `chore:`).
 - Open pull requests into `develop`. Describe the behavior, validation, limitations, and owner testing steps.
 - Complete the current phase and owner checkpoint before starting the next phase. Promote `develop` to `main` through a release pull request after owner acceptance; tag releases with semantic versions once runnable releases exist.
@@ -12,4 +12,4 @@
 
 Run `npm run check` and the maintained `npm run test:browser` suite. Synchronize the backend public contract snapshots before generating types. Browser fixtures and live deployed API checks are separate evidence; follow [Phase 4 testing](docs/phase-4-testing.md).
 
-Approved stacked phases may target their unmerged dependency branch. Phase 5 `feat/phase-5-knowledge` targets `feat/phase-4-dashboard` in both repositories while Phase 4 remains unmerged. Identify the dependency and tested heads in the draft PR; retarget only after the dependency is integrated. Phase 6 `feat/phase-6-analytics` targets `feat/phase-5-knowledge` in both repositories under the owner-approved stacked exception. Keep Phases 4, 5 and 6 unmerged until their owner checkpoints are accepted; do not begin Phase 7. Record the tested source heads and distinguish synthetic fixtures from actual local API/browser evidence.
+Approved stacked phases may target their unmerged dependency branch. Phase 5 `feat/phase-5-knowledge` targets `feat/phase-4-dashboard` in both repositories while Phase 4 remains unmerged. Identify the dependency and tested heads in the draft PR; retarget only after the dependency is integrated. Phase 6 `feat/phase-6-analytics` targets `feat/phase-5-knowledge` in both repositories under the owner-approved stacked exception. Phase 7 `feat/phase-7-hardening` targets `feat/phase-6-analytics` in both repositories under the owner-approved stacked exception. Keep each phase unmerged until its owner checkpoint is accepted. Record the tested source heads and distinguish synthetic fixtures from actual local API/browser evidence.
